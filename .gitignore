@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+*.pkl
+data/raw/
+src/frontend/node_modules/
+src/frontend/dist/
+.venv/
+*.egg-info/
+.DS_Store
