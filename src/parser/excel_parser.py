@@ -66,3 +66,4 @@ class ExcelParser:
             return f"{indicator}：数据缺失"
         period_str = f"{period}，" if period else ""
         return f"{period_str}{indicator}为{value}{unit}"
+from src.parser.excel_cell_parser import ExcelCellParser as ExcelParser

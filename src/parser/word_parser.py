@@ -60,3 +60,4 @@ class WordParser:
 
         flush_buffer()
         return chunks
+from src.parser.word_enhanced_parser import WordEnhancedParser as WordParser

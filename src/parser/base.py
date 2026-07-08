@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from typing import Optional, List
 import json
 
@@ -22,6 +22,11 @@ class Chunk:
     period: Optional[str] = None
     unit: Optional[str] = None
     row_index: Optional[int] = None
+    cell_ref: Optional[str] = None
+    row_label: Optional[str] = None
+    column_header: Optional[str] = None
+    raw_value: Optional[str] = None
+    page_no: Optional[int] = None
 
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items() if v is not None}
@@ -31,4 +36,5 @@ class Chunk:
 
     @classmethod
     def from_dict(cls, d: dict) -> "Chunk":
-        return cls(**d)
+        allowed = {field.name for field in fields(cls)}
+        return cls(**{k: v for k, v in d.items() if k in allowed})

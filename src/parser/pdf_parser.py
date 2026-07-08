@@ -61,3 +61,4 @@ class PdfParser:
         flush_buffer()
         doc.close()
         return chunks
+from src.parser.pdf_enhanced_parser import PdfEnhancedParser as PdfParser

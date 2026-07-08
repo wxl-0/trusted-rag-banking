@@ -3,8 +3,10 @@ __pycache__/
 *.pyc
 *.pkl
 data/raw/
+data/converted/
 src/frontend/node_modules/
 src/frontend/dist/
 .venv/
 *.egg-info/
 .DS_Store
+03-金融大模型与智能体赛道-南京银行-面向银行业监管制度与统计报表的可信RAG问答/
