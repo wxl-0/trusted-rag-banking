@@ -4,6 +4,5 @@ __pycache__
 node_modules
 data/raw
 data/converted
-data/chunks
 .git
 .env

@@ -19,20 +19,11 @@ docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
 
 ### 构建知识库
 ```bash
-# 1. 解析原始文件 → JSONL chunks
+# 1. 解析原始文件 → JSONL chunks（需要 data/raw/ 下有原始文件）
 python scripts/ingest.py
 
-# 2. 向量入库 + 构建 BM25
-python -c "
-from src.indexer.qdrant_index import QdrantIndex
-idx = QdrantIndex()
-idx.create_collections()
-idx.index_chunks('data/chunks/clause_chunks.jsonl', 'regulations')
-idx.index_chunks('data/chunks/table_chunks.jsonl', 'tables')
-from src.indexer.bm25_index import BM25Index
-bm25 = BM25Index()
-bm25.build(['data/chunks/clause_chunks.jsonl', 'data/chunks/table_chunks.jsonl'])
-"
+# 2. 向量入库 + 构建 BM25（需要 Qdrant 已启动）
+python scripts/build_index.py
 ```
 
 ### 启动服务（本地开发）
