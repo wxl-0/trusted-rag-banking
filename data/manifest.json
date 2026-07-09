@@ -1,1 +1,4502 @@
-[]
+[
+  {
+    "doc_id": "NFRA-001",
+    "title": "2026年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/001_2026年银行业总资产、总负债（月度）_2026年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-002",
+    "title": "2026年2月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/002_2026年2月全国各地区原保险保费收入情况表_2026年2月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-003",
+    "title": "2026年2月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/003_2026年2月人身险公司经营情况表_2026年2月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-004",
+    "title": "2026年2月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/004_2026年2月财产险公司经营情况表_2026年2月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-005",
+    "title": "2026年2月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/005_2026年2月保险业经营情况表_2026年2月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-006",
+    "title": "2026年1月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/006_2026年1月全国各地区原保险保费收入情况表_2026年1月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-007",
+    "title": "2026年1月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/007_2026年1月人身险公司经营情况表_2026年1月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-008",
+    "title": "2026年1月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/008_2026年1月财产险公司经营情况表_2026年1月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-009",
+    "title": "2026年1月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/009_2026年1月保险业经营情况表_2026年1月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-010",
+    "title": "2026年国家金融监督管理总局监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2026-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/010_2026年国家金融监督管理总局监管统计信息发布日程表_2026年国家金融监督管理总局监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-011",
+    "title": "2025年银行业金融机构总资产、总负债(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/011_2025年银行业金融机构总资产、总负债（季度）_2025年银行业金融机构总资产、总负债(季度).xls"
+  },
+  {
+    "doc_id": "NFRA-012",
+    "title": "2025年商业银行主要监管指标情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/012_2025年商业银行主要监管指标情况表_2025年商业银行主要监管指标情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-013",
+    "title": "2025年商业银行主要指标分机构类情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/013_2025年商业银行主要指标分机构类情况表_2025年商业银行主要指标分机构类情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-014",
+    "title": "2025年银行业金融机构普惠型小微企业贷款情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/014_2025年银行业金融机构普惠型小微企业贷款情况_2025年银行业金融机构普惠型小微企业贷款情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-015",
+    "title": "2025年银行业金融机构普惠型涉农贷款情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/015_2025年银行业金融机构普惠型涉农贷款情况表_2025年银行业金融机构普惠型涉农贷款情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-016",
+    "title": "2025年保险公司偿付能力状况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/016_2025年保险公司偿付能力情况表_2025年保险公司偿付能力状况表.xls"
+  },
+  {
+    "doc_id": "NFRA-017",
+    "title": "2025年四季度保险公司资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/017_2025年四季度保险公司资金运用情况表_2025年四季度保险公司资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-018",
+    "title": "2025年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/018_2025年银行业总资产、总负债（月度）_2025年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-019",
+    "title": "2025年12月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/019_2025年12月全国各地区原保险保费收入情况表_2025年12月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-020",
+    "title": "2025年12月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/020_2025年12月人身险公司经营情况表_2025年12月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-021",
+    "title": "2025年12月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/021_2025年12月财产保险公司经营情况表_2025年12月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-022",
+    "title": "2025年12月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/022_2025年12月保险业经营情况表_2025年12月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-023",
+    "title": "2025年11月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/023_2025年11月全国各地区原保险保费收入情况表_2025年11月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-024",
+    "title": "2025年11月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/024_2025年11月人身险公司经营情况表_2025年11月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-025",
+    "title": "2025年11月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/025_2025年11月财产保险公司经营情况表_2025年11月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-026",
+    "title": "2025年11月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/026_2025年11月保险业经营情况表_2025年11月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-027",
+    "title": "2025年10月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/027_2025年10月全国各地区原保险保费收入情况表_2025年10月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-028",
+    "title": "2025年10月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/028_2025年10月人身险公司经营情况表_2025年10月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-029",
+    "title": "2025年10月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/029_2025年10月财产保险公司经营情况表_2025年10月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-030",
+    "title": "2025年10月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/030_2025年10月保险业经营情况表_2025年10月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-031",
+    "title": "2025年三季度保险公司资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/031_2025年三季度保险公司资金运用情况表_2025年三季度保险公司资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-032",
+    "title": "2025年9月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/032_2025年9月全国各地区原保险保费收入情况表_2025年9月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-033",
+    "title": "2025年9月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/033_2025年9月人身险公司经营情况表_2025年9月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-034",
+    "title": "2025年9月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/034_2025年9月财产保险公司经营情况表_2025年9月财产险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-035",
+    "title": "2025年9月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/035_2025年9月保险业经营情况表_2025年9月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-036",
+    "title": "2025年8月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/036_2025年8月全国各地区原保险保费收入情况表_2025年8月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-037",
+    "title": "2025年8月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/037_2025年8月人身险公司经营情况表_2025年8月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-038",
+    "title": "2025年8月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/038_2025年8月财产保险公司经营情况表_2025年8月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-039",
+    "title": "2025年8月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/039_2025年8月保险业经营情况表_2025年8月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-040",
+    "title": "2025年7月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/040_2025年7月全国各地区原保险保费收入情况表_2025年7月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-041",
+    "title": "2025年7月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/041_2025年7月人身险公司经营情况表_2025年7月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-042",
+    "title": "2025年7月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/042_2025年7月财产保险公司经营情况表_2025年7月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-043",
+    "title": "2025年7月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/043_2025年7月保险业经营情况表_2025年7月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-044",
+    "title": "2025年二季度保险公司资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/044_2025年二季度保险公司资金运用情况表_2025年二季度保险公司资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-045",
+    "title": "2025年6月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/045_2025年6月财产保险公司经营情况表_2025年6月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-046",
+    "title": "2025年6月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/046_2025年6月保险业经营情况表_2025年6月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-047",
+    "title": "2025年5月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/047_2025年5月全国各地区原保险保费收入情况表_2025年5月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-048",
+    "title": "2025年5月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/048_2025年5月人身险公司经营情况表_2025年5月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-049",
+    "title": "2025年5月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/049_2025年5月财产保险公司经营情况表_2025年5月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-050",
+    "title": "2025年5月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/050_2025年5月保险业经营情况表_2025年5月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-051",
+    "title": "2025年4月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/051_2025年4月全国各地区原保险保费收入情况表_2025年4月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-052",
+    "title": "2025年4月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/052_2025年4月人身险公司经营情况表_2025年4月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-053",
+    "title": "2025年4月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/053_2025年4月财产保险公司经营情况表_2025年4月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-054",
+    "title": "2025年4月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/054_2025年4月保险业经营情况表_2025年4月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-055",
+    "title": "2025年一季度保险公司资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/055_2025年一季度保险公司资金运用情况表_2025年一季度保险公司资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-056",
+    "title": "2025年3月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/056_2025年3月全国各地区原保险保费收入情况表_2025年3月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-057",
+    "title": "2025年3月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/057_2025年3月人身险公司经营情况表_2025年3月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-058",
+    "title": "2025年3月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/058_2025年3月财产保险公司经营情况表_2025年3月财产险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-059",
+    "title": "2025年3月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/059_2025年3月保险业经营情况表_2025年3月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-060",
+    "title": "2025年2月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/060_2025年2月全国各地区原保险保费收入情况表_2025年2月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-061",
+    "title": "2025年2月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/061_2025年2月人身险公司经营情况表_2025年2月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-062",
+    "title": "2025年2月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/062_2025年2月财产保险公司经营情况表_2025年2月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-063",
+    "title": "2025年2月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/063_2025年2月保险业经营情况表_2025年2月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-064",
+    "title": "2025年1月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/064_2025年1月全国各地区原保险保费收入情况表_2025年1月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-065",
+    "title": "2025年1月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/065_2025年1月人身险公司经营情况表_2025年1月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-066",
+    "title": "2025年1月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/066_2025年1月财产保险公司经营情况表_2025年1月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-067",
+    "title": "2025年1月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/067_2025年1月保险业经营情况表_2025年1月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-068",
+    "title": "2025年国家金融监督管理总局监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2025-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/068_2025年国家金融监督管理总局监管统计信息发布日程表_2025年国家金融监督管理总局监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-069",
+    "title": "2024年银行业总资产、总负债(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/069_2024年银行业总资产、总负债（季度）_2024年银行业总资产、总负债(季度).xls"
+  },
+  {
+    "doc_id": "NFRA-070",
+    "title": "2024年商业银行主要监管指标情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/070_2024年商业银行主要监管指标情况表（季度）_2024年商业银行主要监管指标情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-071",
+    "title": "2024年商业银行主要指标分机构类情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/071_2024年商业银行主要指标分机构类情况表（季度）_2024年商业银行主要指标分机构类情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-072",
+    "title": "2024年银行业金融机构普惠型小微企业贷款情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/072_2024年银行业金融机构普惠型小微企业贷款情况（季度）_2024年银行业金融机构普惠型小微企业贷款情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-073",
+    "title": "2024年4季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/073_2024年4季度保险业资金运用情况表_2024年4季度保险业资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-074",
+    "title": "2024年保险业偿付能力状况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/074_2024年保险业偿付能力状况表(季度)_2024年保险业偿付能力状况表.xls"
+  },
+  {
+    "doc_id": "NFRA-075",
+    "title": "2024年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/075_2024年银行业总资产、总负债（月度）_2024年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-076",
+    "title": "2024年12月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/076_2024年12月全国各地区原保险保费收入情况表_2024年12月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-077",
+    "title": "2024年12月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/077_2024年12月人身险公司经营情况表_2024年12月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-078",
+    "title": "2024年12月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/078_2024年12月财产保险公司经营情况表_2024年12月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-079",
+    "title": "2024年12月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/079_2024年12月保险业经营情况表_2024年12月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-080",
+    "title": "2024年11月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/080_2024年11月全国各地区原保险保费收入情况表_2024年11月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-081",
+    "title": "2024年11月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/081_2024年11月人身险公司经营情况表_2024年11月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-082",
+    "title": "2024年11月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/082_2024年11月财产保险公司经营情况表_2024年11月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-083",
+    "title": "2024年11月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/083_2024年11月保险业经营情况表_2024年11月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-084",
+    "title": "2024年10月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/084_2024年10月全国各地区原保险保费收入情况表_2024年10月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-085",
+    "title": "2024年10月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/085_2024年10月人身险公司经营情况表_2024年10月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-086",
+    "title": "2024年10月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/086_2024年10月财产保险公司经营情况表_2024年10月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-087",
+    "title": "2024年10月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/087_2024年10月保险业经营情况表_2024年10月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-088",
+    "title": "2024年三季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/088_2024年3季度保险业资金运用情况表_2024年三季度保险业资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-089",
+    "title": "2024年9月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/089_2024年9月全国各地区原保险保费收入情况表_2024年9月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-090",
+    "title": "2024年9月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/090_2024年9月人身险公司经营情况表_2024年9月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-091",
+    "title": "2024年9月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/091_2024年9月财产保险公司经营情况表_2024年9月财产险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-092",
+    "title": "2024年9月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/092_2024年9月保险业经营情况表_2024年9月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-093",
+    "title": "2024年8月全国地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/093_2024年8月全国各地区原保险保费收入情况表_2024年8月全国地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-094",
+    "title": "2024年8月人身险经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/094_2024年8月人身险公司经营情况表_2024年8月人身险经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-095",
+    "title": "2024年8月财产险经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/095_2024年8月财产保险公司经营情况表_2024年8月财产险经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-096",
+    "title": "2024年8月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/096_2024年8月保险业经营情况表_2024年8月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-097",
+    "title": "2024年7月全国各地区保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/097_2024年7月全国各地区原保险保费收入情况表_2024年7月全国各地区保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-098",
+    "title": "2024年7月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/098_2024年7月人身险公司经营情况表_2024年7月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-099",
+    "title": "2024年7月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/099_2024年7月财产保险公司经营情况表_2024年7月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-100",
+    "title": "2024年7月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/100_2024年7月保险业经营情况表_2024年7月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-101",
+    "title": "2024年2季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/101_2024年2季度保险业资金运用情况表_2024年2季度保险业资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-102",
+    "title": "2024年6月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/102_2024年6月全国各地区原保险保费收入情况表_2024年6月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-103",
+    "title": "2024年6月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/103_2024年6月人身险公司经营情况表_2024年6月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-104",
+    "title": "2024年6月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/104_2024年6月财产保险公司经营情况表_2024年6月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-105",
+    "title": "2024年6月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/105_2024年6月保险业经营情况表_2024年6月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-106",
+    "title": "2024年5月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/106_2024年5月全国各地区原保险保费收入情况表_2024年5月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-107",
+    "title": "2024年5月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/107_2024年5月人身险公司经营情况表_2024年5月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-108",
+    "title": "2024年5月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/108_2024年5月财产保险公司经营情况表_2024年5月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-109",
+    "title": "2024年5月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/109_2024年5月保险业经营情况表_2024年5月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-110",
+    "title": "2024年一季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/110_2024年1季度保险业资金运用情况表_2024年一季度保险业资金运用情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-111",
+    "title": "2024年4月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/111_2024年4月全国各地区原保险保费收入情况表_2024年4月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-112",
+    "title": "2024年4月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/112_2024年4月人身险公司经营情况表_2024年4月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-113",
+    "title": "2024年4月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/113_2024年4月财产保险公司经营情况表_2024年4月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-114",
+    "title": "2024年4月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/114_2024年4月保险业经营情况表_2024年4月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-115",
+    "title": "2024年3月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/115_2024年3月全国各地区原保险保费收入情况表_2024年3月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-116",
+    "title": "2024年3月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/116_2024年3月人身险公司经营情况表_2024年3月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-117",
+    "title": "2024年3月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/117_2024年3月财产保险公司经营情况表_2024年3月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-118",
+    "title": "2024年3月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/118_2024年3月保险业经营情况表_2024年3月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-119",
+    "title": "2024年2月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/119_2024年2月全国各地区原保险保费收入情况表_2024年2月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-120",
+    "title": "2024年2月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/120_2024年2月人身险公司经营情况表_2024年2月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-121",
+    "title": "2024年2月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/121_2024年2月财产保险公司经营情况表_2024年2月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-122",
+    "title": "2024年2月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/122_2024年2月保险业经营情况表_2024年2月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-123",
+    "title": "2024年1月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/123_2024年1月全国各地区原保险保费收入情况表_2024年1月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-124",
+    "title": "2024年1月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/124_2024年1月人身险公司经营情况表_2024年1月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-125",
+    "title": "2024年1月财产险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/125_2024年1月财产保险公司经营情况表_2024年1月财产险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-126",
+    "title": "2024年1月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/126_2024年1月保险业经营情况表_2024年1月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-127",
+    "title": "2024年监管统计信息披露日程、机构范围及指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2024-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/127_2024年国家金融监督管理总局监管统计信息发布日程表_2024年监管统计信息披露日程、机构范围及指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-128",
+    "title": "银行业金融机构资产负债情况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/128_2023年银行业总资产、总负债（季度）_银行业金融机构资产负债情况表(季度).xlsx"
+  },
+  {
+    "doc_id": "NFRA-129",
+    "title": "商业银行主要监管指标情况表(季度)（2023年）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/129_2023年商业银行主要监管指标情况表（季度）_商业银行主要监管指标情况表(季度)（2023年）.xlsx"
+  },
+  {
+    "doc_id": "NFRA-130",
+    "title": "商业银行主要指标分机构类情况表(季度)(2023年)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/130_2023年商业银行主要指标分机构类情况表（季度）_商业银行主要指标分机构类情况表(季度)(2023年).xlsx"
+  },
+  {
+    "doc_id": "NFRA-131",
+    "title": "银行业金融机构普惠型小微企业贷款情况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/131_2023年银行业金融机构普惠型小微企业贷款情况（季度）_银行业金融机构普惠型小微企业贷款情况表(季度).xlsx"
+  },
+  {
+    "doc_id": "NFRA-132",
+    "title": "银行业金融机构保障性安居工程贷款情况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/132_2023年银行业金融机构保障性安居工程贷款情况表(季度)_银行业金融机构保障性安居工程贷款情况表(季度).xlsx"
+  },
+  {
+    "doc_id": "NFRA-133",
+    "title": "2023年保险业偿付能力状况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/133_2023年保险业偿付能力状况表(季度)_2023年保险业偿付能力状况表.xls"
+  },
+  {
+    "doc_id": "NFRA-134",
+    "title": "2023年四季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/134_2023年4季度保险业资金运用情况表_2023年四季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-135",
+    "title": "2023年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/135_2023年银行业总资产、总负债（月度）_2023年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-136",
+    "title": "2023年12月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/136_2023年12月全国各地区原保险保费收入情况表_2023年12月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-137",
+    "title": "2023年12月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/137_2023年12月人身险公司经营情况表_2023年12月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-138",
+    "title": "2023年12月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/138_2023年12月财产保险公司经营情况表_2023年12月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-139",
+    "title": "2023年12月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/139_2023年12月保险业经营情况表_2023年12月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-140",
+    "title": "2023年11月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/140_2023年11月全国各地区原保险保费收入情况表_2023年11月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-141",
+    "title": "2023年11月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/141_2023年11月人身险公司经营情况表_2023年11月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-142",
+    "title": "2023年11月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/142_2023年11月财产保险公司经营情况表_2023年11月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-143",
+    "title": "2023年11月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/143_2023年11月保险业经营情况表_2023年11月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-144",
+    "title": "2023年10月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/144_2023年10月全国各地区原保险保费收入情况表_2023年10月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-145",
+    "title": "2023年10月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/145_2023年10月人身险公司经营情况表_2023年10月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-146",
+    "title": "2023年10月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/146_2023年10月财产保险公司经营情况表_2023年10月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-147",
+    "title": "2023年10月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/147_2023年10月保险业经营情况表_2023年10月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-148",
+    "title": "2023年三季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/148_2023年3季度保险业资金运用情况表_2023年三季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-149",
+    "title": "2023年09月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/149_2023年9月全国各地区原保险保费收入情况表_2023年09月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-150",
+    "title": "2023年09月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/150_2023年9月人身险公司经营情况表_2023年09月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-151",
+    "title": "2023年09月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/151_2023年9月财产保险公司经营情况表_2023年09月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-152",
+    "title": "2023年09月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/152_2023年9月保险业经营情况表_2023年09月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-153",
+    "title": "2023年08月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/153_2023年8月全国各地区原保险保费收入情况表_2023年08月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-154",
+    "title": "2023年08月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/154_2023年8月人身险公司经营情况表_2023年08月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-155",
+    "title": "2023年08月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/155_2023年8月财产保险公司经营情况表_2023年08月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-156",
+    "title": "2023年08月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/156_2023年8月保险业经营情况表_2023年08月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-157",
+    "title": "2023年07月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/157_2023年7月全国各地区原保险保费收入情况表_2023年07月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-158",
+    "title": "2023年07月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/158_2023年7月人身险公司经营情况表_2023年07月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-159",
+    "title": "2023年07月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/159_2023年7月财产保险公司经营情况表_2023年07月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-160",
+    "title": "2023年07月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/160_2023年7月保险业经营情况表_2023年07月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-161",
+    "title": "2023年二季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/161_2023年2季度保险业资金运用情况表_2023年二季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-162",
+    "title": "2023年06月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/162_2023年6月全国各地区原保险保费收入情况表_2023年06月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-163",
+    "title": "2023年06月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/163_2023年6月人身险公司经营情况表_2023年06月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-164",
+    "title": "2023年06月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/164_2023年6月财产保险公司经营情况表_2023年06月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-165",
+    "title": "2023年06月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/165_2023年6月保险业经营情况表_2023年06月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-166",
+    "title": "2023年05月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/166_2023年5月全国各地区原保险保费收入情况表_2023年05月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-167",
+    "title": "2023年05月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/167_2023年5月人身险公司经营情况表_2023年05月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-168",
+    "title": "2023年05月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/168_2023年5月财产保险公司经营情况表_2023年05月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-169",
+    "title": "2023年05月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/169_2023年5月保险业经营情况表_2023年05月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-170",
+    "title": "2023年04月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/170_2023年4月全国各地区原保险保费收入情况表_2023年04月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-171",
+    "title": "2023年04月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/171_2023年4月人身险公司经营情况表_2023年04月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-172",
+    "title": "2023年04月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/172_2023年4月财产保险公司经营情况表_2023年04月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-173",
+    "title": "2023年04月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/173_2023年4月保险业经营情况表_2023年04月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-174",
+    "title": "2023年一季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/174_2023年1季度保险业资金运用情况表_2023年一季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-175",
+    "title": "2022年保险业偿付能力状况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/175_2022年保险业偿付能力状况表(季度)_2022年保险业偿付能力状况表.xls"
+  },
+  {
+    "doc_id": "NFRA-176",
+    "title": "2023年03月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/176_2023年3月全国各地区原保险保费收入情况表_2023年03月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-177",
+    "title": "2023年03月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/177_2023年3月人身险公司经营情况表_2023年03月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-178",
+    "title": "2023年03月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/178_2023年3月财产保险公司经营情况表_2023年03月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-179",
+    "title": "2023年03月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/179_2023年3月保险业经营情况表_2023年03月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-180",
+    "title": "2023年02月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/180_2023年2月全国各地区原保险保费收入情况表_2023年02月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-181",
+    "title": "2023年02月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/181_2023年2月人身险公司经营情况表_2023年02月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-182",
+    "title": "2023年02月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/182_2023年2月财产保险公司经营情况表_2023年02月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-183",
+    "title": "2023年02月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/183_2023年2月保险业经营情况表_2023年02月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-184",
+    "title": "2023年01月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/184_2023年1月全国各地区原保险保费收入情况表_2023年01月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-185",
+    "title": "2023年01月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/185_2023年1月人身险公司经营情况表_2023年01月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-186",
+    "title": "2023年01月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/186_2023年1月财产保险公司经营情况表_2023年01月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-187",
+    "title": "2023年01月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/187_2023年1月保险业经营情况表_2023年01月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-188",
+    "title": "2023年监管统计信息披露日程、机构范围及指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/188_2023年银保监会监管统计信息发布日程表_2023年监管统计信息披露日程、机构范围及指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-189",
+    "title": "银行业金融机构资产负债情况表(法人)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/189_2022年银行业总资产、总负债（季度）_银行业金融机构资产负债情况表(法人).xlsx"
+  },
+  {
+    "doc_id": "NFRA-190",
+    "title": "商业银行主要监管指标情况表(法人)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/190_2022年商业银行主要监管指标情况表（季度）_商业银行主要监管指标情况表(法人).xlsx"
+  },
+  {
+    "doc_id": "NFRA-191",
+    "title": "商业银行主要指标分机构类情况表(法人)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/191_2022年商业银行主要指标分机构类情况表（季度）_商业银行主要指标分机构类情况表(法人).xlsx"
+  },
+  {
+    "doc_id": "NFRA-192",
+    "title": "银行业金融机构普惠型小微企业贷款情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/192_2022年银行业金融机构普惠型小微企业贷款情况（季度）_银行业金融机构普惠型小微企业贷款情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-193",
+    "title": "银行业金融机构保障性安居工程贷款情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/193_2022年银行业金融机构保障性安居工程贷款情况表(季度)_银行业金融机构保障性安居工程贷款情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-194",
+    "title": "2022年四季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/194_2022年4季度保险业资金运用情况表_2022年四季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-195",
+    "title": "2022年12月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/195_2022年12月全国各地区原保险保费收入情况表_2022年12月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-196",
+    "title": "2022年12月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/196_2022年12月人身险公司经营情况表_2022年12月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-197",
+    "title": "2022年12月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/197_2022年12月财产保险公司经营情况表_2022年12月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-198",
+    "title": "2022年12月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/198_2022年12月保险业经营情况表_2022年12月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-199",
+    "title": "总资产、总负债",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/199_2022年银行业总资产、总负债（月度）_总资产、总负债.xls"
+  },
+  {
+    "doc_id": "NFRA-200",
+    "title": "2022年11月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/200_2022年11月全国各地区原保险保费收入情况表_2022年11月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-201",
+    "title": "2022年11月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/201_2022年11月人身险公司经营情况表_2022年11月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-202",
+    "title": "2022年11月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/202_2022年11月财产保险公司经营情况表_2022年11月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-203",
+    "title": "2022年11月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/203_2022年11月保险业经营情况表_2022年11月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-204",
+    "title": "2022年10月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/204_2022年10月全国各地区原保险保费收入情况表_2022年10月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-205",
+    "title": "2022年10月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/205_2022年10月人身险公司经营情况表_2022年10月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-206",
+    "title": "2022年10月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/206_2022年10月财产保险公司经营情况表_2022年10月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-207",
+    "title": "2022年10月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/207_2022年10月保险业经营情况表_2022年10月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-208",
+    "title": "2022年三季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/208_2022年3季度保险业资金运用情况表_2022年三季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-209",
+    "title": "2022年09月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/209_2022年9月全国各地区原保险保费收入情况表_2022年09月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-210",
+    "title": "2022年09月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/210_2022年9月人身险公司经营情况表_2022年09月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-211",
+    "title": "2022年09月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/211_2022年9月财产保险公司经营情况表_2022年09月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-212",
+    "title": "2022年09月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/212_2022年9月保险业经营情况表_2022年09月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-213",
+    "title": "2022年08月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/213_2022年8月全国各地区原保险保费收入情况表_2022年08月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-214",
+    "title": "2022年08月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/214_2022年8月人身险公司经营情况表_2022年08月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-215",
+    "title": "2022年08月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/215_2022年8月财产保险公司经营情况表_2022年08月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-216",
+    "title": "2022年08月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/216_2022年8月保险业经营情况表_2022年08月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-217",
+    "title": "2022年07月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/217_2022年7月全国各地区原保险保费收入情况表_2022年07月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-218",
+    "title": "2022年07月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/218_2022年7月人身险公司经营情况表_2022年07月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-219",
+    "title": "2022年07月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/219_2022年7月财产保险公司经营情况表_2022年07月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-220",
+    "title": "2022年07月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/220_2022年7月保险业经营情况表_2022年07月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-221",
+    "title": "2022年二季度保险业资金运用情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/221_2022年2季度保险业资金运用情况表_2022年二季度保险业资金运用情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-222",
+    "title": "2022年06月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/222_2022年6月全国各地区原保险保费收入情况表_2022年06月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-223",
+    "title": "2022年06月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/223_2022年6月人身险公司经营情况表_2022年06月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-224",
+    "title": "2022年06月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/224_2022年6月财产保险公司经营情况表_2022年06月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-225",
+    "title": "2022年06月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/225_2022年6月保险业经营情况表_2022年06月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-226",
+    "title": "2022年05月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/226_2022年5月全国各地区原保险保费收入情况表_2022年05月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-227",
+    "title": "2022年05月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/227_2022年5月人身险公司经营情况表_2022年05月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-228",
+    "title": "2022年05月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/228_2022年5月财产保险公司经营情况表_2022年05月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-229",
+    "title": "2022年05月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/229_2022年5月保险业经营情况表_2022年05月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-230",
+    "title": "2022年04月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/230_2022年4月全国各地区原保险保费收入情况表_2022年04月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-231",
+    "title": "2022年04月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/231_2022年4月人身险公司经营情况表_2022年04月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-232",
+    "title": "2022年04月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/232_2022年4月财产保险公司经营情况表_2022年04月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-233",
+    "title": "2022年04月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/233_2022年4月保险业经营情况表_2022年04月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-234",
+    "title": "2021年保险业偿付能力状况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/234_2021年保险业偿付能力状况表(季度)_2021年保险业偿付能力状况表(季度).xls"
+  },
+  {
+    "doc_id": "NFRA-235",
+    "title": "2022年03月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/235_2022年3月全国各地区原保险保费收入情况表_2022年03月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-236",
+    "title": "2022年03月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/236_2022年3月人身险公司经营情况表_2022年03月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-237",
+    "title": "2022年03月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/237_2022年3月财产保险公司经营情况表_2022年03月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-238",
+    "title": "2022年03月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/238_2022年3月保险业经营情况表_2022年03月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-239",
+    "title": "2022年02月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/239_2022年2月全国各地区原保险保费收入情况表_2022年02月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-240",
+    "title": "2022年02月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/240_2022年2月人身险公司经营情况表_2022年02月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-241",
+    "title": "2022年02月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/241_2022年2月财产保险公司经营情况表_2022年02月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-242",
+    "title": "2022年02月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/242_2022年2月保险业经营情况表_2022年02月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-243",
+    "title": "2022年01月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/243_2022年1月全国各地区原保险保费收入情况表_2022年01月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-244",
+    "title": "2022年01月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/244_2022年1月人身险公司经营情况表_2022年01月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-245",
+    "title": "2022年01月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/245_2022年1月财产保险公司经营情况表_2022年01月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-246",
+    "title": "2022年01月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/246_2022年1月保险业经营情况表_2022年01月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-247",
+    "title": "2022年监管统计信息披露日程、机构范围及指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2022-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/247_2022年银保监会监管统计信息发布日程表_2022年监管统计信息披露日程、机构范围及指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-248",
+    "title": "2021年银行业金融机构保障性安居工程贷款情况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/248_2021年银行业金融机构保障性安居工程贷款情况表(季度)_2021年银行业金融机构保障性安居工程贷款情况表(季度).xlsx"
+  },
+  {
+    "doc_id": "NFRA-249",
+    "title": "2021年银行业金融机构普惠型小微企业贷款情况（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/249_2021年银行业金融机构普惠型小微企业贷款情况（季度）_2021年银行业金融机构普惠型小微企业贷款情况（季度）.xlsx"
+  },
+  {
+    "doc_id": "NFRA-250",
+    "title": "2021年商业银行主要指标分机构类情况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/250_2021年商业银行主要指标分机构类情况表（季度）_2021年商业银行主要指标分机构类情况表（季度）.xlsx"
+  },
+  {
+    "doc_id": "NFRA-251",
+    "title": "2021年商业银行主要监管指标情况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/251_2021年商业银行主要监管指标情况表（季度）_2021年商业银行主要监管指标情况表（季度）.xlsx"
+  },
+  {
+    "doc_id": "NFRA-252",
+    "title": "2021年银行业总资产、总负债（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/252_2021年银行业总资产、总负债（季度）_2021年银行业总资产、总负债（季度）.xlsx"
+  },
+  {
+    "doc_id": "NFRA-253",
+    "title": "2021年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/253_2021年银行业总资产、总负债（月度）_2021年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-254",
+    "title": "2021年12月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/254_2021年12月全国各地区原保险保费收入情况表_2021年12月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-255",
+    "title": "2021年12月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/255_2021年12月人身险公司经营情况表_2021年12月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-256",
+    "title": "2021年12月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/256_2021年12月财产保险公司经营情况表_2021年12月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-257",
+    "title": "2021年12月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/257_2021年12月保险业经营情况表_2021年12月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-258",
+    "title": "2021年11月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/258_2021年11月全国各地区原保险保费收入情况表_2021年11月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-259",
+    "title": "2021年11月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/259_2021年11月人身险公司经营情况表_2021年11月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-260",
+    "title": "2021年11月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/260_2021年11月财产保险公司经营情况表_2021年11月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-261",
+    "title": "2021年11月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/261_2021年11月保险业经营情况表_2021年11月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-262",
+    "title": "2021年10月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/262_2021年10月全国各地区原保险保费收入情况表_2021年10月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-263",
+    "title": "2021年10月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/263_2021年10月人身险公司经营情况表_2021年10月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-264",
+    "title": "2021年10月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/264_2021年10月财产保险公司经营情况表_2021年10月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-265",
+    "title": "2021年10月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/265_2021年10月保险业经营情况表_2021年10月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-266",
+    "title": "2021年09月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/266_2021年9月全国各地区原保险保费收入情况表_2021年09月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-267",
+    "title": "2021年09月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/267_2021年9月人身险公司经营情况表_2021年09月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-268",
+    "title": "2021年09月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/268_2021年9月财产保险公司经营情况表_2021年09月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-269",
+    "title": "2021年09月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/269_2021年9月保险业经营情况表_2021年09月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-270",
+    "title": "2021年08月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/270_2021年8月全国各地区原保险保费收入情况表_2021年08月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-271",
+    "title": "2021年08月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/271_2021年8月人身险公司经营情况表_2021年08月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-272",
+    "title": "2021年08月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/272_2021年8月财产保险公司经营情况表_2021年08月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-273",
+    "title": "2021年08月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/273_2021年8月保险业经营情况表_2021年08月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-274",
+    "title": "2021年07月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/274_2021年7月全国各地区原保险保费收入情况表_2021年07月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-275",
+    "title": "2021年07月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/275_2021年7月人身险公司经营情况表_2021年07月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-276",
+    "title": "2021年07月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/276_2021年7月财产保险公司经营情况表_2021年07月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-277",
+    "title": "2021年07月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/277_2021年7月保险业经营情况表_2021年07月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-278",
+    "title": "2021年06月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/278_2021年6月全国各地区原保险保费收入情况表_2021年06月全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-279",
+    "title": "2021年06月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/279_2021年6月人身险公司经营情况表_2021年06月人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-280",
+    "title": "2021年06月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/280_2021年6月财产保险公司经营情况表_2021年06月财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-281",
+    "title": "2021年06月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/281_2021年6月保险业经营情况表_2021年06月保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-282",
+    "title": "2021年5月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/282_2021年5月全国各地区原保险保费收入情况表_2021年5月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-283",
+    "title": "2021年5月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/283_2021年5月人身险公司经营情况表_2021年5月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-284",
+    "title": "2021年5月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/284_2021年5月财产保险公司经营情况表_2021年5月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-285",
+    "title": "2021年5月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/285_2021年5月保险业经营情况表_2021年5月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-286",
+    "title": "2021年04月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/286_2021年4月全国各地区原保险保费收入情况表_2021年04月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-287",
+    "title": "2021年04月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/287_2021年4月人身险公司经营情况表_2021年04月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-288",
+    "title": "2021年04月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/288_2021年4月财产保险公司经营情况表_2021年04月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-289",
+    "title": "2021年04月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/289_2021年4月保险业经营情况表_2021年04月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-290",
+    "title": "2020年保险业偿付能力状况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/290_2020年保险业偿付能力状况表（季度）_2020年保险业偿付能力状况表（季度）.xls"
+  },
+  {
+    "doc_id": "NFRA-291",
+    "title": "2021年03月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/291_2021年3月全国各地区原保险保费收入情况表_2021年03月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-292",
+    "title": "2021年03月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/292_2021年3月人身险公司经营情况表_2021年03月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-293",
+    "title": "2021年03月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/293_2021年3月财产保险公司经营情况表_2021年03月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-294",
+    "title": "2021年03月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/294_2021年3月保险业经营情况表_2021年03月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-295",
+    "title": "2021年02月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/295_2021年2月全国各地区原保险保费收入情况表_2021年02月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-296",
+    "title": "2021年02月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/296_2021年2月人身险公司经营情况表_2021年02月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-297",
+    "title": "2021年02月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/297_2021年2月财产保险公司经营情况表_2021年02月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-298",
+    "title": "2021年02月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/298_2021年2月保险业经营情况表_2021年02月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-299",
+    "title": "2021年1月全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/299_2021年1月全国各地区原保险保费收入情况表_2021年1月全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-300",
+    "title": "2021年1月人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/300_2021年1月人身险公司经营情况表_2021年1月人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-301",
+    "title": "2021年1月财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/301_2021年1月财产保险公司经营情况表_2021年1月财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-302",
+    "title": "2021年1月保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/302_2021年1月保险业经营情况表_2021年1月保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-303",
+    "title": "2021年监管统计信息披露日程、机构范围及指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/303_2021年银保监会监管统计信息发布日程表_2021年监管统计信息披露日程、机构范围及指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-304",
+    "title": "2020年银行业金融机构保障性安居工程贷款情况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/304_2020年银行业金融机构保障性安居工程贷款情况表（季度）_2020年银行业金融机构保障性安居工程贷款情况表（季度）.xls"
+  },
+  {
+    "doc_id": "NFRA-305",
+    "title": "2020年银行业金融机构普惠型小微企业贷款情况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/305_2020年银行业金融机构普惠型小微企业贷款情况表（季度）_2020年银行业金融机构普惠型小微企业贷款情况表（季度）.xls"
+  },
+  {
+    "doc_id": "NFRA-306",
+    "title": "2020年商业银行主要指标分机构类情况表(季度)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/306_2020年商业银行主要指标分机构类情况表（季度）_2020年商业银行主要指标分机构类情况表(季度).xls"
+  },
+  {
+    "doc_id": "NFRA-307",
+    "title": "2020年商业银行主要监管指标情况表（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/307_2020年商业银行主要监管指标情况表（季度）_2020年商业银行主要监管指标情况表（季度）.xls"
+  },
+  {
+    "doc_id": "NFRA-308",
+    "title": "2020年总资产、总负债（季度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/308_2020年银行业总资产、总负债（季度）_2020年总资产、总负债（季度）.xls"
+  },
+  {
+    "doc_id": "NFRA-309",
+    "title": "2020年银行业总资产、总负债（月度）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/309_2020年银行业总资产、总负债（月度）_2020年银行业总资产、总负债（月度）.xls"
+  },
+  {
+    "doc_id": "NFRA-310",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/310_2020年12月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-311",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/311_2020年12月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-312",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/312_2020年12月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-313",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/313_2020年12月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-314",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/314_2020年11月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-315",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/315_2020年11月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-316",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/316_2020年11月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-317",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/317_2020年11月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-318",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/318_2020年10月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-319",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/319_2020年10月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-320",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/320_2020年10月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-321",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/321_2020年10月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-322",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/322_2020年9月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-323",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/323_2020年9月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-324",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/324_2020年9月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-325",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/325_2020年9月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-326",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/326_2020年8月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-327",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/327_2020年8月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-328",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/328_2020年8月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-329",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/329_2020年8月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-330",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/330_2020年7月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-331",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/331_2020年7月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-332",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/332_2020年7月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-333",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/333_2020年7月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-334",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/334_2020年6月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-335",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/335_2020年6月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-336",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/336_2020年6月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-337",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/337_2020年6月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-338",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/338_2020年5月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-339",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/339_2020年5月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-340",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/340_2020年5月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-341",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/341_2020年5月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-342",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/342_2020年4月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-343",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/343_2020年4月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-344",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/344_2020年4月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-345",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/345_2020年4月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-346",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/346_2020年3月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-347",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/347_2020年3月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-348",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/348_2020年3月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-349",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/349_2020年3月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-350",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/350_2020年2月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-351",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/351_2020年2月人身险公司经营情况表_人身险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-352",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/352_2020年2月财产保险公司经营情况表_财产保险公司经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-353",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/353_2020年2月保险业经营情况表_保险业经营情况表.xls"
+  },
+  {
+    "doc_id": "NFRA-354",
+    "title": "全国各地区原保险保费收入情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/354_2020年1月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-355",
+    "title": "人身险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/355_2020年1月人身险公司经营情况表_人身险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-356",
+    "title": "财产保险公司经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/356_2020年1月财产保险公司经营情况表_财产保险公司经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-357",
+    "title": "保险业经营情况表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/357_2020年1月保险业经营情况表_保险业经营情况表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-358",
+    "title": "2020年银保监会监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2020-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/358_2020年银保监会监管统计信息发布日程表_2020年银保监会监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-359",
+    "title": "2019年银保监会监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2019-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/359_2019年银保监会监管统计信息发布日程表_2019年银保监会监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-360",
+    "title": "2018年监管统计信息披露日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2018-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/360_2018年银监会监管统计信息发布日程表_2018年监管统计信息披露日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-361",
+    "title": "绿色信贷统计信息披露说明-中文",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/361_2013年至2017年6月国内21家主要银行绿色信贷数据_绿色信贷统计信息披露说明-中文.pdf"
+  },
+  {
+    "doc_id": "NFRA-362",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201306）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2013-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/362_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201306）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-363",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201312）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2013-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/363_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201312）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-364",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201406）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2014-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/364_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201406）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-365",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201412）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2014-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/365_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201412）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-366",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201506）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2015-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/366_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201506）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-367",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201512）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2015-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/367_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201512）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-368",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201606）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2016-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/368_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201606）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-369",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201612）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2016-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/369_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201612）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-370",
+    "title": "21家国内主要银行绿色信贷统计数据汇总表（201706）CN.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2017-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/370_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201706）CN.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-371",
+    "title": "2017年监管统计信息披露日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2017-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/371_2017年银监会监管统计信息发布日程表_2017年监管统计信息披露日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-372",
+    "title": "2016年监管统计信息披露日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2016-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/372_2016年银监会监管统计信息发布日程表_2016年监管统计信息披露日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-373",
+    "title": "2015中国保险市场年报（中文)",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2015-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/373_2015中国保险市场年报（中文)_2015中国保险市场年报（中文).pdf"
+  },
+  {
+    "doc_id": "NFRA-374",
+    "title": "2015中国保险市场年报（英文）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2015-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/374_2015中国保险市场年报（英文）_2015中国保险市场年报（英文）.pdf"
+  },
+  {
+    "doc_id": "NFRA-375",
+    "title": "2015年银监会监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2015-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/375_2015年银监会监管统计信息发布日程表_2015年银监会监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-376",
+    "title": "2014年监管统计信息发布日程、机构范围和指标解释表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2014-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/376_2014年商业银行主要监管指标情况表(季度)_2014年监管统计信息发布日程、机构范围和指标解释表.xls"
+  },
+  {
+    "doc_id": "NFRA-377",
+    "title": "2014年银监会监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2014-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/377_2014年银监会监管统计信息发布日程表_2014年银监会监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-378",
+    "title": "2013年监管统计信息发布日程表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2013-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/378_2013年商业银行主要监管指标情况表(季度)_2013年监管统计信息发布日程表.xls"
+  },
+  {
+    "doc_id": "NFRA-379",
+    "title": "机构范围和指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/379_2013年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-380",
+    "title": "2013年监管统计信息发布日程表及机构范围解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2013-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/380_2013年总资产、总负债(季度)_2013年监管统计信息发布日程表及机构范围解释.xls"
+  },
+  {
+    "doc_id": "NFRA-381",
+    "title": "机构范围和指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/381_2012年总资产、总负债(季度)_机构范围和指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-382",
+    "title": "机构范围和指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/382_2012年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-383",
+    "title": "机构范围和指标解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/383_2011年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls"
+  },
+  {
+    "doc_id": "NFRA-384",
+    "title": "机构范围解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/384_2011年总资产、总负债(季度)_机构范围解释.xls"
+  },
+  {
+    "doc_id": "NFRA-385",
+    "title": "附件：保险公司资本保证金处置情况报告表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/385_国家金融监督管理总局关于印发《保险公司资本保证金管理办法》的通知_附件：保险公司资本保证金处置情况报告表.doc"
+  },
+  {
+    "doc_id": "NFRA-386",
+    "title": "知识产权金融生态综合试点工作方案",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/386_国家金融监督管理总局_国家知识产权局_国家版权局关于印发《知识产权金融生态综合试点工作方案》的通知_知识产权金融生态综合试点工作方案.pdf"
+  },
+  {
+    "doc_id": "NFRA-387",
+    "title": "附件1：集中度风险指标统计表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/387_国家金融监督管理总局办公厅_关于印发《保险集团集中度风险监管指引》的通知_附件1：集中度风险指标统计表.doc"
+  },
+  {
+    "doc_id": "NFRA-388",
+    "title": "附件2：集中度风险管理情况报告内容",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/388_国家金融监督管理总局办公厅_关于印发《保险集团集中度风险监管指引》的通知_附件2：集中度风险管理情况报告内容.doc"
+  },
+  {
+    "doc_id": "NFRA-389",
+    "title": "国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/389_国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金管理办法》的通知_国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金.pdf"
+  },
+  {
+    "doc_id": "NFRA-390",
+    "title": "附件：数据安全事件分级",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/390_国家金融监督管理总局关于印发银行保险机构数据安全管理办法的通知_附件：数据安全事件分级.doc"
+  },
+  {
+    "doc_id": "NFRA-391",
+    "title": "银行业金融机构小微企业金融服务监管评价指标表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/391_国家金融监督管理总局关于印发银行业金融机构小微企业金融服务监管评价办法的通知_附件_银行业金融机构小微企业金融服务监管评价指标表.xls"
+  },
+  {
+    "doc_id": "NFRA-392",
+    "title": "附件：商业银行实施资本计量高级方法验收材料清单",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/392_国家金融监督管理总局关于_印发商业银行实施资本计量高级方法_申请及验收规定的通知_附件：商业银行实施资本计量高级方法验收材料清单.doc"
+  },
+  {
+    "doc_id": "NFRA-393",
+    "title": "报告模板",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/393_国家金融监督管理总局_关于印发金融机构涉刑案件管理办法的通知_报告模板.doc"
+  },
+  {
+    "doc_id": "NFRA-394",
+    "title": "附件1：财产保险公司县域机构统计表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/394_国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知_附件1：财产保险公司县域机构统计表.xls"
+  },
+  {
+    "doc_id": "NFRA-395",
+    "title": "附件2：人身保险公司县域机构统计表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/395_国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知_附件2：人身保险公司县域机构统计表.xls"
+  },
+  {
+    "doc_id": "NFRA-396",
+    "title": "消费金融公司管理办法",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/396_消费金融公司管理办法_消费金融公司管理办法.doc"
+  },
+  {
+    "doc_id": "NFRA-397",
+    "title": "银行函证工作操作指引",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/397_财政部办公厅_金融监管总局办公厅关于印发《银行函证工作操作指引》的通知_银行函证工作操作指引.docx"
+  },
+  {
+    "doc_id": "NFRA-398",
+    "title": "银行函证工作操作指引",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/398_财政部办公厅_金融监管总局办公厅关于印发《银行函证工作操作指引》的通知_银行函证工作操作指引.pdf"
+  },
+  {
+    "doc_id": "NFRA-399",
+    "title": "非银行金融机构行政许可事项申请材料目录及格式要求（2023年版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/399_国家金融监督管理总局_关于印发非银行金融机构行政许可事项_申请材料目录及格式要求的通知_非银行金融机构行政许可事项申请材料目录及格式要求（2023年版）.pdf"
+  },
+  {
+    "doc_id": "NFRA-400",
+    "title": "附件1：资本工具合格标准",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/400_商业银行资本管理办法_附件1：资本工具合格标准.docx"
+  },
+  {
+    "doc_id": "NFRA-401",
+    "title": "附件2：信用风险权重法风险暴露分类标准",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/401_商业银行资本管理办法_附件2：信用风险权重法风险暴露分类标准.docx"
+  },
+  {
+    "doc_id": "NFRA-402",
+    "title": "附件4：信用风险内部评级法风险暴露分类标准",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/402_商业银行资本管理办法_附件4：信用风险内部评级法风险暴露分类标准.docx"
+  },
+  {
+    "doc_id": "NFRA-403",
+    "title": "附件5：信用风险内部评级体系监管要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/403_商业银行资本管理办法_附件5：信用风险内部评级体系监管要求.docx"
+  },
+  {
+    "doc_id": "NFRA-404",
+    "title": "附件6：信用风险内部评级法风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/404_商业银行资本管理办法_附件6：信用风险内部评级法风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-405",
+    "title": "附件8：信用风险内部评级法专业贷款风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/405_商业银行资本管理办法_附件8：信用风险内部评级法专业贷款风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-406",
+    "title": "附件10：中央交易对手风险暴露资本计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/406_商业银行资本管理办法_附件10：中央交易对手风险暴露资本计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-407",
+    "title": "附件11：资产证券化风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/407_商业银行资本管理办法_附件11：资产证券化风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-408",
+    "title": "附件12：资产管理产品风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/408_商业银行资本管理办法_附件12：资产管理产品风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-409",
+    "title": "附件13：账簿划分和名词解释",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/409_商业银行资本管理办法_附件13：账簿划分和名词解释.docx"
+  },
+  {
+    "doc_id": "NFRA-410",
+    "title": "附件15：市场风险内部模型法监管要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/410_商业银行资本管理办法_附件15：市场风险内部模型法监管要求.docx"
+  },
+  {
+    "doc_id": "NFRA-411",
+    "title": "附件16：市场风险简化标准法计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/411_商业银行资本管理办法_附件16：市场风险简化标准法计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-412",
+    "title": "附件17：信用估值调整风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/412_商业银行资本管理办法_附件17：信用估值调整风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-413",
+    "title": "附件18：操作风险资本计量监管要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/413_商业银行资本管理办法_附件18：操作风险资本计量监管要求.docx"
+  },
+  {
+    "doc_id": "NFRA-414",
+    "title": "附件19：调整后表内外资产余额计算方法",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/414_商业银行资本管理办法_附件19：调整后表内外资产余额计算方法.docx"
+  },
+  {
+    "doc_id": "NFRA-415",
+    "title": "附件20：商业银行风险评估标准",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/415_商业银行资本管理办法_附件20：商业银行风险评估标准.doc"
+  },
+  {
+    "doc_id": "NFRA-416",
+    "title": "附件21：资本计量高级方法监督检查",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/416_商业银行资本管理办法_附件21：资本计量高级方法监督检查.docx"
+  },
+  {
+    "doc_id": "NFRA-417",
+    "title": "附件22：商业银行信息披露内容和要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/417_商业银行资本管理办法_附件22：商业银行信息披露内容和要求.docx"
+  },
+  {
+    "doc_id": "NFRA-418",
+    "title": "附件24：资本计量高级方法验证要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/418_商业银行资本管理办法_附件24：资本计量高级方法验证要求.docx"
+  },
+  {
+    "doc_id": "NFRA-419",
+    "title": "附件25：外部评级使用规范",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/419_商业银行资本管理办法_附件25：外部评级使用规范.doc"
+  },
+  {
+    "doc_id": "NFRA-420",
+    "title": "附件9：交易对手信用风险加权资产计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/420_商业银行资本管理办法_附件9：交易对手信用风险加权资产计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-421",
+    "title": "附件7：信用风险内部评级法风险缓释监管要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/421_商业银行资本管理办法_附件7：信用风险内部评级法风险缓释监管要求.docx"
+  },
+  {
+    "doc_id": "NFRA-422",
+    "title": "附件3：信用风险权重法表内资产风险权重、表外项目信用转换系数及合",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/422_商业银行资本管理办法_附件3：信用风险权重法表内资产风险权重、表外项目信用转换系数及合.docx"
+  },
+  {
+    "doc_id": "NFRA-423",
+    "title": "附件14：市场风险标准法计量规则",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/423_商业银行资本管理办法_附件14：市场风险标准法计量规则.docx"
+  },
+  {
+    "doc_id": "NFRA-424",
+    "title": "附件23：第三档商业银行资本监管规定",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/424_商业银行资本管理办法_附件23：第三档商业银行资本监管规定.docx"
+  },
+  {
+    "doc_id": "NFRA-425",
+    "title": "附件：关于融资租赁业务统计口径的说明",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/425_国家金融监督管理总局关于促进金融租赁公司规范经营和合规管理的通知_附件：关于融资租赁业务统计口径的说明.doc"
+  },
+  {
+    "doc_id": "NFRA-426",
+    "title": "附件1：货币经纪公司提供数据标准",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/426_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件1：货币经纪公司提供数据标准.doc"
+  },
+  {
+    "doc_id": "NFRA-427",
+    "title": "附件2：货币经纪公司可提供数据服务的机构名单",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/427_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件2：货币经纪公司可提供数据服务的机构名单.xls"
+  },
+  {
+    "doc_id": "NFRA-428",
+    "title": "附件3-1：货币经纪公司提供数据服务协议框架（金融基础设施版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/428_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件3-1：货币经纪公司提供数据服务协议框架（金融基础设施版）.doc"
+  },
+  {
+    "doc_id": "NFRA-429",
+    "title": "附件3-2：货币经纪公司提供数据服务协议框架（金融信息服务商版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/429_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件3-2：货币经纪公司提供数据服务协议框架（金融信息服务商版）.doc"
+  },
+  {
+    "doc_id": "NFRA-430",
+    "title": "附件：中资商业银行行政许可事项申请材料目录及格式要求（2023年",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2023-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/430_中国银保监会关于印发中资商业银行行政许可事项申请材料_目录及格式要求的通知_附件：中资商业银行行政许可事项申请材料目录及格式要求（2023年.pdf"
+  },
+  {
+    "doc_id": "NFRA-431",
+    "title": "附件1：信托公司信托业务具体分类要求",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/431_中国银保监会关于规范信托公司信托业务分类的通知_附件1：信托公司信托业务具体分类要求.doc"
+  },
+  {
+    "doc_id": "NFRA-432",
+    "title": "附件2：信托公司信托业务新分类简表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/432_中国银保监会关于规范信托公司信托业务分类的通知_附件2：信托公司信托业务新分类简表.doc"
+  },
+  {
+    "doc_id": "NFRA-433",
+    "title": "附件-首批开办个人养老金业务的机构名单",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/433_中国银保监会关于印发商业银行和理财公司个人养老金业务管理暂行办法的通知_附件-首批开办个人养老金业务的机构名单.docx"
+  },
+  {
+    "doc_id": "NFRA-434",
+    "title": "企业集团财务公司管理办法",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/434_企业集团财务公司管理办法_企业集团财务公司管理办法.doc"
+  },
+  {
+    "doc_id": "NFRA-435",
+    "title": "中国银保监会关于印发商业银行预期信用损失法实施管理办法的通知.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/435_中国银保监会关于印发商业银行预期信用损失法实施管理办法的通知_中国银保监会关于印发商业银行预期信用损失法实施管理办法的通知.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-441",
+    "title": "细则第5号附件：非寿险业务准备金回溯分析报表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/441_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第5号附件：非寿险业务准备金回溯分析报表.xls"
+  },
+  {
+    "doc_id": "NFRA-443",
+    "title": "细则第6号附件1.准备金报表填表说明",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/443_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件1.准备金报表填表说明.doc"
+  },
+  {
+    "doc_id": "NFRA-444",
+    "title": "细则第6号附件2.保险公司年度非寿险业务准备金评估报告监管报表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/444_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件2.保险公司年度非寿险业务准备金评估报告监管报表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-445",
+    "title": "细则第6号附件3.交强险业务专项准备金评估报告监管报表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/445_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件3.交强险业务专项准备金评估报告监管报表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-446",
+    "title": "细则第6号附件4.再保险公司年度非寿险业务准备金评估报告监管报表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/446_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件4.再保险公司年度非寿险业务准备金评估报告监管报表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-447",
+    "title": "细则第6号附件5.数据真实性声明书",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/447_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件5.数据真实性声明书.doc"
+  },
+  {
+    "doc_id": "NFRA-448",
+    "title": "细则第6号附件6.总精算师声明书及精算意见",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/448_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件6.总精算师声明书及精算意见.doc"
+  },
+  {
+    "doc_id": "NFRA-449",
+    "title": "细则第6号附件7.准备金报表签字页",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/449_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件7.准备金报表签字页.xlsx"
+  },
+  {
+    "doc_id": "NFRA-451",
+    "title": "附件1",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/451_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件1.doc"
+  },
+  {
+    "doc_id": "NFRA-452",
+    "title": "附件2",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/452_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件2.doc"
+  },
+  {
+    "doc_id": "NFRA-453",
+    "title": "附件3",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/453_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件3.doc"
+  },
+  {
+    "doc_id": "NFRA-454",
+    "title": "附件4",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/454_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件4.doc"
+  },
+  {
+    "doc_id": "NFRA-455",
+    "title": "附件5",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/455_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件5.doc"
+  },
+  {
+    "doc_id": "NFRA-456",
+    "title": "附件6",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/456_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件6.doc"
+  },
+  {
+    "doc_id": "NFRA-457",
+    "title": "附件7",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/457_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件7.doc"
+  },
+  {
+    "doc_id": "NFRA-458",
+    "title": "附件1",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/458_中国银保监会关于精简保险资金运用监管报告事项的通知_附件1.docx"
+  },
+  {
+    "doc_id": "NFRA-459",
+    "title": "附件2",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/459_中国银保监会关于精简保险资金运用监管报告事项的通知_附件2.docx"
+  },
+  {
+    "doc_id": "NFRA-460",
+    "title": "附件1：寿险合同负债评估的折现率曲线",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/460_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件1：寿险合同负债评估的折现率曲线.pdf"
+  },
+  {
+    "doc_id": "NFRA-461",
+    "title": "附件2：巨灾风险损失因子表和最低资本计算模板",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/461_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件2：巨灾风险损失因子表和最低资本计算模板.xlsx"
+  },
+  {
+    "doc_id": "NFRA-462",
+    "title": "附件3：人身保险公司利率风险基础情景和不利情景曲线",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/462_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件3：人身保险公司利率风险基础情景和不利情景曲线.pdf"
+  },
+  {
+    "doc_id": "NFRA-463",
+    "title": "附件4：保险公司压力测试必测压力情景和必测因素",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/463_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件4：保险公司压力测试必测压力情景和必测因素.pdf"
+  },
+  {
+    "doc_id": "NFRA-464",
+    "title": "附件5：保险公司偿付能力风险管理能力评估表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/464_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件5：保险公司偿付能力风险管理能力评估表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-465",
+    "title": "附件6：现金流压力测试的压力情景",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/465_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件6：现金流压力测试的压力情景.pdf"
+  },
+  {
+    "doc_id": "NFRA-466",
+    "title": "附件7：保险集团偿付能力风险管理能力评估表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/466_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件7：保险集团偿付能力风险管理能力评估表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-467",
+    "title": "附件8：应当编报保险集团偿付能力报告的公司名单",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/467_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件8：应当编报保险集团偿付能力报告的公司名单.pdf"
+  },
+  {
+    "doc_id": "NFRA-468",
+    "title": "附件9：保险公司偿付能力季度报告Excel样表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/468_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件9：保险公司偿付能力季度报告Excel样表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-469",
+    "title": "附件10：保险集团偿付能力报告Excel样表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/469_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件10：保险集团偿付能力报告Excel样表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-470",
+    "title": "附件11-1：财产保险公司偿付能力压力测试报告Excel样表.x",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/470_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件11-1：财产保险公司偿付能力压力测试报告Excel样表.x.xlsx"
+  },
+  {
+    "doc_id": "NFRA-471",
+    "title": "附件11-2：人身保险公司偿付能力压力测试报告Excel样表.x",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/471_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件11-2：人身保险公司偿付能力压力测试报告Excel样表.x.xlsx"
+  },
+  {
+    "doc_id": "NFRA-472",
+    "title": "保险公司偿付能力监管规则第1号：实际资本",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/472_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第1号：实际资本.pdf"
+  },
+  {
+    "doc_id": "NFRA-473",
+    "title": "保险公司偿付能力监管规则第2号：最低资本",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/473_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第2号：最低资本.pdf"
+  },
+  {
+    "doc_id": "NFRA-474",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/474_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第3号：寿险合同负债评估_.pdf"
+  },
+  {
+    "doc_id": "NFRA-475",
+    "title": "保险公司偿付能力监管规则第4号：保险风险最低资本（非寿险业务）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/475_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第4号：保险风险最低资本（非寿险业务）.pdf"
+  },
+  {
+    "doc_id": "NFRA-476",
+    "title": "保险公司偿付能力监管规则第5号：保险风险最低资本（寿险业务）.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/476_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第5号：保险风险最低资本（寿险业务）.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-477",
+    "title": "保险公司偿付能力监管规则第6号：保险风险最低资本（再保险公司）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/477_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第6号：保险风险最低资本（再保险公司）.pdf"
+  },
+  {
+    "doc_id": "NFRA-478",
+    "title": "保险公司偿付能力监管规则第7号：市场风险和信用风险的穿透计量",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/478_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第7号：市场风险和信用风险的穿透计量.pdf"
+  },
+  {
+    "doc_id": "NFRA-479",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/479_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第8号：市场风险最低资本_.pdf"
+  },
+  {
+    "doc_id": "NFRA-480",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/480_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第9号：信用风险最低资本_.pdf"
+  },
+  {
+    "doc_id": "NFRA-481",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/481_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第10号：压力测试_.pdf"
+  },
+  {
+    "doc_id": "NFRA-482",
+    "title": ".p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/482_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第11号：风险综合评级（分类监管）_.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-483",
+    "title": "保险公司偿付能力监管规则第12号：偿付能力风险管理要求与评估.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/483_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第12号：偿付能力风险管理要求与评估.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-484",
+    "title": "保险公司偿付能力监管规则第13号：流动性风险",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/484_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第13号：流动性风险.pdf"
+  },
+  {
+    "doc_id": "NFRA-485",
+    "title": "保险公司偿付能力监管规则第14号：资本规划",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/485_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第14号：资本规划.pdf"
+  },
+  {
+    "doc_id": "NFRA-486",
+    "title": "保险公司偿付能力监管规则第15号：偿付能力信息公开披露",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/486_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第15号：偿付能力信息公开披露.pdf"
+  },
+  {
+    "doc_id": "NFRA-487",
+    "title": "保险公司偿付能力监管规则第16号：偿付能力信息交流",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/487_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第16号：偿付能力信息交流.pdf"
+  },
+  {
+    "doc_id": "NFRA-488",
+    "title": "保险公司偿付能力监管规则第17号：保险公司信用评级",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/488_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第17号：保险公司信用评级.pdf"
+  },
+  {
+    "doc_id": "NFRA-489",
+    "title": "保险公司偿付能力监管规则第18号：偿付能力报告",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/489_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第18号：偿付能力报告.pdf"
+  },
+  {
+    "doc_id": "NFRA-490",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/490_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第19号：保险集团_.pdf"
+  },
+  {
+    "doc_id": "NFRA-491",
+    "title": "保险公司偿付能力监管规则第20号：劳合社保险（中国）有限公司.p",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/491_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第20号：劳合社保险（中国）有限公司.p.pdf"
+  },
+  {
+    "doc_id": "NFRA-492",
+    "title": "附件1：取消的监管报告事项",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/492_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件1：取消的监管报告事项.docx"
+  },
+  {
+    "doc_id": "NFRA-493",
+    "title": "附件2：合并的监管报告事项",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/493_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件2：合并的监管报告事项.docx"
+  },
+  {
+    "doc_id": "NFRA-494",
+    "title": "附件3：整合报送时间的监管报告事项",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/494_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件3：整合报送时间的监管报告事项.docx"
+  },
+  {
+    "doc_id": "NFRA-495",
+    "title": "中国银保监会办公厅关于印发意外伤害保险业务监管办法的通知",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/495_中国银保监会办公厅关于_印发意外伤害保险业务监管办法的通知_中国银保监会办公厅关于印发意外伤害保险业务监管办法的通知.pdf"
+  },
+  {
+    "doc_id": "NFRA-496",
+    "title": "附件：意外伤害保险经营情况附表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/496_中国银保监会办公厅关于_印发意外伤害保险业务监管办法的通知_附件：意外伤害保险经营情况附表.xlsx"
+  },
+  {
+    "doc_id": "NFRA-497",
+    "title": "保险公司偿付能力监管规则——问题解答第1号：偿付能力监管等效框架",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/497_中国银保监会关于修订_《保险公司偿付能力监管规则_——问题解答第1号：偿付能力监管_等效框架协议过渡期内的香港地区_再保险交易对手违约风险因子》的通知_保险公司偿付能力监管规则——问题解答第1号：偿付能力监管等效框架.pdf"
+  },
+  {
+    "doc_id": "NFRA-498",
+    "title": "非银行金融机构行政许可事项申请材料目录及格式要求（2021年版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "2021-01-01",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/498_中国银保监会办公厅关于印发非银行金融机构行政许可事项申请材料目录及格式要求的通知_非银行金融机构行政许可事项申请材料目录及格式要求（2021年版）.doc"
+  },
+  {
+    "doc_id": "NFRA-499",
+    "title": "任职报告表",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/499_中国银保监会办公厅关于加强保险公司省级分公司以下分支机构负责人管理的通知_任职报告表.doc"
+  },
+  {
+    "doc_id": "NFRA-500",
+    "title": "附件1：恢复计划示例（商业银行版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/500_银行保险机构恢复和处置计划实施暂行办法_附件1：恢复计划示例（商业银行版）.docx"
+  },
+  {
+    "doc_id": "NFRA-501",
+    "title": "附件2：恢复计划示例（保险公司版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/501_银行保险机构恢复和处置计划实施暂行办法_附件2：恢复计划示例（保险公司版）.docx"
+  },
+  {
+    "doc_id": "NFRA-502",
+    "title": "附件3：处置计划建议示例（商业银行版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/502_银行保险机构恢复和处置计划实施暂行办法_附件3：处置计划建议示例（商业银行版）.docx"
+  },
+  {
+    "doc_id": "NFRA-503",
+    "title": "附件4：处置计划建议示例（保险公司版）",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/503_银行保险机构恢复和处置计划实施暂行办法_附件4：处置计划建议示例（保险公司版）.docx"
+  },
+  {
+    "doc_id": "NFRA-504",
+    "title": "附件1：承诺书参考样本（提取申请人为已故存款人的配偶、子女、父母",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/504_中国银保监会办公厅_中国人民银行办公厅关于_简化提取已故存款人小额存款相关事宜的通知_附件1：承诺书参考样本（提取申请人为已故存款人的配偶、子女、父母.doc"
+  },
+  {
+    "doc_id": "NFRA-505",
+    "title": "附件2：承诺书参考样本（提取申请人为已故存款人的公证遗嘱指定的继",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/505_中国银保监会办公厅_中国人民银行办公厅关于_简化提取已故存款人小额存款相关事宜的通知_附件2：承诺书参考样本（提取申请人为已故存款人的公证遗嘱指定的继.doc"
+  },
+  {
+    "doc_id": "NFRA-506",
+    "title": "1.现场检查通知书",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/506_中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知_1.现场检查通知书.doc"
+  },
+  {
+    "doc_id": "NFRA-507",
+    "title": "",
+    "issuer": "国家金融监督管理总局",
+    "doc_no": "",
+    "publish_date": "",
+    "source_url": "",
+    "local_path": "D:/vscode/codes/trusted-rag-banking/data/raw/nfra_page_attachments_500/507_中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知_2.现场检查公告_.doc"
+  }
+]

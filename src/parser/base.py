@@ -27,6 +27,7 @@ class Chunk:
     column_header: Optional[str] = None
     raw_value: Optional[str] = None
     page_no: Optional[int] = None
+    parent_chunk_id: Optional[str] = None
 
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items() if v is not None}

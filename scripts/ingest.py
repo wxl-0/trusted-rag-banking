@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.parser.word_parser import WordParser
 from src.parser.pdf_parser import PdfParser
 from src.parser.excel_parser import ExcelParser
+from src.parser.chunk_processor import process_chunks
 
 RAW_DIR = Path("data/raw")
 CHUNKS_DIR = Path("data/chunks")
@@ -61,14 +62,14 @@ def main():
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(parser.parse(), clause_path)
+            save_chunks(process_chunks(parser.parse()), clause_path)
         elif suffix == ".pdf":
             parser = PdfParser(
                 **common,
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(parser.parse(), clause_path)
+            save_chunks(process_chunks(parser.parse()), clause_path)
         elif suffix in (".xlsx", ".xls"):
             parser = ExcelParser(
                 **common,
