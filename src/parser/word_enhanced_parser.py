@@ -140,18 +140,24 @@ class WordEnhancedParser:
         rows = [[cell.text.strip() for cell in row.cells] for row in table.rows]
         if len(rows) < 2:
             return []
-        headers = rows[0]
-        column_header = " | ".join(header for header in headers if header)
+        headers = self._unique_texts(rows[0])
+        column_header = " | ".join(headers)
         chunks: list[Chunk] = []
         for row_index, row in enumerate(rows[1:], start=2):
-            if not any(row):
+            if self._is_table_title_or_blank(row):
                 continue
-            row_label = row[0] if row else ""
+            unique_values = self._unique_texts(row)
+            if not unique_values:
+                continue
+            row_label = unique_values[0]
             values = []
             for col_index, value in enumerate(row):
+                if not value:
+                    continue
                 header = headers[col_index] if col_index < len(headers) and headers[col_index] else f"Column {col_index + 1}"
-                if value:
-                    values.append(f"{header}: {value}")
+                entry = f"{header}: {value}"
+                if entry not in values:
+                    values.append(entry)
             text = (
                 f"文件《{self.source_title}》表格 {table_index} 第 {row_index} 行；"
                 f"{'；'.join(values)}。"
@@ -175,3 +181,23 @@ class WordEnhancedParser:
                 column_header=column_header,
             ))
         return chunks
+
+    def _unique_texts(self, values: list[str]) -> list[str]:
+        seen: set[str] = set()
+        result: list[str] = []
+        for value in values:
+            text = " ".join(str(value).split())
+            if not text or text in seen:
+                continue
+            seen.add(text)
+            result.append(text)
+        return result
+
+    def _is_table_title_or_blank(self, row: list[str]) -> bool:
+        unique = self._unique_texts(row)
+        if not unique:
+            return True
+        if len(unique) == 1:
+            text = unique[0]
+            return text.startswith("附件") or "统计表" in text or "报告表" in text
+        return False

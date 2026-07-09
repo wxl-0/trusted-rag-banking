@@ -154,19 +154,48 @@ class ExcelCellParser:
 
     def _build_text(self, sheet_name: str, cell_ref: str, row_label: str,
                     column_header: str, raw_value: str, unit: str, period: str) -> str:
+        formatted_value = self._format_value(raw_value, row_label, unit)
+        normalized_unit = self._normalize_unit(unit)
         parts = [
             f"文件《{self.source_title}》",
             f"工作表「{sheet_name}」",
             f"单元格 {cell_ref}",
             f"行指标「{row_label}」",
             f"列口径「{column_header}」",
-            f"原始值为 {raw_value}",
+            f"原始值为 {formatted_value}",
         ]
-        if unit:
-            parts.append(f"单位：{unit}")
+        if normalized_unit:
+            parts.append(f"单位：{normalized_unit}")
         if period:
             parts.append(f"期间：{period}")
         return "；".join(parts) + "。"
+
+    def _normalize_unit(self, unit: str) -> str:
+        if not unit:
+            return ""
+        text = unit.strip()
+        while text.startswith("单位：") or text.startswith("单位:"):
+            text = text.split("：", 1)[1] if "：" in text else text.split(":", 1)[1]
+            text = text.strip()
+        return text
+
+    def _format_value(self, raw_value: str, row_label: str, unit: str) -> str:
+        try:
+            num = float(raw_value)
+        except (ValueError, TypeError):
+            return raw_value
+        if self._looks_like_percent_row(row_label, unit) and abs(num) <= 1:
+            return f"{num * 100:.2f}%"
+        if num == int(num):
+            return f"{int(num):,}"
+        return f"{num:,.2f}"
+
+    def _looks_like_percent_row(self, row_label: str, unit: str) -> bool:
+        label = row_label or ""
+        unit_text = unit or ""
+        return "%" in unit_text and any(
+            kw in label for kw in ("增长率", "占比", "比例", "率", "比上年")
+        )
 
     def _looks_like_data_cell(self, value: Any) -> bool:
         if isinstance(value, (int, float)):

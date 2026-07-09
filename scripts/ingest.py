@@ -17,6 +17,14 @@ from src.parser.chunk_processor import process_chunks
 RAW_DIR = Path("data/raw")
 CHUNKS_DIR = Path("data/chunks")
 MANIFEST_PATH = Path("data/manifest.json")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+def resolve_local_path(local_path: str, repo_root: Path = None) -> Path:
+    path = Path(local_path)
+    if path.is_absolute():
+        return path
+    return (repo_root or REPO_ROOT) / path
 
 
 def load_manifest() -> list:
@@ -40,7 +48,7 @@ def main():
     table_path.write_text("", encoding="utf-8")
 
     for entry in manifest:
-        local_path = Path(entry["local_path"])
+        local_path = resolve_local_path(entry["local_path"])
         if not local_path.exists():
             print(f"[跳过] 文件不存在: {local_path}")
             continue

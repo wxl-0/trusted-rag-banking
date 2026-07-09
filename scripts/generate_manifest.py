@@ -2,18 +2,11 @@
 import os
 import re
 import json
+from pathlib import Path
 
-DATA_DIR = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        "..",
-        "data",
-        "raw",
-        "nfra_page_attachments_500",
-    )
-).replace("\\", "/")
-
-OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "manifest.json")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = REPO_ROOT / "data" / "raw" / "nfra_page_attachments_500"
+OUT_PATH = REPO_ROOT / "data" / "manifest.json"
 
 
 def main():
@@ -24,12 +17,13 @@ def main():
         name_no_ext, _ = os.path.splitext(fname)
         num = fname.split("_", 1)[0]
 
-        # 取最后一个下划线之后的部分作为标题
         last_us = name_no_ext.rfind("_")
         title = name_no_ext[last_us + 1 :] if last_us > 0 else name_no_ext
 
         year_match = re.search(r"(20\d{2})", title)
         publish_date = f"{year_match.group(1)}-01-01" if year_match else ""
+
+        local_path = (DATA_DIR / fname).resolve().relative_to(REPO_ROOT).as_posix()
 
         entries.append(
             {
@@ -39,15 +33,14 @@ def main():
                 "doc_no": "",
                 "publish_date": publish_date,
                 "source_url": "",
-                "local_path": f"{DATA_DIR}/{fname}",
+                "local_path": local_path,
             }
         )
 
-    out = os.path.abspath(OUT_PATH)
-    with open(out, "w", encoding="utf-8") as f:
+    with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(entries, f, ensure_ascii=False, indent=2)
 
-    print(f"写入 {len(entries)} 条 → {out}")
+    print(f"写入 {len(entries)} 条 → {OUT_PATH}")
     for e in entries[:3]:
         print(json.dumps(e, ensure_ascii=False))
 
