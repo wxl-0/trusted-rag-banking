@@ -1,22 +1,22 @@
 import os
-from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 
 load_dotenv()
 
+DEFAULT_MODEL = "BAAI/bge-large-zh-v1.5"
+VECTOR_DIM = 1024
+
 
 class Embedder:
     def __init__(self):
-        self.client = OpenAI(
-            api_key=os.environ["OPENAI_API_KEY"],
-            base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-        )
-        self.model = os.environ.get("EMBED_MODEL", "text-embedding-3-small")
+        model_name = os.environ.get("EMBED_MODEL", DEFAULT_MODEL)
+        self.model = SentenceTransformer(model_name)
+        self.dim = VECTOR_DIM
 
     def embed(self, text: str) -> list:
-        response = self.client.embeddings.create(input=text, model=self.model)
-        return response.data[0].embedding
+        return self.model.encode(text, normalize_embeddings=True).tolist()
 
     def embed_batch(self, texts: list) -> list:
-        response = self.client.embeddings.create(input=texts, model=self.model)
-        return [item.embedding for item in sorted(response.data, key=lambda x: x.index)]
+        embeddings = self.model.encode(texts, normalize_embeddings=True, batch_size=64)
+        return [e.tolist() for e in embeddings]

@@ -50,6 +50,20 @@ pytest tests/test_api.py::test_health -v          # 单个测试用例
 python scripts/run_eval.py                        # 端到端评测 → data/eval/eval_report.json
 ```
 
+### 真实数据解析检查
+```bash
+python scripts/check_chunk_quality.py --suffix .xls --limit-files 2 --sample-chunks 2
+python scripts/check_chunk_quality.py --suffix .doc --limit-files 2 --sample-chunks 2
+python scripts/check_chunk_quality.py --suffix .pdf --limit-files 2 --sample-chunks 2
+```
+
+### `.doc` 转 `.docx`
+```bash
+python scripts/convert_doc_with_libreoffice.py --soffice "C:\Program Files\LibreOffice\program\soffice.exe" --force --timeout-seconds 60
+```
+
+转换产物写入 `data/converted/docx/`，该目录不提交到 Git。
+
 ## 系统架构
 
 五层流水线——数据严格单向流动：
@@ -60,9 +74,9 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 **各层说明：**
 
-- **`src/parser/`** — 将原始文档转换为 `Chunk` 对象（见 `base.py`）。三个解析器：`WordParser`（python-docx，保留 Heading 层级）、`PdfParser`（pymupdf，字体大小 ≥ 14pt 推断为标题）、`ExcelParser`（openpyxl，将每行数据序列化为自然语言文本）。输出写入 `data/chunks/`（JSONL 格式）。
+- **`src/parser/`** — 将原始文档转换为 `Chunk` 对象（见 `base.py`）。解析器包括 Word、PDF、Excel，已增强：`.xls/.xlsx` 单元格级解析、`.doc` 经 LibreOffice 转换后解析、`.docx` 表格解析、PDF 页码和段落切分。输出写入 `data/chunks/`（JSONL 格式）。
 
-- **`src/indexer/`** — 两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 调用 OpenAI `text-embedding-3-small`（1536 维）。
+- **`src/indexer/`** — 两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
 
 - **`src/retriever/`** — `QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`。生成层的主入口是 `HybridRetriever.retrieve()`：依次执行 BM25 + 向量检索，用 RRF（倒数排名融合）合并结果，再用 `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
 
@@ -74,7 +88,7 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 ## 核心数据契约
 
-**Chunk 结构**（定义于 `src/parser/base.py`）：所有解析器均输出 `Chunk` dataclass 实例。`table_name`、`indicator`、`period`、`unit`、`row_index` 字段仅在 `chunk_type="table_row"` 时存在；`to_dict()` 会自动忽略值为 `None` 的字段。
+**Chunk 结构**（定义于 `src/parser/base.py`）：所有解析器均输出 `Chunk` dataclass 实例。表格证据可包含 `table_name`、`indicator`、`period`、`unit`、`row_index`、`cell_ref`、`row_label`、`column_header`、`raw_value`；PDF/段落证据可包含 `page_no` 与 `section_path`。`parent_chunk_id` 用于子条款追溯父块。`to_dict()` 会自动忽略值为 `None` 的字段。
 
 **`retrieve()` 签名**（`src/retriever/hybrid_retriever.py`）：
 ```python
@@ -87,9 +101,9 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 
 | 变量 | 用途 |
 |---|---|
-| `OPENAI_API_KEY` | Embedding、LLM 调用及评测 Judge 必填 |
+| `OPENAI_API_KEY` | LLM 调用及评测 Judge 必填 |
 | `OPENAI_BASE_URL` | API 基础地址（可替换为兼容代理） |
-| `EMBED_MODEL` | 向量模型（默认 `text-embedding-3-small`） |
+| `EMBED_MODEL` | 向量模型（默认 `BAAI/bge-large-zh-v1.5`，本地推理） |
 | `LLM_MODEL` | 对话模型（默认 `gpt-4o-mini`） |
 | `QDRANT_HOST/PORT` | Qdrant 连接地址（默认 `localhost:6333`） |
 | `RERANKER_MODEL` | HuggingFace 交叉编码器（默认 `BAAI/bge-reranker-base`） |
@@ -100,4 +114,4 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 
 ## 入库 Manifest
 
-`data/manifest.json` 驱动 `scripts/ingest.py`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`。脚本按扩展名路由：`.docx/.doc` → `WordParser`，`.pdf` → `PdfParser`，`.xlsx/.xls` → `ExcelParser`。`data/raw/` 目录已加入 `.gitignore`。
+`data/manifest.json` 驱动 `scripts/ingest.py`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`。脚本按扩展名路由：`.docx/.doc` → `WordParser`，`.pdf` → `PdfParser`，`.xlsx/.xls` → `ExcelParser`。`data/raw/` 与 `data/converted/` 目录不提交到 Git。

@@ -12,7 +12,7 @@ load_dotenv()
 
 COLLECTION_REGULATIONS = "regulations"
 COLLECTION_TABLES = "tables"
-VECTOR_SIZE = 1536  # text-embedding-3-small
+VECTOR_SIZE = 1024  # BAAI/bge-large-zh-v1.5
 
 
 class QdrantIndex:
