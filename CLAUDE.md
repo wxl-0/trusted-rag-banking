@@ -8,13 +8,13 @@
 
 ## 常用命令
 
-### 环境初始化（首次）
+### 环境初始化（首次·本地开发）
 ```bash
 python -m venv .venv
 .venv/Scripts/activate        # Windows
 pip install -r requirements.txt
 cp .env.example .env           # 填入 OPENAI_API_KEY 等
-docker compose up -d           # 启动 Qdrant，监听 localhost:6333
+docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
 ```
 
 ### 构建知识库
@@ -35,12 +35,20 @@ bm25.build(['data/chunks/clause_chunks.jsonl', 'data/chunks/table_chunks.jsonl']
 "
 ```
 
-### 启动服务
+### 启动服务（本地开发）
 ```bash
 uvicorn src.api.main:app --reload   # 后端 http://localhost:8000
 cd src/frontend && npm run dev      # 前端开发服务器 http://localhost:5173
 cd src/frontend && npm run build    # 构建前端产物至 src/frontend/dist/
 ```
+
+### Docker 全栈部署
+```bash
+docker compose up -d              # 启动 qdrant + backend + frontend
+# 前端：http://localhost  后端：http://localhost:8000  Qdrant：localhost:6333
+```
+
+`backend` 容器通过 volume 挂载宿主机的 HuggingFace 模型缓存（`HF_HOME` 环境变量指定的目录），无需重复下载。
 
 ### 测试与评测
 ```bash
@@ -82,7 +90,7 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/generator/`** — `QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解→检索→chunk 去重→以强约束 grounded-generation 系统提示调用 LLM。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`PromptBuilder` 根据 chunk 列表组装用户消息。
 
-- **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`、`POST /api/ingest`、`GET /api/health`。生产模式下，`main.py` 挂载 `src/frontend/dist/` 的 React 构建产物，并在 `/` 路由提供 `index.html`。
+- **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`、`POST /api/ingest`、`GET /api/health`。生产模式下，`main.py` 挂载 `src/frontend/dist/` 的 React 构建产物，并在 `/` 路由提供 `index.html`。Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 
 - **`src/frontend/`** — React 18 + Vite。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件：`ChatInput`、`MessageList`、`AnswerCard`（显示置信度标签）、`EvidencePanel`（可折叠的来源引用）。
 
@@ -107,6 +115,7 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 | `LLM_MODEL` | 对话模型（默认 `gpt-4o-mini`） |
 | `QDRANT_HOST/PORT` | Qdrant 连接地址（默认 `localhost:6333`） |
 | `RERANKER_MODEL` | HuggingFace 交叉编码器（默认 `BAAI/bge-reranker-base`） |
+| `HF_HOME` | HuggingFace 模型缓存目录（队友需各自设置，容器内自动挂载） |
 
 ## 分支策略
 

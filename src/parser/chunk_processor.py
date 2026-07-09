@@ -9,14 +9,14 @@ from typing import List
 
 from src.parser.base import Chunk
 
-MAX_CHUNK_CHARS = 400
+MAX_CHUNK_CHARS = 600
 OVERLAP_CHARS = 80
 MIN_CHUNK_CHARS = 10
 
 SUB_CLAUSE_PATTERNS = [
     re.compile(r'(?=（[一二三四五六七八九十百]+）)'),
     re.compile(r'(?=\([一二三四五六七八九十百]+\))'),
-    re.compile(r'(?=(?:^|\n)\d+[\.、])'),
+    re.compile(r'(?=\d+[\.、])'),
 ]
 
 
@@ -25,8 +25,8 @@ def process_chunks(chunks: List[Chunk]) -> List[Chunk]:
     table_chunks = [c for c in chunks if c.chunk_type == "table_row"]
 
     clause_chunks = split_sub_clauses(clause_chunks)
-    clause_chunks = enrich_context(clause_chunks)
     clause_chunks = split_by_max_length(clause_chunks)
+    clause_chunks = enrich_context(clause_chunks)
     clause_chunks = filter_min_length(clause_chunks)
 
     return clause_chunks + table_chunks

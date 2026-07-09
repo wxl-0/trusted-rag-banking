@@ -60,7 +60,7 @@ class PdfEnhancedParser:
                         if not buffer_lines:
                             buffer_page = page_index
                         buffer_lines.append(text)
-                flush_buffer()
+            flush_buffer()
         finally:
             document.close()
 

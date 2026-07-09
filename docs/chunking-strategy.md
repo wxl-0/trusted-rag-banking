@@ -1,114 +1,163 @@
-# 切块策略说明与注意事项
+# 切块策略文档
 
-> 面向成员 A（解析层负责人）及全体成员，在拿到真实数据集后必读。
+> 最后更新：2026-07-09
 
----
-
-## 一、当前切块策略
-
-### WordParser（`src/parser/word_parser.py`）
-
-- **切块逻辑**：遇到 `Heading` 样式段落就将缓冲区内容 flush 为一个 chunk，两个相邻标题之间的全部正文拼接成一条记录。
-- **section_path**：记录标题层级路径，例如 `["第三章 资本充足率", "第十二条"]`。
-- **前提假设**：Word 文件使用了标准的 Heading 1/2/3 段落样式。
-
-### PdfParser（`src/parser/pdf_parser.py`）
-
-- **切块逻辑**：字体大小 ≥ 14pt 的文字识别为标题，触发 flush。
-- **前提假设**：标题字号明显大于正文，且没有双栏排版、页眉页脚混入正文等情况。
-
-### ExcelParser（`src/parser/excel_parser.py`）
-
-- **切块逻辑**：每行数据生成一个 chunk，转换为自然语言句子，例如：`"2024Q3，不良贷款率为1.56%"`。
-- **前提假设**：第一行是表头，第一列是指标名，第二列是数值，第三列是单位；表为竖表（指标按行排列）。
+本文档描述当前系统的文档切块（chunking）策略，涵盖三类解析器和后处理管道。
 
 ---
 
-## 二、拿到真实文件后最可能遇到的问题
+## 一、整体流程
 
-| # | 问题 | 影响的解析器 | 后果 |
-|---|---|---|---|
-| 1 | Word 文件用手动加粗/字号而非 Heading 样式 | Word | 所有正文被当成一个超大 chunk，无法按条款检索 |
-| 2 | 监管文档以 `第X条`/`第X章` 作为段落开头而非 Heading | Word | 解析器无法识别条款边界，切块粒度过粗 |
-| 3 | 一个 Heading 下正文很长（超过 ~400 token） | Word / PDF | Embedding 模型截断，检索质量下降 |
-| 4 | PDF 页眉/页脚文字混入正文 | PDF | chunk 中含页码、文件编号等噪声 |
-| 5 | PDF 多栏排版（如双栏条文） | PDF | pymupdf 按坐标顺序提取，左右栏文字交错，语义混乱 |
-| 6 | Excel 表头为多行合并单元格 | Excel | 表头识别失败，indicator 字段提取为空 |
-| 7 | Excel 为横表（指标按列排列） | Excel | 当前逻辑按行切，会切出无意义的 chunk |
-| 8 | Excel 含合计行、备注行 | Excel | 被当成正常数据行索引，干扰检索 |
-
----
-
-## 三、验证方法（拿到文件后第一件事）
-
-各取 1-2 份代表性文件，运行以下命令，肉眼检查前 5 条 chunk 是否合理：
-
-**Word 文件：**
-```bash
-python -c "
-from src.parser.word_parser import WordParser
-p = WordParser(doc_id='test', source_title='test', issuer='', doc_no='', publish_date='', source_url='', local_path='data/raw/某文件.docx')
-for c in p.parse()[:5]:
-    print(c.section_path, '|', c.text[:100])
-    print('---')
-"
+```
+原始文件（.docx/.doc/.pdf/.xls/.xlsx）
+    ↓
+解析器（WordEnhancedParser / PdfEnhancedParser / ExcelCellParser）
+    ↓ 输出 Chunk 对象列表
+后处理管道（chunk_processor.py，仅 clause 类型）
+    ↓
+写入 JSONL（clause_chunks.jsonl / table_chunks.jsonl）
 ```
 
-**PDF 文件：**
-```bash
-python -c "
-from src.parser.pdf_parser import PdfParser
-p = PdfParser(doc_id='test', source_title='test', issuer='', doc_no='', publish_date='', source_url='', local_path='data/raw/某文件.pdf')
-for c in p.parse()[:5]:
-    print(c.section_path, '|', c.text[:100])
-    print('---')
-"
+---
+
+## 二、解析器
+
+### 2.1 WordEnhancedParser（`src/parser/word_enhanced_parser.py`）
+
+**入口**：`ingest.py` 通过 `word_parser.py` 末尾的别名导入。
+
+**切块逻辑**：
+- 按 Heading 样式切分（Heading 1/2/3）
+- 备用识别：`第X章`/`第X节`/`第X条` 开头的段落也视为标题
+- Word 内嵌表格单独处理为 `table_row` 类型 chunk
+
+**`.doc` 处理**：
+- 先查 `data/converted/docx/` 是否有缓存的 `.docx` 转换结果
+- 缓存存在则直接读取，否则调用 LibreOffice/COM 转换
+
+**Word 表格 chunk 特点**：
+- 合并单元格去重（`_unique_texts`）
+- 跳过"附件"/"统计表"/"报告表"标题行
+- text 格式：`文件《标题》表格 N 第 M 行；列头: 值；...`
+
+### 2.2 PdfEnhancedParser（`src/parser/pdf_enhanced_parser.py`）
+
+**入口**：`ingest.py` 通过 `pdf_parser.py` 末尾的别名导入。
+
+**切块逻辑**：
+- 按 heading 切分，heading 判定条件：
+  - 正则匹配：`第X章`/`第X节`/`（一）`/`Chapter N`
+  - 字号 ≥ 16pt 且长度 ≤ 40 字且不以标点结尾
+- **不按页切分** — 跨页段落保持完整，遇到下一个 heading 才 flush
+- 噪声过滤：单字符和纯数字行跳过
+- 记录 `page_no`（buffer 开始时的页码）
+
+### 2.3 ExcelCellParser（`src/parser/excel_cell_parser.py`）
+
+**入口**：`ingest.py` 通过 `excel_parser.py` 末尾的别名导入。
+
+**切块粒度**：单元格级（每个数据单元格一个 chunk）。
+
+**解析步骤**：
+1. 自动检测 header 行（通过"项目"/"指标"等关键词或下方有数字列）
+2. 自动检测 label 列（指标名所在列）
+3. 检测 unit（前 8 行中含"单位"的文本）
+4. 检测 period（从文件名/sheet 名/标题中提取年份季度）
+5. 跳过空行、注释行（"注"/"备注"/"说明"开头）
+
+**text 格式**：
+```
+文件《标题》；工作表「Sheet1」；单元格 C5；行指标「不良贷款率」；列口径「2024年」；原始值为 1.56%；单位：百分比；期间：2024。
 ```
 
-**Excel 文件：**
-```bash
-python -c "
-from src.parser.excel_parser import ExcelParser
-p = ExcelParser(doc_id='test', source_title='test', issuer='', publish_date='', source_url='', local_path='data/raw/某文件.xlsx')
-for c in p.parse()[:5]:
-    print(c.indicator, c.period, '|', c.text)
-    print('---')
-"
-```
-
-**判断标准：**
-- chunk 数量是否合理（一份 20 页制度文件大约应切出 30-80 条）
-- section_path 是否正确反映了章节位置
-- text 内容是否干净，无页眉页脚噪声
-- Excel 的 indicator 字段是否正确提取了指标名
+**Metadata 字段**：`cell_ref`、`row_label`、`column_header`、`raw_value`、`table_name`、`indicator`、`period`、`unit`、`row_index`
 
 ---
 
-## 四、可能需要的改动方向
+## 三、后处理管道（`src/parser/chunk_processor.py`）
 
-### Word 解析器
-- 加正则识别 `第[一二三四五六七八九十百]+条` 作为备用切块边界（兜底无 Heading 样式的文件）
-- 加最大 token 长度限制（建议 400 token），超长则按句号二次切分
+**仅作用于 `chunk_type="clause"` 的 chunk**，Excel 的 `table_row` 直接跳过。
 
-### PDF 解析器
-- 加页眉页脚过滤：按坐标过滤掉页面顶部 50pt 和底部 50pt 范围内的文字
-- 遇到双栏 PDF 可切换为按块（block）而非按行（line）拼接
+处理顺序：
+```
+子条款切分 → 超长切分 + overlap → 上下文增强 → 最小长度过滤
+```
 
-### Excel 解析器
-- 支持多行合并表头：向上找非空单元格作为列名
-- 加跳过逻辑：跳过全行为"合计"、"小计"、"备注"等关键词的行
-- 支持横表检测：若第一行非字符串表头，尝试转置后再解析
+### 3.1 子条款切分（`split_sub_clauses`）
 
-### 通用
-- 所有解析器加 `min_text_length` 过滤（建议 10 字），过滤空行、单字符行
-- 入库前统计 chunk 的 token 分布，发现异常大的 chunk 及时处理
+按编号模式在一个 chunk 内部做二次切分：
+- `（一）`/`（二）`... — 中文圆括号编号
+- `(一)`/`(二)`... — 英文圆括号编号
+- `1.`/`2.`/`1、`/`2、` — 阿拉伯数字编号
+
+切分后子块 chunk_id 加 `#K{n}` 后缀，`parent_chunk_id` 指向原块。
+
+### 3.2 超长切分（`split_by_max_length`）
+
+- 阈值：**600 字**（`MAX_CHUNK_CHARS`）
+- 按句号 `。` 和分号 `；` 做句子级切分
+- 相邻切片重叠 **80 字**（`OVERLAP_CHARS`）
+- 子块 chunk_id 加 `#S{n}` 后缀
+
+### 3.3 上下文增强（`enrich_context`）
+
+在每个切片的 text 开头拼接前缀：
+```
+《源文件标题》章节 > 路径：
+原始文本...
+```
+
+**放在超长切分之后**，确保每个分片都有完整的上下文前缀。
+
+### 3.4 最小长度过滤（`filter_min_length`）
+
+丢弃 text 长度 < 10 字的 chunk（`MIN_CHUNK_CHARS`）。
 
 ---
 
-## 五、分工建议
+## 四、chunk_id 命名规则
 
-| 成员 | 行动项 |
-|---|---|
-| 成员 A | 拿到文件后先跑验证命令，发现问题后修改对应解析器，保证 chunk 质量 |
-| 成员 B | 入库前检查 `clause_chunks.jsonl` 和 `table_chunks.jsonl` 的条数和内容，反馈给成员 A |
-| 全体 | 如发现某类文件结构特殊，在群里说明，成员 A 统一处理后重新 ingest |
+| 来源 | 格式示例 |
+|------|---------|
+| Word/PDF 条款 | `NFRA-390#第三章#第十二条` |
+| 子条款切分 | `NFRA-390#第三章#第十二条#K1` |
+| 超长切分 | `NFRA-390#第三章#第十二条#S1` |
+| 子条款+超长 | `NFRA-390#第三章#第十二条#K2#S1` |
+| Excel 单元格 | `NFRA-001#Sheet1#C5` |
+| Word 内嵌表格 | `NFRA-390#table1#R3` |
+| PDF 段落 | `NFRA-415#P3#7`（第3页第7个chunk） |
+
+---
+
+## 五、关键参数
+
+| 参数 | 值 | 位置 | 说明 |
+|------|---|------|------|
+| `MAX_CHUNK_CHARS` | 600 | `chunk_processor.py` | 超过此长度触发切分 |
+| `OVERLAP_CHARS` | 80 | `chunk_processor.py` | 相邻切片重叠字数 |
+| `MIN_CHUNK_CHARS` | 10 | `chunk_processor.py` | 低于此长度的 chunk 丢弃 |
+| `HEADING_THRESHOLD` | 16pt | `pdf_enhanced_parser.py` | PDF 字号 heading 判定 |
+
+---
+
+## 六、输出文件
+
+| 文件 | 内容 | 写入方式 |
+|------|------|---------|
+| `data/chunks/clause_chunks.jsonl` | Word/PDF 条款 chunk | 追加写入 |
+| `data/chunks/table_chunks.jsonl` | Excel + Word 内嵌表格 chunk | 追加写入 |
+
+每次 `ingest.py` 运行会清空并重新生成这两个文件。
+
+---
+
+## 七、已知限制与后续优化方向
+
+| 问题 | 影响 | 优化时机 |
+|------|------|---------|
+| Word 表格 chunk 缺少 `cell_ref`/`raw_value` | Word 内嵌表格证据定位不如 Excel 精确 | 评测发现该类题目准确率低时 |
+| chunk_id 可能冲突（同文档相同标题） | 极端情况下后者覆盖前者 | 入库时发现重复 ID 报错时 |
+| PDF `HEADING_THRESHOLD` 固定 16pt | 部分 PDF 标题字号较小会被漏判 | 抽样检查 PDF chunk 质量时 |
+| 百分比格式化需要 unit 中含 `%` | 部分表格 unit 列为空但实际是百分比 | 评测发现数值格式错误时 |
+
+以上限制均可在跑完评测、看到具体错误后针对性修复。

@@ -2,7 +2,7 @@
 
 **项目**：第五届中国研究生金融科技创新大赛 · 南京银行赛题  
 **日期**：2026-06-13  
-**技术栈**：Python · LangChain/LlamaIndex · FastAPI · Qdrant · 商业 LLM API  
+**技术栈**：Python · FastAPI · Qdrant · sentence-transformers · 商业 LLM API  
 **优先级**：系统完整性（所有功能可运行，指标全面达标）
 
 ---
@@ -145,7 +145,7 @@ Sheet 遍历（openpyxl）
 | `collection_tables`      | 表格行记录 Chunk | 指标查询、数值取数     |
 | BM25（rank_bm25）        | 全部文本         | 文号精确匹配、指标名称 |
 
-Embedding 模型：`text-embedding-3-small`（OpenAI）；本地备用：`bge-m3`
+Embedding 模型：`BAAI/bge-large-zh-v1.5`（本地 sentence-transformers 推理，1024 维）
 
 ### 3.2 查询路由
 
@@ -170,7 +170,7 @@ Embedding 模型：`text-embedding-3-small`（OpenAI）；本地备用：`bge-m3
     ↓
 RRF 融合排序（Reciprocal Rank Fusion）
     ↓
-Cross-Encoder Reranker 精排（bge-reranker-v2-m3，本地部署）
+Cross-Encoder Reranker 精排（BAAI/bge-reranker-base，本地部署）
     ↓
 Top-5 Chunks → 生成层
 ```
@@ -304,7 +304,7 @@ GET  /api/health    # 服务健康检查
 
 ```
 data/eval/
-  ├── qa_seed.jsonl       # 42条种子问答 + 自建扩充题
+  ├── QA数据.xlsx          # 300 道选择题（100 excel + 100 word + 100 pdf）
   └── eval_report.json    # 评测结果输出
 ```
 

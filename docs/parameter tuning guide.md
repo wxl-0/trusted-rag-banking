@@ -72,7 +72,7 @@ LLM_MODEL=gpt-4o         # 准确率更高，约贵10倍
 先跑评测脚本，看哪项指标不达标，再针对性调整：
 
 ```bash
-python scripts/run_eval.py --qa data/eval/qa_seed.jsonl
+python scripts/run_eval.py --limit 50
 ```
 
 | 指标不达标 | 调整位置 |
