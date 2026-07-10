@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.parser.word_parser import WordParser
 from src.parser.pdf_parser import PdfParser
 from src.parser.excel_parser import ExcelParser
+from src.parser.pdf_table_parser import PdfTableParser
 from src.parser.chunk_processor import process_chunks
 
 RAW_DIR = Path("data/raw")
@@ -54,7 +55,13 @@ def main():
             continue
 
         suffix = local_path.suffix.lower()
-        print(f"[解析] {local_path.name}")
+        profile = entry.get("parse_profile", "regulation")
+
+        if profile == "skip":
+            print(f"[跳过] {local_path.name} (profile=skip)")
+            continue
+
+        print(f"[解析] {local_path.name} (profile={profile})")
 
         common = dict(
             doc_id=entry["doc_id"],
@@ -64,26 +71,39 @@ def main():
             local_path=str(local_path),
         )
 
-        if suffix in (".docx", ".doc"):
-            parser = WordParser(
+        if profile == "pdf_table":
+            parser = PdfTableParser(
                 **common,
-                doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(process_chunks(parser.parse()), clause_path)
-        elif suffix == ".pdf":
+            save_chunks(parser.parse(), table_path)
+        elif profile == "report":
             parser = PdfParser(
                 **common,
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(process_chunks(parser.parse()), clause_path)
+            save_chunks(process_chunks(parser.parse(), profile="report"), clause_path)
         elif suffix in (".xlsx", ".xls"):
             parser = ExcelParser(
                 **common,
                 publish_date=entry.get("publish_date", ""),
             )
             save_chunks(parser.parse(), table_path)
+        elif suffix in (".docx", ".doc"):
+            parser = WordParser(
+                **common,
+                doc_no=entry.get("doc_no", ""),
+                publish_date=entry.get("publish_date", ""),
+            )
+            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path)
+        elif suffix == ".pdf":
+            parser = PdfParser(
+                **common,
+                doc_no=entry.get("doc_no", ""),
+                publish_date=entry.get("publish_date", ""),
+            )
+            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path)
         else:
             print(f"[跳过] 不支持的格式: {suffix}")
 

@@ -1,31 +1,53 @@
 """
 Chunk 后处理管道。
 在 parser.parse() 和 save_chunks() 之间运行，对 clause 类型 chunk 做：
-子条款切分 → 上下文增强 → 超长切分+overlap → 最小长度过滤。
+子条款切分 → 超长切分+overlap → 上下文增强 → 最小长度过滤。
 table_row 类型 chunk 直接跳过。
+
+通过 profile 参数控制不同文件类型的处理策略：
+- regulation: 监管文件，做子条款切分，600字上限
+- report: 年报/报告，不做子条款切分，800字上限，支持英文标点
 """
 import re
 from typing import List
 
 from src.parser.base import Chunk
 
-MAX_CHUNK_CHARS = 600
 OVERLAP_CHARS = 80
 MIN_CHUNK_CHARS = 10
+
+PROFILE_CONFIG = {
+    "regulation": {
+        "sub_clause_split": True,
+        "max_chars": 600,
+        "sentence_split_chars": "。；",
+    },
+    "report": {
+        "sub_clause_split": False,
+        "max_chars": 800,
+        "sentence_split_chars": "。；.;",
+    },
+}
 
 SUB_CLAUSE_PATTERNS = [
     re.compile(r'(?=（[一二三四五六七八九十百]+）)'),
     re.compile(r'(?=\([一二三四五六七八九十百]+\))'),
-    re.compile(r'(?=\d+[\.、])'),
+    re.compile(r'(?<=[\n。；])(?=\d+[\.、])'),
 ]
 
 
-def process_chunks(chunks: List[Chunk]) -> List[Chunk]:
+def process_chunks(chunks: List[Chunk], profile: str = "regulation") -> List[Chunk]:
+    config = PROFILE_CONFIG.get(profile, PROFILE_CONFIG["regulation"])
+
     clause_chunks = [c for c in chunks if c.chunk_type == "clause"]
     table_chunks = [c for c in chunks if c.chunk_type == "table_row"]
 
-    clause_chunks = split_sub_clauses(clause_chunks)
-    clause_chunks = split_by_max_length(clause_chunks)
+    if config["sub_clause_split"]:
+        clause_chunks = split_sub_clauses(clause_chunks)
+
+    clause_chunks = split_by_max_length(
+        clause_chunks, config["max_chars"], config["sentence_split_chars"]
+    )
     clause_chunks = enrich_context(clause_chunks)
     clause_chunks = filter_min_length(clause_chunks)
 
@@ -74,14 +96,14 @@ def enrich_context(chunks: List[Chunk]) -> List[Chunk]:
     return chunks
 
 
-def split_by_max_length(chunks: List[Chunk]) -> List[Chunk]:
+def split_by_max_length(chunks: List[Chunk], max_chars: int = 600, split_chars: str = "。；") -> List[Chunk]:
     result: List[Chunk] = []
     for chunk in chunks:
-        if len(chunk.text) <= MAX_CHUNK_CHARS:
+        if len(chunk.text) <= max_chars:
             result.append(chunk)
             continue
 
-        segments = _split_at_sentence_boundaries(chunk.text, MAX_CHUNK_CHARS, OVERLAP_CHARS)
+        segments = _split_at_sentence_boundaries(chunk.text, max_chars, OVERLAP_CHARS, split_chars)
         if len(segments) <= 1:
             result.append(chunk)
             continue
@@ -121,8 +143,9 @@ def _detect_sub_clause_boundaries(text: str) -> List[str]:
     return [text]
 
 
-def _split_at_sentence_boundaries(text: str, max_chars: int, overlap: int) -> List[str]:
-    sentences = re.split(r'(?<=[。；])', text)
+def _split_at_sentence_boundaries(text: str, max_chars: int, overlap: int, split_chars: str = "。；") -> List[str]:
+    pattern = f'(?<=[{re.escape(split_chars)}])'
+    sentences = re.split(pattern, text)
     sentences = [s for s in sentences if s.strip()]
 
     if not sentences:
