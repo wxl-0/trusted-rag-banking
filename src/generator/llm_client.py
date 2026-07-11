@@ -13,13 +13,14 @@ class LLMClient:
         )
         self.model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
 
-    def chat(self, system: str, user: str, temperature: float = 0) -> str:
+    def chat(self, system: str, user: str, temperature: float = 0, history: list = None) -> str:
+        messages = [{"role": "system", "content": system}]
+        if history:
+            messages.extend(history[-6:])
+        messages.append({"role": "user", "content": user})
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            messages=messages,
             temperature=temperature,
         )
         return response.choices[0].message.content

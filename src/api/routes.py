@@ -11,7 +11,8 @@ builder = AnswerBuilder()
 async def ask(req: AskRequest):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="question 不能为空")
-    result = builder.answer(req.question, filters=req.filters)
+    history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
+    result = builder.answer(req.question, filters=req.filters, history=history)
     return AskResponse(**result)
 
 

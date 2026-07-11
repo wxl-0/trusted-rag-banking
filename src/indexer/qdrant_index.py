@@ -40,7 +40,14 @@ class QdrantIndex:
                 if line:
                     chunks.append(json.loads(line))
 
-        for i in range(0, len(chunks), batch_size):
+        existing = self.client.get_collection(collection_name).points_count
+        if existing >= len(chunks):
+            print(f"[跳过] {collection_name}: 已有 {existing} 条，无需重建")
+            return
+        if existing > 0:
+            print(f"[续传] {collection_name}: 已有 {existing} 条，从第 {existing + 1} 条继续")
+
+        for i in range(existing, len(chunks), batch_size):
             batch = chunks[i:i + batch_size]
             texts = [c["text"] for c in batch]
             vectors = self.embedder.embed_batch(texts)

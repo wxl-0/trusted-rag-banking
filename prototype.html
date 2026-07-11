@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>监管制度智能问答 - 原型预览</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --red: #d4000e;
+  --blue-deep: #0a1628;
+  --blue-primary: #1a5fb4;
+  --bg-page: #f4f5f7;
+  --bg-card: #ffffff;
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --border: #e8eaed;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === LAYOUT === */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* === HEADER === */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 32px;
+  background: transparent;
+}
+
+.header img {
+  height: 44px;
+  width: auto;
+}
+
+.header .title {
+  font-family: "Noto Serif SC", serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue-deep);
+  letter-spacing: 1px;
+}
+
+/* === MAIN AREA === */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* === EMPTY STATE === */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.empty-state .intro-logo {
+  height: 100px;
+  width: auto;
+  margin-bottom: 28px;
+}
+
+.empty-state h2 {
+  font-family: "Noto Serif SC", serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--blue-deep);
+  margin-bottom: 28px;
+}
+
+.capability-tags {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.capability-tags .tag {
+  padding: 6px 16px;
+  background: #eef2ff;
+  color: var(--blue-primary);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid #dbeafe;
+}
+
+/* === MESSAGES (demo) === */
+.messages { display: none; flex-direction: column; gap: 20px; }
+.messages.active { display: flex; }
+
+.msg-user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.msg-user .bubble {
+  background: var(--blue-primary);
+  color: #fff;
+  border-radius: 20px 20px 4px 20px;
+  padding: 10px 18px;
+  max-width: 70%;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.msg-bot {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.answer-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  max-width: 85%;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.confidence-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  color: #fff;
+  background: #16a34a;
+}
+
+.answer-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.evidence-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.ev-toggle {
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.ev-toggle:hover {
+  border-color: var(--blue-primary);
+  color: var(--blue-primary);
+}
+
+.ev-list {
+  margin-top: 12px;
+  padding-left: 16px;
+  border-left: 3px solid var(--blue-primary);
+}
+
+.ev-item {
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.ev-item .ev-title { font-weight: 600; }
+.ev-item .ev-text {
+  color: #4b5563;
+  margin: 4px 0;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  line-height: 1.6;
+}
+
+/* === INPUT AREA === */
+.input-area {
+  padding: 18px 32px 24px;
+  background: transparent;
+}
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 8px 8px 8px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--blue-primary);
+  box-shadow: 0 0 0 3px rgba(26, 95, 180, 0.08);
+}
+
+.input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  padding: 8px 0;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.send-btn {
+  padding: 9px 22px;
+  border: none;
+  border-radius: 10px;
+  background: var(--blue-primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.send-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/* === TOGGLE DEMO === */
+.demo-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  background: var(--blue-deep);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 100;
+  opacity: 0.7;
+}
+.demo-toggle:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<button class="demo-toggle" onclick="toggleView()">切换：空状态 / 对话示例</button>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <img src="南京银行上下.png" alt="南京银行" onerror="this.style.display='none'">
+    <span class="title">监管制度智能问答</span>
+  </header>
+
+  <!-- Main content area -->
+  <div class="main">
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <img class="intro-logo" src="南京银行上下.png" alt="南京银行" onerror="this.style.display='none'">
+      <h2>银行业监管制度智能问答</h2>
+
+    </div>
+
+    <!-- Messages (shown when toggled) -->
+    <div class="messages" id="messagesView">
+      <div class="msg-user">
+        <div class="bubble">商业银行不良贷款分类的标准是什么？</div>
+      </div>
+      <div class="msg-bot">
+        <div class="answer-card">
+          <div class="answer-text">
+            根据《商业银行金融资产风险分类办法》（银保监发〔2023〕1号），商业银行应当将金融资产按照风险程度分为五类：正常、关注、次级、可疑、损失。其中，后三类合称为不良资产。分类以债务人履约能力为核心，结合金融资产逾期天数、担保物价值变化等因素进行综合判断。逾期超过90天的金融资产至少归为次级类。
+          </div>
+          <div class="evidence-section">
+            <button class="ev-toggle">▼ 证据来源 (2)</button>
+            <div class="ev-list">
+              <div class="ev-item">
+                <span class="ev-title">《商业银行金融资产风险分类办法》</span>
+                <div class="ev-text">"第三条 商业银行应当按照本办法要求，对承担信用风险的金融资产进行风险分类。风险分类是指商业银行按照风险程度将金融资产划分为不同档次的行为。"</div>
+              </div>
+              <div class="ev-item">
+                <span class="ev-title">《商业银行金融资产风险分类办法》</span>
+                <div class="ev-text">"第五条 金融资产按照风险程度分为五类：正常类、关注类、次级类、可疑类、损失类。后三类合称不良资产或者不良贷款。"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-area">
+    <div class="input-wrapper">
+      <input id="inputField" type="text" placeholder="输入监管制度问题，按 Enter 发送...">
+      <button class="send-btn">发送</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let showMessages = false;
+function toggleView() {
+  showMessages = !showMessages;
+  document.getElementById('emptyState').style.display = showMessages ? 'none' : 'flex';
+  document.getElementById('messagesView').classList.toggle('active', showMessages);
+}
+</script>
+</body>
+</html>

@@ -8,10 +8,19 @@ export default function App() {
   const [loading, setLoading] = useState(false)
 
   const handleSend = async (question) => {
-    setMessages(prev => [...prev, { role: 'user', content: question }])
+    const newMessages = [...messages, { role: 'user', content: question }]
+    setMessages(newMessages)
     setLoading(true)
+
+    const history = newMessages
+      .filter(m => m.role === 'user' || (m.role === 'assistant' && m.content.answer))
+      .map(m => ({
+        role: m.role,
+        content: m.role === 'user' ? m.content : m.content.answer,
+      }))
+
     try {
-      const result = await askQuestion(question)
+      const result = await askQuestion(question, null, history)
       setMessages(prev => [...prev, { role: 'assistant', content: result }])
     } catch (err) {
       setMessages(prev => [...prev, {
@@ -24,10 +33,11 @@ export default function App() {
   }
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', maxWidth: 800, margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <div style={{ padding: 16, borderBottom: '1px solid #eee', fontWeight: 'bold', fontSize: 18 }}>
-        银行业监管制度问答系统
-      </div>
+    <div className="app-container">
+      <header className="app-header">
+        <img src="/logo.png" alt="南京银行" />
+        <span className="header-title">监管制度智能问答</span>
+      </header>
       <MessageList messages={messages} />
       <ChatInput onSend={handleSend} loading={loading} />
     </div>

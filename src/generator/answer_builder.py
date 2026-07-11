@@ -12,7 +12,7 @@ class AnswerBuilder:
         self.retriever = HybridRetriever()
         self.decomposer = QueryDecomposer()
 
-    def answer(self, question: str, filters: dict = None) -> dict:
+    def answer(self, question: str, filters: dict = None, history: list = None) -> dict:
         start = time.time()
 
         sub_questions = self.decomposer.decompose(question)
@@ -45,7 +45,7 @@ class AnswerBuilder:
             }
 
         user_msg = build_user_prompt(question, unique_chunks[:5])
-        raw = self.llm.chat(SYSTEM_PROMPT, user_msg)
+        raw = self.llm.chat(SYSTEM_PROMPT, user_msg, history=history)
 
         try:
             result = json.loads(raw)
