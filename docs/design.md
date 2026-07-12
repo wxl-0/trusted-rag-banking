@@ -1,7 +1,7 @@
 # 面向银行业监管制度与统计报表的可信 RAG 问答系统 — 设计文档
 
 **项目**：第五届中国研究生金融科技创新大赛 · 南京银行赛题  
-**日期**：2026-06-13  
+**日期**：2026-07-12  
 **技术栈**：Python · FastAPI · Qdrant · sentence-transformers · 商业 LLM API  
 **优先级**：系统完整性（所有功能可运行，指标全面达标）
 
@@ -68,6 +68,7 @@
   ↓
 文本提取
   ├─ docx → python-docx（保留标题样式 Heading1/2/3）
+  ├─ doc  → 先查 data/converted/docx/ 缓存，否则 win32com 转换
   └─ pdf  → pymupdf（按字体大小推断标题层级）
   ↓
 结构树构建（章 → 节 → 条 → 款）
@@ -76,6 +77,8 @@
   ↓
 元数据挂载
 ```
+
+Word 内嵌表格：通过 `id(cell._tc)` 去重合并单元格，每行输出一个 `table_row` chunk。
 
 每个 Chunk 的数据结构：
 
@@ -97,41 +100,58 @@
 
 ### 2.2 Excel 解析链
 
-**目标**：每个表格行可被独立检索，保留表头语义和维度信息。
+**目标**：每个数据单元格和文本注释可被独立检索，保留表头语义和维度信息。
 
 ```
 .xls/.xlsx
   ↓
-Sheet 遍历（openpyxl）
+Sheet 遍历（openpyxl / xlrd）
   ↓
-表头识别（首行/首列/多级表头合并）
+表头识别（关键词匹配或下方有数字列）
   ↓
-按行转换为语义记录（自然语言化）
+双轮提取：
+  第一轮 → 数值单元格 → 语义化 table_row chunk
+  第二轮 → 非数值文本（脚注/指标定义）→ table_row chunk
   ↓
 元数据挂载（报表名称、期间、指标名称、单位）
 ```
 
-每行生成一条 Chunk：
+每个单元格生成一条 Chunk：
 
 ```json
 {
-  "doc_id": "STAT-2024-Q3-001",
-  "chunk_id": "STAT-2024-Q3-001#Sheet1#R15",
-  "text": "2024年三季度末，不良贷款率为1.56%，较上季度下降0.03个百分点",
-  "table_name": "G11《资产质量情况表》",
+  "doc_id": "NFRA-001",
+  "chunk_id": "NFRA-001#Sheet1#C5",
+  "text": "文件《...》；工作表「Sheet1」；单元格 C5；行指标「不良贷款率」；列口径「2024年」；原始值为 1.56%；单位：百分比；期间：2024。",
+  "table_name": "Sheet1",
   "indicator": "不良贷款率",
-  "period": "2024Q3",
-  "unit": "%",
-  "row_index": 15,
+  "period": "2024",
+  "unit": "百分比",
+  "row_index": 5,
+  "cell_ref": "C5",
   "chunk_type": "table_row",
   "source_url": "...",
-  "local_path": "data/STAT-2024-Q3-001.xlsx"
+  "local_path": "data/raw/..."
 }
 ```
 
-### 2.3 共同输出规范
+### 2.3 PDF 表格解析链（PdfTableParser）
 
-所有解析结果写入 `data/chunks/`（JSONL 格式），同时更新 `manifest.json` 记录解析状态，支持增量入库和复现。
+**用途**：`parse_profile=pdf_table` 的统计 PDF，用 pdfplumber 提取表格。
+
+```
+.pdf（统计类）
+  ↓
+pdfplumber 逐页提取表格
+  ↓
+逐行逐列生成 table_row chunk
+  ↓
+元数据挂载
+```
+
+### 2.4 共同输出规范
+
+所有解析结果写入 `data/chunks/`（JSONL 格式）。`data/manifest.json` 记录文件清单及 `parse_profile`，由 `scripts/classify_manifest.py` 自动分类，`scripts/ingest.py` 按 profile 路由到对应解析器。
 
 ---
 
@@ -279,7 +299,11 @@ GET  /api/health    # 服务健康检查
   "filters": {
     "issuer": "国家金融监督管理总局",
     "period": "2024Q3"
-  }
+  },
+  "history": [
+    {"role": "user", "content": "上一轮问题..."},
+    {"role": "assistant", "content": "上一轮回答..."}
+  ]
 }
 
 // 响应
@@ -291,8 +315,7 @@ GET  /api/health    # 服务健康检查
       "source_title": "商业银行风险分类办法",
       "section": "第三章第十二条",
       "text": "原文片段...",
-      "source_url": "https://...",
-      "local_path": "data/..."
+      "source_url": "https://..."
     }
   ],
   "refuse_reason": null,
@@ -305,6 +328,7 @@ GET  /api/health    # 服务健康检查
 ```
 data/eval/
   ├── QA数据.xlsx          # 300 道选择题（100 excel + 100 word + 100 pdf）
+  ├── qa_seed.jsonl        # 种子评测数据
   └── eval_report.json    # 评测结果输出
 ```
 
@@ -331,16 +355,16 @@ React + Vite，打包后作为静态资源由 FastAPI 的 `/` 路由托管，无
 ```
 src/frontend/
 ├── src/
-│   ├── App.jsx              # 根组件
+│   ├── App.jsx              # 根组件，维护 messages 数组
 │   ├── components/
 │   │   ├── ChatInput.jsx    # 问题输入框 + 发送按钮
-│   │   ├── MessageList.jsx  # 对话历史列表
-│   │   ├── AnswerCard.jsx   # 答案 + confidence 标签
-│   │   └── EvidencePanel.jsx# 证据来源折叠卡片
+│   │   ├── MessageList.jsx  # 对话历史列表（含空状态）
+│   │   ├── AnswerCard.jsx   # 用户消息气泡 + 助手回答卡片
+│   │   └── EvidencePanel.jsx# 可折叠证据引用卡片
 │   └── api/
-│       └── client.js        # 封装 POST /api/ask 调用
+│       └── client.js        # 封装 POST /api/ask 调用（携带 history）
 ├── index.html
-└── vite.config.js
+└── vite.config.js           # 开发时代理 /api/* → localhost:8000
 ```
 
 ### 6.2 页面结构
@@ -367,26 +391,31 @@ src/frontend/
 ### 6.3 前端与后端集成
 
 - 开发阶段：Vite dev server 代理 `/api/*` 到 FastAPI（`localhost:8000`）
-- 生产阶段：`npm run build` 输出到 `src/api/static/`，FastAPI 挂载静态目录
+- 生产阶段：`npm run build` 输出到 `src/frontend/dist/`，FastAPI 挂载静态目录；Docker 部署时 nginx 反向代理 `/api/` 到 backend 容器
 
 ### 6.4 更新后的目录结构
 
 ```
 project/
 ├── data/
-│   ├── raw/
-│   ├── chunks/
-│   └── eval/
+│   ├── raw/                 # 原始文件（不提交 git）
+│   ├── converted/docx/      # .doc 转 .docx 缓存（不提交 git）
+│   ├── chunks/              # JSONL chunk 输出
+│   ├── eval/                # 评测数据
+│   └── manifest.json        # 文件清单 + parse_profile
 ├── src/
-│   ├── parser/
-│   ├── indexer/
-│   ├── retriever/
-│   ├── generator/
-│   ├── api/               # FastAPI routes + 托管前端静态文件
-│   └── frontend/          # React + Vite 前端
+│   ├── parser/              # WordParser, PdfParser, ExcelParser, PdfTableParser
+│   ├── indexer/             # QdrantIndex, BM25Index, Embedder
+│   ├── retriever/           # QueryRouter, HybridRetriever, Reranker
+│   ├── generator/           # QueryDecomposer, AnswerBuilder, LLMClient, PromptBuilder
+│   ├── api/                 # FastAPI routes + 托管前端静态文件
+│   └── frontend/            # React 18 + Vite 前端
 ├── scripts/
-│   ├── ingest.py
-│   └── run_eval.py
+│   ├── classify_manifest.py # 自动分类 parse_profile
+│   ├── ingest.py            # 解析 → JSONL chunks
+│   ├── build_index.py       # 向量入库 + BM25
+│   └── run_eval.py          # 端到端评测
+├── tests/
 ├── docker-compose.yml
 ├── requirements.txt
 └── CONTRIBUTING.md
@@ -411,5 +440,5 @@ project/
 | 证据引用命中率 ≥ 90%  | 强制 evidence 字段 + 条款级定位     |
 | 关键字段错误率 ≤ 5%   | Prompt 规则 + 数字核验机制          |
 | 拒答率 ≥ 80%          | 查询路由拒答分支 + refuse_reason    |
-| 支持 ≥ 200 份文件入库 | JSONL + 增量 ingest 脚本            |
-| 支持 Word/PDF/Excel   | 三条独立解析链                      |
+| 支持 ≥ 200 份文件入库 | manifest 驱动 + 481/500 文档已覆盖  |
+| 支持 Word/PDF/Excel   | 四条解析链（Word/PDF/Excel/PdfTable） |

@@ -18,11 +18,22 @@ def classify(entry: dict) -> str:
     title = entry.get("title", "")
 
     if suffix in (".xls", ".xlsx"):
-        if any(kw in title for kw in ("模板", "计算模板")):
+        # 最新版日程表含指标解释和机构范围解释，保留为 data
+        if entry.get("doc_id") == "NFRA-010":
+            return "data"
+        # 签章页无实际数据
+        if entry.get("doc_id") == "NFRA-449":
+            return "skip"
+        if any(kw in title for kw in ("模板", "计算模板", "日程表", "日程", "监管统计", "统计报表")):
+            return "skip"
+        if "统计表" in title and "情况" not in title:
             return "skip"
         return "data"
 
     if suffix == ".pdf":
+        # 纯文字说明文档，pdfplumber 无表格可提取
+        if entry.get("doc_id") == "NFRA-361":
+            return "regulation"
         if any(kw in title for kw in ("统计", "汇总表", "数据汇总")):
             return "pdf_table"
         if any(kw in title for kw in ("年报", "报告", "annual", "Annual", "Report")):

@@ -57,6 +57,7 @@ class ExcelParser:
         period = self._detect_period([self.source_title, Path(self.local_path).name, sheet_name])
         chunks: List[Chunk] = []
 
+        row_labels_seen: set[str] = set()
         for row_idx in range(header_idx + 1, len(rows)):
             row = rows[row_idx]
             if not self._has_any_value(row):
@@ -64,6 +65,7 @@ class ExcelParser:
             row_label = self._cell_to_text(row[label_col]) if label_col < len(row) else ""
             if not row_label or self._is_note_row(row_label):
                 continue
+            row_labels_seen.add(row_label)
 
             for col_idx, value in enumerate(row):
                 if col_idx == label_col or self._is_empty(value) or not self._looks_like_data_cell(value):
@@ -95,6 +97,44 @@ class ExcelParser:
                     row_label=row_label,
                     column_header=column_header,
                     raw_value=raw_value,
+                ))
+
+        header_texts = set(self._cell_to_text(h) for h in header if not self._is_empty(h))
+        all_known = row_labels_seen | header_texts
+        for row_idx in range(header_idx + 1, len(rows)):
+            row = rows[row_idx]
+            for col_idx, value in enumerate(row):
+                if self._is_empty(value):
+                    continue
+                if self._looks_like_data_cell(value):
+                    continue
+                text_val = self._cell_to_text(value)
+                if text_val in all_known:
+                    continue
+                cell_ref = f"{get_column_letter(col_idx + 1)}{row_idx + 1}"
+                row_label = self._cell_to_text(row[label_col]) if label_col < len(row) else ""
+                column_header = self._cell_to_text(header[col_idx]) if col_idx < len(header) else ""
+                chunks.append(Chunk(
+                    doc_id=self.doc_id,
+                    chunk_id=f"{self.doc_id}#{sheet_name}#{cell_ref}",
+                    text=self._build_text(sheet_name, cell_ref, row_label or text_val, column_header, text_val, unit, period),
+                    chunk_type="table_row",
+                    source_title=self.source_title,
+                    issuer=self.issuer,
+                    doc_no="",
+                    publish_date=self.publish_date,
+                    section_path=[],
+                    source_url=self.source_url,
+                    local_path=self.local_path,
+                    table_name=sheet_name,
+                    indicator=row_label or text_val,
+                    period=period,
+                    unit=unit,
+                    row_index=row_idx + 1,
+                    cell_ref=cell_ref,
+                    row_label=row_label,
+                    column_header=column_header,
+                    raw_value=text_val,
                 ))
         return chunks
 
@@ -187,8 +227,8 @@ class ExcelParser:
         if self._looks_like_percent_row(row_label, unit) and abs(num) <= 1:
             return f"{num * 100:.2f}%"
         if num == int(num):
-            return f"{int(num):,}"
-        return f"{num:,.2f}"
+            return str(int(num))
+        return f"{num:.2f}"
 
     def _looks_like_percent_row(self, row_label: str, unit: str) -> bool:
         label = row_label or ""

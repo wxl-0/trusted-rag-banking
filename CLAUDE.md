@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-本文件为 Claude Code (claude.ai/code) 在此代码仓库中工作时提供指导。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 项目概述
 
@@ -19,10 +19,21 @@ docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
 
 ### 构建知识库
 ```bash
-# 1. 解析原始文件 → JSONL chunks（需要 data/raw/ 下有原始文件）
+# 1. 自动分类 manifest（首次或有新文件时）
+python scripts/classify_manifest.py        # 写入 parse_profile 字段
+python scripts/classify_manifest.py --dry-run  # 只打印统计，不写入
+
+# 2. 解析原始文件 → JSONL chunks（需要 data/raw/ 下有原始文件）
 python scripts/ingest.py
 
-# 2. 向量入库 + 构建 BM25（需要 Qdrant 已启动）
+# 3. 向量入库 + 构建 BM25（需要 Qdrant 已启动）
+python scripts/build_index.py
+```
+
+`build_index.py` 支持断点续传：自动检测 Qdrant `points_count`，从已有进度继续索引。中断后重新运行即可。若 chunk 内容有变更（重新切块后），需先清空集合再重建：
+
+```bash
+python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
 python scripts/build_index.py
 ```
 
@@ -73,28 +84,41 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 **各层说明：**
 
-- **`src/parser/`** — 将原始文档转换为 `Chunk` 对象（见 `base.py`）。解析器包括 Word、PDF、Excel，已增强：`.xls/.xlsx` 单元格级解析、`.doc` 经 LibreOffice 转换后解析、`.docx` 表格解析、PDF 页码和段落切分。输出写入 `data/chunks/`（JSONL 格式）。
+- **`src/parser/`** — 将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（.doc/.docx，含表格提取，合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 .xls 和 .xlsx）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
 
 - **`src/indexer/`** — 两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
 
-- **`src/retriever/`** — `QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`。生成层的主入口是 `HybridRetriever.retrieve()`：依次执行 BM25 + 向量检索，用 RRF（倒数排名融合）合并结果，再用 `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
+- **`src/retriever/`** — `QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
 
-- **`src/generator/`** — `QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解→检索→chunk 去重→以强约束 grounded-generation 系统提示调用 LLM。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`PromptBuilder` 根据 chunk 列表组装用户消息。
+- **`src/generator/`** — `QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解→检索→chunk 去重→grounded-generation 系统提示 + 多轮历史调用 LLM。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`LLMClient.chat()` 接受 `history` 参数，取最近 6 条（3 轮对话）。
 
-- **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`、`POST /api/ingest`、`GET /api/health`。生产模式下，`main.py` 挂载 `src/frontend/dist/` 的 React 构建产物，并在 `/` 路由提供 `index.html`。Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
+- **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。生产模式下挂载 `src/frontend/dist/` 静态文件。Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 
-- **`src/frontend/`** — React 18 + Vite。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件：`ChatInput`、`MessageList`、`AnswerCard`（显示置信度标签）、`EvidencePanel`（可折叠的来源引用）。
+- **`src/frontend/`** — React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件：`ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
+
+## Parse Profile 路由
+
+`data/manifest.json` 每条记录可包含 `parse_profile` 字段，由 `scripts/classify_manifest.py` 自动分类：
+
+| profile | 适用场景 | 解析策略 |
+|---------|---------|---------|
+| `regulation` | 监管制度文件（Word/PDF） | 子条款切分 + 600 字上限 |
+| `report` | 年报/报告类 PDF | 不切子条款 + 800 字上限 + 英文标点 |
+| `data` | 统计数据 Excel | ExcelParser 单元格级 |
+| `pdf_table` | 统计 PDF | PdfTableParser（pdfplumber） |
+| `skip` | 计算模板/签章页等无用文件 | 跳过不解析 |
+
+`scripts/ingest.py` 根据 profile 路由到对应解析器和后处理策略。
+
+`scripts/classify_manifest.py` 不会覆盖已有 `parse_profile` 的条目。个别文件有硬编码特例（NFRA-010 → data，NFRA-361 → regulation，NFRA-449 → skip）。
 
 ## 核心数据契约
 
 **Chunk 结构**（定义于 `src/parser/base.py`）：所有解析器均输出 `Chunk` dataclass 实例。表格证据可包含 `table_name`、`indicator`、`period`、`unit`、`row_index`、`cell_ref`、`row_label`、`column_header`、`raw_value`；PDF/段落证据可包含 `page_no` 与 `section_path`。`parent_chunk_id` 用于子条款追溯父块。`to_dict()` 会自动忽略值为 `None` 的字段。
 
-**`retrieve()` 签名**（`src/retriever/hybrid_retriever.py`）：
-```python
-def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: int = 5) -> list[dict]
-```
+**`/api/ask` 请求**：`question`（必填）、`filters`（可选）、`history`（可选，`[{role, content}]` 数组）。
 
-**`/api/ask` 响应**：固定返回 `answer`、`confidence`（`high/medium/low`）、`evidence[]`、`refuse_reason`（null 或字符串）、`latency_ms`。
+**`/api/ask` 响应**：固定返回 `answer`、`confidence`（`high/medium/low`）、`evidence[]`（含 `source_title`、`section`、`text`、`source_url`）、`refuse_reason`（null 或字符串）、`latency_ms`。
 
 ## 环境变量（`.env`）
 
@@ -112,6 +136,13 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 
 见 `CONTRIBUTING.md`：`main` 为保护分支（可演示版本），`dev` 为集成分支。功能分支：`feature/parser`（成员 A）、`feature/retriever`（成员 B）、`feature/generator`（成员 C）。所有代码必须通过 PR 合入 `dev`；`main` 仅由队长在里程碑节点从 `dev` 合入。禁止直接向 `main` 或 `dev` 推送提交。
 
+## 当前知识库规模
+
+- 总 chunk 数：38,287（clause 8,927 + table 29,360）
+- 覆盖文档：481 / 500（19 个 skip）
+- 平均 chunk 长度：129 字
+- 零重复，零碎片（<20字）
+
 ## 入库 Manifest
 
-`data/manifest.json` 驱动 `scripts/ingest.py`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`。脚本按扩展名路由：`.docx/.doc` → `WordParser`，`.pdf` → `PdfParser`，`.xlsx/.xls` → `ExcelParser`。`data/raw/` 与 `data/converted/` 目录不提交到 Git。
+`data/manifest.json` 驱动 `scripts/ingest.py`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`、`parse_profile`。脚本按 `parse_profile`（优先）和后缀名路由解析器。`data/raw/` 与 `data/converted/` 目录不提交到 Git。

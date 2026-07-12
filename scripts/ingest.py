@@ -34,9 +34,13 @@ def load_manifest() -> list:
     return []
 
 
-def save_chunks(chunks: list, output_path: Path):
+def save_chunks(chunks: list, output_path: Path, seen_texts: set):
     with open(output_path, "a", encoding="utf-8") as f:
         for chunk in chunks:
+            text = chunk.text
+            if text in seen_texts:
+                continue
+            seen_texts.add(text)
             f.write(json.dumps(chunk.to_dict(), ensure_ascii=False) + "\n")
 
 
@@ -47,6 +51,8 @@ def main():
     table_path = CHUNKS_DIR / "table_chunks.jsonl"
     clause_path.write_text("", encoding="utf-8")
     table_path.write_text("", encoding="utf-8")
+
+    seen_texts: set = set()
 
     for entry in manifest:
         local_path = resolve_local_path(entry["local_path"])
@@ -63,9 +69,14 @@ def main():
 
         print(f"[解析] {local_path.name} (profile={profile})")
 
+        notice_title = entry.get("notice_title")
+        source_title = entry["title"]
+        if notice_title:
+            source_title = f"{notice_title} {source_title}"
+
         common = dict(
             doc_id=entry["doc_id"],
-            source_title=entry["title"],
+            source_title=source_title,
             issuer=entry.get("issuer", ""),
             source_url=entry.get("source_url", ""),
             local_path=str(local_path),
@@ -76,38 +87,39 @@ def main():
                 **common,
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(parser.parse(), table_path)
+            save_chunks(parser.parse(), table_path, seen_texts)
         elif profile == "report":
             parser = PdfParser(
                 **common,
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(process_chunks(parser.parse(), profile="report"), clause_path)
+            save_chunks(process_chunks(parser.parse(), profile="report"), clause_path, seen_texts)
         elif suffix in (".xlsx", ".xls"):
             parser = ExcelParser(
                 **common,
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(parser.parse(), table_path)
+            save_chunks(parser.parse(), table_path, seen_texts)
         elif suffix in (".docx", ".doc"):
             parser = WordParser(
                 **common,
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path)
+            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path, seen_texts)
         elif suffix == ".pdf":
             parser = PdfParser(
                 **common,
                 doc_no=entry.get("doc_no", ""),
                 publish_date=entry.get("publish_date", ""),
             )
-            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path)
+            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path, seen_texts)
         else:
             print(f"[跳过] 不支持的格式: {suffix}")
 
     print(f"\n完成。clause_chunks: {clause_path}, table_chunks: {table_path}")
+    print(f"  去重跳过: {len(seen_texts)} 个唯一文本已记录")
 
 
 if __name__ == "__main__":

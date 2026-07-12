@@ -15,6 +15,7 @@ from src.parser.base import Chunk
 
 OVERLAP_CHARS = 80
 MIN_CHUNK_CHARS = 10
+NOISE_PREFIXES = ("本页无正文", "目录", "附件清单", "注：本表", "注:本表", "填表说明", "编制说明")
 
 PROFILE_CONFIG = {
     "regulation": {
@@ -87,7 +88,9 @@ def split_sub_clauses(chunks: List[Chunk]) -> List[Chunk]:
 
 def enrich_context(chunks: List[Chunk]) -> List[Chunk]:
     for chunk in chunks:
-        section = " > ".join(chunk.section_path) if chunk.section_path else ""
+        if not chunk.section_path:
+            chunk.section_path = ["正文"]
+        section = " > ".join(chunk.section_path)
         prefix_parts = [f"《{chunk.source_title}》"]
         if section:
             prefix_parts.append(section)
@@ -131,7 +134,8 @@ def split_by_max_length(chunks: List[Chunk], max_chars: int = 600, split_chars: 
 
 
 def filter_min_length(chunks: List[Chunk]) -> List[Chunk]:
-    return [c for c in chunks if len(c.text.strip()) >= MIN_CHUNK_CHARS]
+    return [c for c in chunks if len(c.text.strip()) >= MIN_CHUNK_CHARS
+            and not c.text.lstrip().startswith(NOISE_PREFIXES)]
 
 
 def _detect_sub_clause_boundaries(text: str) -> List[str]:

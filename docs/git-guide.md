@@ -184,4 +184,32 @@ git commit -m "fix: 解决与 dev 的合并冲突"
 - **不要**直接向 `main` 或 `dev` 推送代码，所有代码通过 PR 合入
 - **不要**提交 `.env` 文件（里面有 API Key）
 - **不要**提交 `.venv/` 目录
+- **不要**提交 `data/chunks/` 目录下的 JSONL 文件（共 40MB+，可本地重新生成）
+- **不要**提交 `data/raw/` 和 `data/converted/` 目录（原始数据文件）
 - 遇到不懂的报错，截图发给队长，不要随意执行不理解的命令
+
+---
+
+## 七、本地构建知识库（克隆后必做）
+
+仓库不包含切块数据和向量索引，克隆后需要本地生成：
+
+```bash
+# 1. 确保 data/raw/ 下有原始文件（从共享网盘下载，不提交 git）
+
+# 2. 解析文件 → 生成 chunk（输出到 data/chunks/）
+python scripts/ingest.py
+
+# 3. 启动 Qdrant 并构建向量索引
+docker compose up qdrant -d
+python scripts/build_index.py
+```
+
+如果队友更新了解析代码（parser/chunk_processor 等），拉取后需要重新执行上述步骤。
+
+**重建索引前需清空旧数据**（chunk 内容变了，旧索引对不上）：
+
+```bash
+python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
+python scripts/build_index.py
+```

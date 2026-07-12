@@ -132,26 +132,34 @@ class WordParser:
                 return int(style_name.split()[-1])
             except ValueError:
                 return 1
-        if text.startswith(("第")) and any(token in text[:8] for token in ("章", "节", "条")):
+        if text.startswith("第") and any(token in text[:8] for token in ("章", "节")):
             return 1 if "章" in text[:8] else 2
         return None
 
     def _table_chunks(self, table: Table, table_index: int, section_path: list[str]) -> list[Chunk]:
-        rows = [[cell.text.strip() for cell in row.cells] for row in table.rows]
-        if len(rows) < 2:
+        if len(table.rows) < 2:
             return []
-        headers = self._unique_texts(rows[0])
+        header_cells = table.rows[0].cells
+        headers = self._unique_texts([c.text.strip() for c in header_cells])
         column_header = " | ".join(headers)
         chunks: list[Chunk] = []
-        for row_index, row in enumerate(rows[1:], start=2):
-            if self._is_table_title_or_blank(row):
+        for row_index, row in enumerate(table.rows[1:], start=2):
+            cells = row.cells
+            row_texts = [c.text.strip() for c in cells]
+            if self._is_table_title_or_blank(row_texts):
                 continue
-            unique_values = self._unique_texts(row)
+            unique_values = self._unique_texts(row_texts)
             if not unique_values:
                 continue
             row_label = unique_values[0]
             values = []
-            for col_index, value in enumerate(row):
+            seen_tc = set()
+            for col_index, cell in enumerate(cells):
+                tc_id = id(cell._tc)
+                if tc_id in seen_tc:
+                    continue
+                seen_tc.add(tc_id)
+                value = cell.text.strip()
                 if not value:
                     continue
                 header = headers[col_index] if col_index < len(headers) and headers[col_index] else f"Column {col_index + 1}"

@@ -4,6 +4,7 @@ __pycache__/
 *.pkl
 data/raw/
 data/converted/
+data/chunks/
 src/frontend/node_modules/
 src/frontend/dist/
 .venv/

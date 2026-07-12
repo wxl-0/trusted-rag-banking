@@ -157,6 +157,7 @@
     "publish_date": "2025-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/016_2025年保险公司偿付能力情况表_2025年保险公司偿付能力状况表.xls",
+    "notice_title": "2025年保险公司偿付能力情况表",
     "parse_profile": "data"
   },
   {
@@ -677,7 +678,7 @@
     "publish_date": "2025-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/068_2025年国家金融监督管理总局监管统计信息发布日程表_2025年国家金融监督管理总局监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-069",
@@ -737,6 +738,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/074_2024年保险业偿付能力状况表(季度)_2024年保险业偿付能力状况表.xls",
+    "notice_title": "2024年保险业偿付能力状况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -877,6 +879,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/088_2024年3季度保险业资金运用情况表_2024年三季度保险业资金运用情况表.xls",
+    "notice_title": "2024年3季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -927,6 +930,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/093_2024年8月全国各地区原保险保费收入情况表_2024年8月全国地区原保险保费收入情况表.xls",
+    "notice_title": "2024年8月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -937,6 +941,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/094_2024年8月人身险公司经营情况表_2024年8月人身险经营情况表.xls",
+    "notice_title": "2024年8月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -947,6 +952,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/095_2024年8月财产保险公司经营情况表_2024年8月财产险经营情况表.xls",
+    "notice_title": "2024年8月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -967,6 +973,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/097_2024年7月全国各地区原保险保费收入情况表_2024年7月全国各地区保费收入情况表.xls",
+    "notice_title": "2024年7月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1097,6 +1104,7 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/110_2024年1季度保险业资金运用情况表_2024年一季度保险业资金运用情况表.xls",
+    "notice_title": "2024年1季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1267,7 +1275,8 @@
     "publish_date": "2024-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/127_2024年国家金融监督管理总局监管统计信息发布日程表_2024年监管统计信息披露日程、机构范围及指标解释.xls",
-    "parse_profile": "data"
+    "notice_title": "2024年国家金融监督管理总局监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-128",
@@ -1277,6 +1286,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/128_2023年银行业总资产、总负债（季度）_银行业金融机构资产负债情况表(季度).xlsx",
+    "notice_title": "2023年银行业总资产、总负债（季度）",
     "parse_profile": "data"
   },
   {
@@ -1287,6 +1297,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/129_2023年商业银行主要监管指标情况表（季度）_商业银行主要监管指标情况表(季度)（2023年）.xlsx",
+    "notice_title": "2023年商业银行主要监管指标情况表（季度）",
     "parse_profile": "data"
   },
   {
@@ -1297,6 +1308,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/130_2023年商业银行主要指标分机构类情况表（季度）_商业银行主要指标分机构类情况表(季度)(2023年).xlsx",
+    "notice_title": "2023年商业银行主要指标分机构类情况表（季度）",
     "parse_profile": "data"
   },
   {
@@ -1307,6 +1319,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/131_2023年银行业金融机构普惠型小微企业贷款情况（季度）_银行业金融机构普惠型小微企业贷款情况表(季度).xlsx",
+    "notice_title": "2023年银行业金融机构普惠型小微企业贷款情况（季度）",
     "parse_profile": "data"
   },
   {
@@ -1317,6 +1330,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/132_2023年银行业金融机构保障性安居工程贷款情况表(季度)_银行业金融机构保障性安居工程贷款情况表(季度).xlsx",
+    "notice_title": "2023年银行业金融机构保障性安居工程贷款情况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -1327,6 +1341,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/133_2023年保险业偿付能力状况表(季度)_2023年保险业偿付能力状况表.xls",
+    "notice_title": "2023年保险业偿付能力状况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -1337,6 +1352,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/134_2023年4季度保险业资金运用情况表_2023年四季度保险业资金运用情况表.xlsx",
+    "notice_title": "2023年4季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1477,6 +1493,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/148_2023年3季度保险业资金运用情况表_2023年三季度保险业资金运用情况表.xlsx",
+    "notice_title": "2023年3季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1487,6 +1504,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/149_2023年9月全国各地区原保险保费收入情况表_2023年09月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年9月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1497,6 +1515,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/150_2023年9月人身险公司经营情况表_2023年09月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年9月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1507,6 +1526,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/151_2023年9月财产保险公司经营情况表_2023年09月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年9月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1517,6 +1537,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/152_2023年9月保险业经营情况表_2023年09月保险业经营情况表.xlsx",
+    "notice_title": "2023年9月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1527,6 +1548,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/153_2023年8月全国各地区原保险保费收入情况表_2023年08月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年8月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1537,6 +1559,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/154_2023年8月人身险公司经营情况表_2023年08月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年8月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1547,6 +1570,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/155_2023年8月财产保险公司经营情况表_2023年08月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年8月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1557,6 +1581,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/156_2023年8月保险业经营情况表_2023年08月保险业经营情况表.xlsx",
+    "notice_title": "2023年8月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1567,6 +1592,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/157_2023年7月全国各地区原保险保费收入情况表_2023年07月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2023年7月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1577,6 +1603,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/158_2023年7月人身险公司经营情况表_2023年07月人身险公司经营情况表.xls",
+    "notice_title": "2023年7月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1587,6 +1614,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/159_2023年7月财产保险公司经营情况表_2023年07月财产保险公司经营情况表.xls",
+    "notice_title": "2023年7月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1597,6 +1625,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/160_2023年7月保险业经营情况表_2023年07月保险业经营情况表.xls",
+    "notice_title": "2023年7月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1607,6 +1636,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/161_2023年2季度保险业资金运用情况表_2023年二季度保险业资金运用情况表.xlsx",
+    "notice_title": "2023年2季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1617,6 +1647,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/162_2023年6月全国各地区原保险保费收入情况表_2023年06月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年6月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1627,6 +1658,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/163_2023年6月人身险公司经营情况表_2023年06月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年6月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1637,6 +1669,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/164_2023年6月财产保险公司经营情况表_2023年06月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年6月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1647,6 +1680,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/165_2023年6月保险业经营情况表_2023年06月保险业经营情况表.xlsx",
+    "notice_title": "2023年6月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1657,6 +1691,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/166_2023年5月全国各地区原保险保费收入情况表_2023年05月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2023年5月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1667,6 +1702,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/167_2023年5月人身险公司经营情况表_2023年05月人身险公司经营情况表.xls",
+    "notice_title": "2023年5月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1677,6 +1713,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/168_2023年5月财产保险公司经营情况表_2023年05月财产保险公司经营情况表.xls",
+    "notice_title": "2023年5月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1687,6 +1724,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/169_2023年5月保险业经营情况表_2023年05月保险业经营情况表.xls",
+    "notice_title": "2023年5月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1697,6 +1735,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/170_2023年4月全国各地区原保险保费收入情况表_2023年04月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年4月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1707,6 +1746,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/171_2023年4月人身险公司经营情况表_2023年04月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年4月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1717,6 +1757,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/172_2023年4月财产保险公司经营情况表_2023年04月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年4月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1727,6 +1768,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/173_2023年4月保险业经营情况表_2023年04月保险业经营情况表.xlsx",
+    "notice_title": "2023年4月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1737,6 +1779,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/174_2023年1季度保险业资金运用情况表_2023年一季度保险业资金运用情况表.xlsx",
+    "notice_title": "2023年1季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1747,6 +1790,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/175_2022年保险业偿付能力状况表(季度)_2022年保险业偿付能力状况表.xls",
+    "notice_title": "2022年保险业偿付能力状况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -1757,6 +1801,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/176_2023年3月全国各地区原保险保费收入情况表_2023年03月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年3月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1767,6 +1812,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/177_2023年3月人身险公司经营情况表_2023年03月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年3月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1777,6 +1823,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/178_2023年3月财产保险公司经营情况表_2023年03月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年3月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1787,6 +1834,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/179_2023年3月保险业经营情况表_2023年03月保险业经营情况表.xlsx",
+    "notice_title": "2023年3月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1797,6 +1845,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/180_2023年2月全国各地区原保险保费收入情况表_2023年02月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年2月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1807,6 +1856,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/181_2023年2月人身险公司经营情况表_2023年02月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年2月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1817,6 +1867,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/182_2023年2月财产保险公司经营情况表_2023年02月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年2月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1827,6 +1878,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/183_2023年2月保险业经营情况表_2023年02月保险业经营情况表.xlsx",
+    "notice_title": "2023年2月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1837,6 +1889,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/184_2023年1月全国各地区原保险保费收入情况表_2023年01月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2023年1月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -1847,6 +1900,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/185_2023年1月人身险公司经营情况表_2023年01月人身险公司经营情况表.xlsx",
+    "notice_title": "2023年1月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1857,6 +1911,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/186_2023年1月财产保险公司经营情况表_2023年01月财产保险公司经营情况表.xlsx",
+    "notice_title": "2023年1月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1867,6 +1922,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/187_2023年1月保险业经营情况表_2023年01月保险业经营情况表.xlsx",
+    "notice_title": "2023年1月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -1877,7 +1933,8 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/188_2023年银保监会监管统计信息发布日程表_2023年监管统计信息披露日程、机构范围及指标解释.xls",
-    "parse_profile": "data"
+    "notice_title": "2023年银保监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-189",
@@ -1887,6 +1944,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/189_2022年银行业总资产、总负债（季度）_银行业金融机构资产负债情况表(法人).xlsx",
+    "notice_title": "2022年银行业总资产、总负债（季度）",
     "parse_profile": "data"
   },
   {
@@ -1897,6 +1955,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/190_2022年商业银行主要监管指标情况表（季度）_商业银行主要监管指标情况表(法人).xlsx",
+    "notice_title": "2022年商业银行主要监管指标情况表（季度）",
     "parse_profile": "data"
   },
   {
@@ -1907,6 +1966,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/191_2022年商业银行主要指标分机构类情况表（季度）_商业银行主要指标分机构类情况表(法人).xlsx",
+    "notice_title": "2022年商业银行主要指标分机构类情况表（季度）",
     "parse_profile": "data"
   },
   {
@@ -1917,6 +1977,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/192_2022年银行业金融机构普惠型小微企业贷款情况（季度）_银行业金融机构普惠型小微企业贷款情况表.xlsx",
+    "notice_title": "2022年银行业金融机构普惠型小微企业贷款情况（季度）",
     "parse_profile": "data"
   },
   {
@@ -1927,6 +1988,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/193_2022年银行业金融机构保障性安居工程贷款情况表(季度)_银行业金融机构保障性安居工程贷款情况表.xlsx",
+    "notice_title": "2022年银行业金融机构保障性安居工程贷款情况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -1937,6 +1999,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/194_2022年4季度保险业资金运用情况表_2022年四季度保险业资金运用情况表.xlsx",
+    "notice_title": "2022年4季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -1987,6 +2050,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/199_2022年银行业总资产、总负债（月度）_总资产、总负债.xls",
+    "notice_title": "2022年银行业总资产、总负债（月度）",
     "parse_profile": "data"
   },
   {
@@ -2077,6 +2141,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/208_2022年3季度保险业资金运用情况表_2022年三季度保险业资金运用情况表.xlsx",
+    "notice_title": "2022年3季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -2087,6 +2152,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/209_2022年9月全国各地区原保险保费收入情况表_2022年09月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年9月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2097,6 +2163,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/210_2022年9月人身险公司经营情况表_2022年09月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年9月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2107,6 +2174,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/211_2022年9月财产保险公司经营情况表_2022年09月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年9月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2117,6 +2185,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/212_2022年9月保险业经营情况表_2022年09月保险业经营情况表.xlsx",
+    "notice_title": "2022年9月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2127,6 +2196,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/213_2022年8月全国各地区原保险保费收入情况表_2022年08月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年8月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2137,6 +2207,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/214_2022年8月人身险公司经营情况表_2022年08月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年8月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2147,6 +2218,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/215_2022年8月财产保险公司经营情况表_2022年08月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年8月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2157,6 +2229,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/216_2022年8月保险业经营情况表_2022年08月保险业经营情况表.xlsx",
+    "notice_title": "2022年8月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2167,6 +2240,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/217_2022年7月全国各地区原保险保费收入情况表_2022年07月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年7月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2177,6 +2251,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/218_2022年7月人身险公司经营情况表_2022年07月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年7月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2187,6 +2262,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/219_2022年7月财产保险公司经营情况表_2022年07月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年7月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2197,6 +2273,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/220_2022年7月保险业经营情况表_2022年07月保险业经营情况表.xlsx",
+    "notice_title": "2022年7月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2207,6 +2284,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/221_2022年2季度保险业资金运用情况表_2022年二季度保险业资金运用情况表.xlsx",
+    "notice_title": "2022年2季度保险业资金运用情况表",
     "parse_profile": "data"
   },
   {
@@ -2217,6 +2295,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/222_2022年6月全国各地区原保险保费收入情况表_2022年06月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年6月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2227,6 +2306,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/223_2022年6月人身险公司经营情况表_2022年06月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年6月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2237,6 +2317,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/224_2022年6月财产保险公司经营情况表_2022年06月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年6月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2247,6 +2328,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/225_2022年6月保险业经营情况表_2022年06月保险业经营情况表.xlsx",
+    "notice_title": "2022年6月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2257,6 +2339,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/226_2022年5月全国各地区原保险保费收入情况表_2022年05月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年5月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2267,6 +2350,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/227_2022年5月人身险公司经营情况表_2022年05月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年5月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2277,6 +2361,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/228_2022年5月财产保险公司经营情况表_2022年05月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年5月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2287,6 +2372,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/229_2022年5月保险业经营情况表_2022年05月保险业经营情况表.xlsx",
+    "notice_title": "2022年5月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2297,6 +2383,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/230_2022年4月全国各地区原保险保费收入情况表_2022年04月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年4月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2307,6 +2394,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/231_2022年4月人身险公司经营情况表_2022年04月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年4月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2317,6 +2405,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/232_2022年4月财产保险公司经营情况表_2022年04月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年4月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2327,6 +2416,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/233_2022年4月保险业经营情况表_2022年04月保险业经营情况表.xlsx",
+    "notice_title": "2022年4月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2347,6 +2437,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/235_2022年3月全国各地区原保险保费收入情况表_2022年03月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年3月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2357,6 +2448,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/236_2022年3月人身险公司经营情况表_2022年03月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年3月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2367,6 +2459,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/237_2022年3月财产保险公司经营情况表_2022年03月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年3月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2377,6 +2470,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/238_2022年3月保险业经营情况表_2022年03月保险业经营情况表.xlsx",
+    "notice_title": "2022年3月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2387,6 +2481,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/239_2022年2月全国各地区原保险保费收入情况表_2022年02月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年2月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2397,6 +2492,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/240_2022年2月人身险公司经营情况表_2022年02月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年2月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2407,6 +2503,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/241_2022年2月财产保险公司经营情况表_2022年02月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年2月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2417,6 +2514,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/242_2022年2月保险业经营情况表_2022年02月保险业经营情况表.xlsx",
+    "notice_title": "2022年2月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2427,6 +2525,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/243_2022年1月全国各地区原保险保费收入情况表_2022年01月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2022年1月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2437,6 +2536,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/244_2022年1月人身险公司经营情况表_2022年01月人身险公司经营情况表.xlsx",
+    "notice_title": "2022年1月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2447,6 +2547,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/245_2022年1月财产保险公司经营情况表_2022年01月财产保险公司经营情况表.xlsx",
+    "notice_title": "2022年1月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2457,6 +2558,7 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/246_2022年1月保险业经营情况表_2022年01月保险业经营情况表.xlsx",
+    "notice_title": "2022年1月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2467,7 +2569,8 @@
     "publish_date": "2022-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/247_2022年银保监会监管统计信息发布日程表_2022年监管统计信息披露日程、机构范围及指标解释.xls",
-    "parse_profile": "data"
+    "notice_title": "2022年银保监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-248",
@@ -2657,6 +2760,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/266_2021年9月全国各地区原保险保费收入情况表_2021年09月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2021年9月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2667,6 +2771,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/267_2021年9月人身险公司经营情况表_2021年09月人身险公司经营情况表.xlsx",
+    "notice_title": "2021年9月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2677,6 +2782,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/268_2021年9月财产保险公司经营情况表_2021年09月财产保险公司经营情况表.xlsx",
+    "notice_title": "2021年9月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2687,6 +2793,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/269_2021年9月保险业经营情况表_2021年09月保险业经营情况表.xlsx",
+    "notice_title": "2021年9月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2697,6 +2804,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/270_2021年8月全国各地区原保险保费收入情况表_2021年08月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2021年8月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2707,6 +2815,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/271_2021年8月人身险公司经营情况表_2021年08月人身险公司经营情况表.xlsx",
+    "notice_title": "2021年8月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2717,6 +2826,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/272_2021年8月财产保险公司经营情况表_2021年08月财产保险公司经营情况表.xlsx",
+    "notice_title": "2021年8月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2727,6 +2837,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/273_2021年8月保险业经营情况表_2021年08月保险业经营情况表.xlsx",
+    "notice_title": "2021年8月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2737,6 +2848,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/274_2021年7月全国各地区原保险保费收入情况表_2021年07月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2021年7月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2747,6 +2859,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/275_2021年7月人身险公司经营情况表_2021年07月人身险公司经营情况表.xls",
+    "notice_title": "2021年7月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2757,6 +2870,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/276_2021年7月财产保险公司经营情况表_2021年07月财产保险公司经营情况表.xls",
+    "notice_title": "2021年7月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2767,6 +2881,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/277_2021年7月保险业经营情况表_2021年07月保险业经营情况表.xls",
+    "notice_title": "2021年7月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2777,6 +2892,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/278_2021年6月全国各地区原保险保费收入情况表_2021年06月全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2021年6月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2787,6 +2903,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/279_2021年6月人身险公司经营情况表_2021年06月人身险公司经营情况表.xlsx",
+    "notice_title": "2021年6月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2797,6 +2914,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/280_2021年6月财产保险公司经营情况表_2021年06月财产保险公司经营情况表.xlsx",
+    "notice_title": "2021年6月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2807,6 +2925,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/281_2021年6月保险业经营情况表_2021年06月保险业经营情况表.xlsx",
+    "notice_title": "2021年6月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2857,6 +2976,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/286_2021年4月全国各地区原保险保费收入情况表_2021年04月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2021年4月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2867,6 +2987,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/287_2021年4月人身险公司经营情况表_2021年04月人身险公司经营情况表.xls",
+    "notice_title": "2021年4月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2877,6 +2998,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/288_2021年4月财产保险公司经营情况表_2021年04月财产保险公司经营情况表.xls",
+    "notice_title": "2021年4月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2887,6 +3009,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/289_2021年4月保险业经营情况表_2021年04月保险业经营情况表.xls",
+    "notice_title": "2021年4月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2907,6 +3030,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/291_2021年3月全国各地区原保险保费收入情况表_2021年03月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2021年3月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2917,6 +3041,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/292_2021年3月人身险公司经营情况表_2021年03月人身险公司经营情况表.xls",
+    "notice_title": "2021年3月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2927,6 +3052,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/293_2021年3月财产保险公司经营情况表_2021年03月财产保险公司经营情况表.xls",
+    "notice_title": "2021年3月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2937,6 +3063,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/294_2021年3月保险业经营情况表_2021年03月保险业经营情况表.xls",
+    "notice_title": "2021年3月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2947,6 +3074,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/295_2021年2月全国各地区原保险保费收入情况表_2021年02月全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2021年2月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -2957,6 +3085,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/296_2021年2月人身险公司经营情况表_2021年02月人身险公司经营情况表.xls",
+    "notice_title": "2021年2月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2967,6 +3096,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/297_2021年2月财产保险公司经营情况表_2021年02月财产保险公司经营情况表.xls",
+    "notice_title": "2021年2月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -2977,6 +3107,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/298_2021年2月保险业经营情况表_2021年02月保险业经营情况表.xls",
+    "notice_title": "2021年2月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3027,7 +3158,8 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/303_2021年银保监会监管统计信息发布日程表_2021年监管统计信息披露日程、机构范围及指标解释.xls",
-    "parse_profile": "data"
+    "notice_title": "2021年银保监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-304",
@@ -3077,6 +3209,7 @@
     "publish_date": "2020-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/308_2020年银行业总资产、总负债（季度）_2020年总资产、总负债（季度）.xls",
+    "notice_title": "2020年银行业总资产、总负债（季度）",
     "parse_profile": "data"
   },
   {
@@ -3097,6 +3230,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/310_2020年12月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年12月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3107,6 +3241,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/311_2020年12月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年12月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3117,6 +3252,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/312_2020年12月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年12月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3127,6 +3263,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/313_2020年12月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年12月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3137,6 +3274,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/314_2020年11月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年11月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3147,6 +3285,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/315_2020年11月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年11月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3157,6 +3296,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/316_2020年11月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年11月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3167,6 +3307,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/317_2020年11月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年11月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3177,6 +3318,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/318_2020年10月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年10月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3187,6 +3329,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/319_2020年10月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年10月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3197,6 +3340,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/320_2020年10月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年10月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3207,6 +3351,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/321_2020年10月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年10月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3217,6 +3362,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/322_2020年9月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年9月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3227,6 +3373,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/323_2020年9月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年9月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3237,6 +3384,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/324_2020年9月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年9月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3247,6 +3395,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/325_2020年9月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年9月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3257,6 +3406,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/326_2020年8月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年8月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3267,6 +3417,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/327_2020年8月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年8月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3277,6 +3428,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/328_2020年8月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年8月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3287,6 +3439,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/329_2020年8月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年8月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3297,6 +3450,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/330_2020年7月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年7月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3307,6 +3461,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/331_2020年7月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年7月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3317,6 +3472,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/332_2020年7月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年7月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3327,6 +3483,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/333_2020年7月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年7月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3337,6 +3494,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/334_2020年6月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年6月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3347,6 +3505,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/335_2020年6月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年6月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3357,6 +3516,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/336_2020年6月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年6月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3367,6 +3527,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/337_2020年6月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年6月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3377,6 +3538,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/338_2020年5月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年5月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3387,6 +3549,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/339_2020年5月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年5月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3397,6 +3560,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/340_2020年5月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年5月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3407,6 +3571,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/341_2020年5月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年5月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3417,6 +3582,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/342_2020年4月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年4月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3427,6 +3593,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/343_2020年4月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年4月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3437,6 +3604,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/344_2020年4月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年4月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3447,6 +3615,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/345_2020年4月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年4月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3457,6 +3626,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/346_2020年3月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年3月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3467,6 +3637,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/347_2020年3月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年3月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3477,6 +3648,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/348_2020年3月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年3月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3487,6 +3659,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/349_2020年3月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年3月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3497,6 +3670,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/350_2020年2月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xls",
+    "notice_title": "2020年2月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3507,6 +3681,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/351_2020年2月人身险公司经营情况表_人身险公司经营情况表.xls",
+    "notice_title": "2020年2月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3517,6 +3692,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/352_2020年2月财产保险公司经营情况表_财产保险公司经营情况表.xls",
+    "notice_title": "2020年2月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3527,6 +3703,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/353_2020年2月保险业经营情况表_保险业经营情况表.xls",
+    "notice_title": "2020年2月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3537,6 +3714,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/354_2020年1月全国各地区原保险保费收入情况表_全国各地区原保险保费收入情况表.xlsx",
+    "notice_title": "2020年1月全国各地区原保险保费收入情况表",
     "parse_profile": "data"
   },
   {
@@ -3547,6 +3725,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/355_2020年1月人身险公司经营情况表_人身险公司经营情况表.xlsx",
+    "notice_title": "2020年1月人身险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3557,6 +3736,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/356_2020年1月财产保险公司经营情况表_财产保险公司经营情况表.xlsx",
+    "notice_title": "2020年1月财产保险公司经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3567,6 +3747,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/357_2020年1月保险业经营情况表_保险业经营情况表.xlsx",
+    "notice_title": "2020年1月保险业经营情况表",
     "parse_profile": "data"
   },
   {
@@ -3577,7 +3758,7 @@
     "publish_date": "2020-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/358_2020年银保监会监管统计信息发布日程表_2020年银保监会监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-359",
@@ -3587,7 +3768,7 @@
     "publish_date": "2019-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/359_2019年银保监会监管统计信息发布日程表_2019年银保监会监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-360",
@@ -3597,7 +3778,8 @@
     "publish_date": "2018-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/360_2018年银监会监管统计信息发布日程表_2018年监管统计信息披露日程表.xls",
-    "parse_profile": "data"
+    "notice_title": "2018年银监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-361",
@@ -3607,7 +3789,8 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/361_2013年至2017年6月国内21家主要银行绿色信贷数据_绿色信贷统计信息披露说明-中文.pdf",
-    "parse_profile": "pdf_table"
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
+    "parse_profile": "regulation"
   },
   {
     "doc_id": "NFRA-362",
@@ -3617,6 +3800,7 @@
     "publish_date": "2013-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/362_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201306）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3627,6 +3811,7 @@
     "publish_date": "2013-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/363_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201312）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3637,6 +3822,7 @@
     "publish_date": "2014-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/364_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201406）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3647,6 +3833,7 @@
     "publish_date": "2014-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/365_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201412）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3657,6 +3844,7 @@
     "publish_date": "2015-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/366_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201506）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3667,6 +3855,7 @@
     "publish_date": "2015-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/367_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201512）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3677,6 +3866,7 @@
     "publish_date": "2016-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/368_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201606）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3687,6 +3877,7 @@
     "publish_date": "2016-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/369_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201612）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3697,6 +3888,7 @@
     "publish_date": "2017-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/370_2013年至2017年6月国内21家主要银行绿色信贷数据_21家国内主要银行绿色信贷统计数据汇总表（201706）CN.p.pdf",
+    "notice_title": "2013年至2017年6月国内21家主要银行绿色信贷数据",
     "parse_profile": "pdf_table"
   },
   {
@@ -3707,7 +3899,8 @@
     "publish_date": "2017-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/371_2017年银监会监管统计信息发布日程表_2017年监管统计信息披露日程表.xls",
-    "parse_profile": "data"
+    "notice_title": "2017年银监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-372",
@@ -3717,7 +3910,8 @@
     "publish_date": "2016-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/372_2016年银监会监管统计信息发布日程表_2016年监管统计信息披露日程表.xls",
-    "parse_profile": "data"
+    "notice_title": "2016年银监会监管统计信息发布日程表",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-373",
@@ -3747,7 +3941,7 @@
     "publish_date": "2015-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/375_2015年银监会监管统计信息发布日程表_2015年银监会监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-376",
@@ -3757,7 +3951,8 @@
     "publish_date": "2014-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/376_2014年商业银行主要监管指标情况表(季度)_2014年监管统计信息发布日程、机构范围和指标解释表.xls",
-    "parse_profile": "data"
+    "notice_title": "2014年商业银行主要监管指标情况表(季度)",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-377",
@@ -3767,7 +3962,7 @@
     "publish_date": "2014-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/377_2014年银监会监管统计信息发布日程表_2014年银监会监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-378",
@@ -3777,7 +3972,8 @@
     "publish_date": "2013-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/378_2013年商业银行主要监管指标情况表(季度)_2013年监管统计信息发布日程表.xls",
-    "parse_profile": "data"
+    "notice_title": "2013年商业银行主要监管指标情况表(季度)",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-379",
@@ -3787,6 +3983,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/379_2013年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls",
+    "notice_title": "2013年商业银行主要监管指标情况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -3797,7 +3994,8 @@
     "publish_date": "2013-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/380_2013年总资产、总负债(季度)_2013年监管统计信息发布日程表及机构范围解释.xls",
-    "parse_profile": "data"
+    "notice_title": "2013年总资产、总负债(季度)",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-381",
@@ -3807,6 +4005,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/381_2012年总资产、总负债(季度)_机构范围和指标解释.xls",
+    "notice_title": "2012年总资产、总负债(季度)",
     "parse_profile": "data"
   },
   {
@@ -3817,6 +4016,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/382_2012年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls",
+    "notice_title": "2012年商业银行主要监管指标情况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -3827,6 +4027,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/383_2011年商业银行主要监管指标情况表(季度)_机构范围和指标解释.xls",
+    "notice_title": "2011年商业银行主要监管指标情况表(季度)",
     "parse_profile": "data"
   },
   {
@@ -3837,6 +4038,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/384_2011年总资产、总负债(季度)_机构范围解释.xls",
+    "notice_title": "2011年总资产、总负债(季度)",
     "parse_profile": "data"
   },
   {
@@ -3847,6 +4049,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/385_国家金融监督管理总局关于印发《保险公司资本保证金管理办法》的通知_附件：保险公司资本保证金处置情况报告表.doc",
+    "notice_title": "国家金融监督管理总局关于印发《保险公司资本保证金管理办法》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3857,6 +4060,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/386_国家金融监督管理总局_国家知识产权局_国家版权局关于印发《知识产权金融生态综合试点工作方案》的通知_知识产权金融生态综合试点工作方案.pdf",
+    "notice_title": "国家金融监督管理总局 国家知识产权局 国家版权局关于印发《知识产权金融生态综合试点工作方案》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3867,6 +4071,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/387_国家金融监督管理总局办公厅_关于印发《保险集团集中度风险监管指引》的通知_附件1：集中度风险指标统计表.doc",
+    "notice_title": "国家金融监督管理总局办公厅 关于印发《保险集团集中度风险监管指引》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3877,6 +4082,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/388_国家金融监督管理总局办公厅_关于印发《保险集团集中度风险监管指引》的通知_附件2：集中度风险管理情况报告内容.doc",
+    "notice_title": "国家金融监督管理总局办公厅 关于印发《保险集团集中度风险监管指引》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3887,6 +4093,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/389_国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金管理办法》的通知_国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金.pdf",
+    "notice_title": "国家金融监督管理总局关于印发《金融机构非集中清算衍生品交易保证金管理办法》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3897,6 +4104,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/390_国家金融监督管理总局关于印发银行保险机构数据安全管理办法的通知_附件：数据安全事件分级.doc",
+    "notice_title": "国家金融监督管理总局关于印发银行保险机构数据安全管理办法的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3907,6 +4115,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/391_国家金融监督管理总局关于印发银行业金融机构小微企业金融服务监管评价办法的通知_附件_银行业金融机构小微企业金融服务监管评价指标表.xls",
+    "notice_title": "国家金融监督管理总局关于印发银行业金融机构小微企业金融服务监管评价办法的通知 附件",
     "parse_profile": "data"
   },
   {
@@ -3917,6 +4126,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/392_国家金融监督管理总局关于_印发商业银行实施资本计量高级方法_申请及验收规定的通知_附件：商业银行实施资本计量高级方法验收材料清单.doc",
+    "notice_title": "国家金融监督管理总局关于 印发商业银行实施资本计量高级方法 申请及验收规定的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3927,6 +4137,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/393_国家金融监督管理总局_关于印发金融机构涉刑案件管理办法的通知_报告模板.doc",
+    "notice_title": "国家金融监督管理总局 关于印发金融机构涉刑案件管理办法的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3937,7 +4148,8 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/394_国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知_附件1：财产保险公司县域机构统计表.xls",
-    "parse_profile": "data"
+    "notice_title": "国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-395",
@@ -3947,7 +4159,8 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/395_国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知_附件2：人身保险公司县域机构统计表.xls",
-    "parse_profile": "data"
+    "notice_title": "国家金融监督管理总局办公厅关于印发保险公司县域机构统计制度的通知",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-396",
@@ -3967,6 +4180,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/397_财政部办公厅_金融监管总局办公厅关于印发《银行函证工作操作指引》的通知_银行函证工作操作指引.docx",
+    "notice_title": "财政部办公厅 金融监管总局办公厅关于印发《银行函证工作操作指引》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3977,6 +4191,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/398_财政部办公厅_金融监管总局办公厅关于印发《银行函证工作操作指引》的通知_银行函证工作操作指引.pdf",
+    "notice_title": "财政部办公厅 金融监管总局办公厅关于印发《银行函证工作操作指引》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3987,6 +4202,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/399_国家金融监督管理总局_关于印发非银行金融机构行政许可事项_申请材料目录及格式要求的通知_非银行金融机构行政许可事项申请材料目录及格式要求（2023年版）.pdf",
+    "notice_title": "国家金融监督管理总局 关于印发非银行金融机构行政许可事项 申请材料目录及格式要求的通知",
     "parse_profile": "regulation"
   },
   {
@@ -3997,6 +4213,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/400_商业银行资本管理办法_附件1：资本工具合格标准.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4007,6 +4224,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/401_商业银行资本管理办法_附件2：信用风险权重法风险暴露分类标准.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4017,6 +4235,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/402_商业银行资本管理办法_附件4：信用风险内部评级法风险暴露分类标准.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4027,6 +4246,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/403_商业银行资本管理办法_附件5：信用风险内部评级体系监管要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4037,6 +4257,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/404_商业银行资本管理办法_附件6：信用风险内部评级法风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4047,6 +4268,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/405_商业银行资本管理办法_附件8：信用风险内部评级法专业贷款风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4057,6 +4279,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/406_商业银行资本管理办法_附件10：中央交易对手风险暴露资本计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4067,6 +4290,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/407_商业银行资本管理办法_附件11：资产证券化风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4077,6 +4301,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/408_商业银行资本管理办法_附件12：资产管理产品风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4087,6 +4312,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/409_商业银行资本管理办法_附件13：账簿划分和名词解释.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4097,6 +4323,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/410_商业银行资本管理办法_附件15：市场风险内部模型法监管要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4107,6 +4334,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/411_商业银行资本管理办法_附件16：市场风险简化标准法计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4117,6 +4345,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/412_商业银行资本管理办法_附件17：信用估值调整风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4127,6 +4356,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/413_商业银行资本管理办法_附件18：操作风险资本计量监管要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4137,6 +4367,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/414_商业银行资本管理办法_附件19：调整后表内外资产余额计算方法.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4147,6 +4378,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/415_商业银行资本管理办法_附件20：商业银行风险评估标准.doc",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4157,6 +4389,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/416_商业银行资本管理办法_附件21：资本计量高级方法监督检查.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4167,6 +4400,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/417_商业银行资本管理办法_附件22：商业银行信息披露内容和要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4177,6 +4411,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/418_商业银行资本管理办法_附件24：资本计量高级方法验证要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4187,6 +4422,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/419_商业银行资本管理办法_附件25：外部评级使用规范.doc",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4197,6 +4433,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/420_商业银行资本管理办法_附件9：交易对手信用风险加权资产计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4207,6 +4444,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/421_商业银行资本管理办法_附件7：信用风险内部评级法风险缓释监管要求.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4217,6 +4455,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/422_商业银行资本管理办法_附件3：信用风险权重法表内资产风险权重、表外项目信用转换系数及合.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4227,6 +4466,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/423_商业银行资本管理办法_附件14：市场风险标准法计量规则.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4237,6 +4477,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/424_商业银行资本管理办法_附件23：第三档商业银行资本监管规定.docx",
+    "notice_title": "商业银行资本管理办法",
     "parse_profile": "regulation"
   },
   {
@@ -4247,6 +4488,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/425_国家金融监督管理总局关于促进金融租赁公司规范经营和合规管理的通知_附件：关于融资租赁业务统计口径的说明.doc",
+    "notice_title": "国家金融监督管理总局关于促进金融租赁公司规范经营和合规管理的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4257,6 +4499,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/426_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件1：货币经纪公司提供数据标准.doc",
+    "notice_title": "国家金融监督管理总局 中国人民银行 中国证券监督管理委员会 国家互联网信息办公室 国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4267,6 +4510,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/427_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件2：货币经纪公司可提供数据服务的机构名单.xls",
+    "notice_title": "国家金融监督管理总局 中国人民银行 中国证券监督管理委员会 国家互联网信息办公室 国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4277,6 +4521,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/428_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件3-1：货币经纪公司提供数据服务协议框架（金融基础设施版）.doc",
+    "notice_title": "国家金融监督管理总局 中国人民银行 中国证券监督管理委员会 国家互联网信息办公室 国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4287,6 +4532,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/429_国家金融监督管理总局_中国人民银行_中国证券监督管理委员会_国家互联网信息办公室_国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知_附件3-2：货币经纪公司提供数据服务协议框架（金融信息服务商版）.doc",
+    "notice_title": "国家金融监督管理总局 中国人民银行 中国证券监督管理委员会 国家互联网信息办公室 国家外汇管理局关于规范货币经纪公司数据服务有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4297,6 +4543,7 @@
     "publish_date": "2023-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/430_中国银保监会关于印发中资商业银行行政许可事项申请材料_目录及格式要求的通知_附件：中资商业银行行政许可事项申请材料目录及格式要求（2023年.pdf",
+    "notice_title": "中国银保监会关于印发中资商业银行行政许可事项申请材料 目录及格式要求的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4307,6 +4554,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/431_中国银保监会关于规范信托公司信托业务分类的通知_附件1：信托公司信托业务具体分类要求.doc",
+    "notice_title": "中国银保监会关于规范信托公司信托业务分类的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4317,6 +4565,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/432_中国银保监会关于规范信托公司信托业务分类的通知_附件2：信托公司信托业务新分类简表.doc",
+    "notice_title": "中国银保监会关于规范信托公司信托业务分类的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4327,6 +4576,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/433_中国银保监会关于印发商业银行和理财公司个人养老金业务管理暂行办法的通知_附件-首批开办个人养老金业务的机构名单.docx",
+    "notice_title": "中国银保监会关于印发商业银行和理财公司个人养老金业务管理暂行办法的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4357,6 +4607,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/441_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第5号附件：非寿险业务准备金回溯分析报表.xls",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "data"
   },
   {
@@ -4367,6 +4618,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/443_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件1.准备金报表填表说明.doc",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4377,6 +4629,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/444_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件2.保险公司年度非寿险业务准备金评估报告监管报表.xlsx",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "data"
   },
   {
@@ -4387,6 +4640,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/445_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件3.交强险业务专项准备金评估报告监管报表.xlsx",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "data"
   },
   {
@@ -4397,6 +4651,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/446_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件4.再保险公司年度非寿险业务准备金评估报告监管报表.xlsx",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "data"
   },
   {
@@ -4407,6 +4662,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/447_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件5.数据真实性声明书.doc",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4417,6 +4673,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/448_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件6.总精算师声明书及精算意见.doc",
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4427,7 +4684,8 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/449_中国银保监会关于印发_保险公司非寿险业务准备金管理办法_实施细则（1—7号）的通知_细则第6号附件7.准备金报表签字页.xlsx",
-    "parse_profile": "data"
+    "notice_title": "中国银保监会关于印发 保险公司非寿险业务准备金管理办法 实施细则（1—7号）的通知",
+    "parse_profile": "skip"
   },
   {
     "doc_id": "NFRA-451",
@@ -4437,6 +4695,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/451_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件1.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4447,6 +4706,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/452_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件2.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4457,6 +4717,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/453_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件3.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4467,6 +4728,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/454_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件4.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4477,6 +4739,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/455_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件5.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4487,6 +4750,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/456_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件6.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4497,6 +4761,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/457_中国银保监会关于印发融资租赁公司非现场监管规程的通知_附件7.doc",
+    "notice_title": "中国银保监会关于印发融资租赁公司非现场监管规程的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4507,6 +4772,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/458_中国银保监会关于精简保险资金运用监管报告事项的通知_附件1.docx",
+    "notice_title": "中国银保监会关于精简保险资金运用监管报告事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4517,6 +4783,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/459_中国银保监会关于精简保险资金运用监管报告事项的通知_附件2.docx",
+    "notice_title": "中国银保监会关于精简保险资金运用监管报告事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4527,6 +4794,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/460_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件1：寿险合同负债评估的折现率曲线.pdf",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4537,6 +4805,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/461_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件2：巨灾风险损失因子表和最低资本计算模板.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "skip"
   },
   {
@@ -4547,6 +4816,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/462_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件3：人身保险公司利率风险基础情景和不利情景曲线.pdf",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4557,6 +4827,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/463_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件4：保险公司压力测试必测压力情景和必测因素.pdf",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4567,6 +4838,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/464_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件5：保险公司偿付能力风险管理能力评估表.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4577,6 +4849,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/465_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件6：现金流压力测试的压力情景.pdf",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4587,6 +4860,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/466_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件7：保险集团偿付能力风险管理能力评估表.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4597,6 +4871,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/467_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件8：应当编报保险集团偿付能力报告的公司名单.pdf",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "report"
   },
   {
@@ -4607,6 +4882,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/468_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件9：保险公司偿付能力季度报告Excel样表.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4617,6 +4893,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/469_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件10：保险集团偿付能力报告Excel样表.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4627,6 +4904,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/470_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件11-1：财产保险公司偿付能力压力测试报告Excel样表.x.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4637,6 +4915,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/471_中国银保监会关于实施_保险公司偿付能力监管规则（Ⅱ）_有关事项的通知_附件11-2：人身保险公司偿付能力压力测试报告Excel样表.x.xlsx",
+    "notice_title": "中国银保监会关于实施 保险公司偿付能力监管规则（Ⅱ） 有关事项的通知",
     "parse_profile": "data"
   },
   {
@@ -4647,6 +4926,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/472_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第1号：实际资本.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4657,6 +4937,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/473_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第2号：最低资本.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4667,6 +4948,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/474_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第3号：寿险合同负债评估_.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第3号：寿险合同负债评估",
     "parse_profile": "regulation"
   },
   {
@@ -4677,6 +4959,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/475_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第4号：保险风险最低资本（非寿险业务）.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4687,6 +4970,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/476_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第5号：保险风险最低资本（寿险业务）.p.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4697,6 +4981,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/477_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第6号：保险风险最低资本（再保险公司）.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4707,6 +4992,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/478_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第7号：市场风险和信用风险的穿透计量.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4717,6 +5003,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/479_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第8号：市场风险最低资本_.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第8号：市场风险最低资本",
     "parse_profile": "regulation"
   },
   {
@@ -4727,6 +5014,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/480_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第9号：信用风险最低资本_.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第9号：信用风险最低资本",
     "parse_profile": "regulation"
   },
   {
@@ -4737,6 +5025,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/481_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第10号：压力测试_.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第10号：压力测试",
     "parse_profile": "regulation"
   },
   {
@@ -4747,6 +5036,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/482_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第11号：风险综合评级（分类监管）_.p.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第11号：风险综合评级（分类监管）",
     "parse_profile": "regulation"
   },
   {
@@ -4757,6 +5047,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/483_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第12号：偿付能力风险管理要求与评估.p.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4767,6 +5058,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/484_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第13号：流动性风险.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4777,6 +5069,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/485_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第14号：资本规划.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4787,6 +5080,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/486_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第15号：偿付能力信息公开披露.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4797,6 +5091,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/487_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第16号：偿付能力信息交流.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4807,6 +5102,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/488_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第17号：保险公司信用评级.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4817,6 +5113,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/489_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第18号：偿付能力报告.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "report"
   },
   {
@@ -4827,6 +5124,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/490_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第19号：保险集团_.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知 保险公司偿付能力监管规则第19号：保险集团",
     "parse_profile": "regulation"
   },
   {
@@ -4837,6 +5135,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/491_中国银保监会关于印发保险公司偿付能力_监管规则（Ⅱ）的通知_保险公司偿付能力监管规则第20号：劳合社保险（中国）有限公司.p.pdf",
+    "notice_title": "中国银保监会关于印发保险公司偿付能力 监管规则（Ⅱ）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4847,6 +5146,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/492_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件1：取消的监管报告事项.docx",
+    "notice_title": "中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4857,6 +5157,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/493_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件2：合并的监管报告事项.docx",
+    "notice_title": "中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4867,6 +5168,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/494_中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知_附件3：整合报送时间的监管报告事项.docx",
+    "notice_title": "中国银保监会办公厅关于精简保险资产管理公司监管报告事项的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4877,6 +5179,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/495_中国银保监会办公厅关于_印发意外伤害保险业务监管办法的通知_中国银保监会办公厅关于印发意外伤害保险业务监管办法的通知.pdf",
+    "notice_title": "中国银保监会办公厅关于 印发意外伤害保险业务监管办法的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4887,6 +5190,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/496_中国银保监会办公厅关于_印发意外伤害保险业务监管办法的通知_附件：意外伤害保险经营情况附表.xlsx",
+    "notice_title": "中国银保监会办公厅关于 印发意外伤害保险业务监管办法的通知",
     "parse_profile": "data"
   },
   {
@@ -4897,6 +5201,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/497_中国银保监会关于修订_《保险公司偿付能力监管规则_——问题解答第1号：偿付能力监管_等效框架协议过渡期内的香港地区_再保险交易对手违约风险因子》的通知_保险公司偿付能力监管规则——问题解答第1号：偿付能力监管等效框架.pdf",
+    "notice_title": "中国银保监会关于修订 《保险公司偿付能力监管规则 ——问题解答第1号：偿付能力监管 等效框架协议过渡期内的香港地区 再保险交易对手违约风险因子》的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4907,6 +5212,7 @@
     "publish_date": "2021-01-01",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/498_中国银保监会办公厅关于印发非银行金融机构行政许可事项申请材料目录及格式要求的通知_非银行金融机构行政许可事项申请材料目录及格式要求（2021年版）.doc",
+    "notice_title": "中国银保监会办公厅关于印发非银行金融机构行政许可事项申请材料目录及格式要求的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4917,6 +5223,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/499_中国银保监会办公厅关于加强保险公司省级分公司以下分支机构负责人管理的通知_任职报告表.doc",
+    "notice_title": "中国银保监会办公厅关于加强保险公司省级分公司以下分支机构负责人管理的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4927,6 +5234,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/500_银行保险机构恢复和处置计划实施暂行办法_附件1：恢复计划示例（商业银行版）.docx",
+    "notice_title": "银行保险机构恢复和处置计划实施暂行办法",
     "parse_profile": "regulation"
   },
   {
@@ -4937,6 +5245,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/501_银行保险机构恢复和处置计划实施暂行办法_附件2：恢复计划示例（保险公司版）.docx",
+    "notice_title": "银行保险机构恢复和处置计划实施暂行办法",
     "parse_profile": "regulation"
   },
   {
@@ -4947,6 +5256,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/502_银行保险机构恢复和处置计划实施暂行办法_附件3：处置计划建议示例（商业银行版）.docx",
+    "notice_title": "银行保险机构恢复和处置计划实施暂行办法",
     "parse_profile": "regulation"
   },
   {
@@ -4957,6 +5267,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/503_银行保险机构恢复和处置计划实施暂行办法_附件4：处置计划建议示例（保险公司版）.docx",
+    "notice_title": "银行保险机构恢复和处置计划实施暂行办法",
     "parse_profile": "regulation"
   },
   {
@@ -4967,6 +5278,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/504_中国银保监会办公厅_中国人民银行办公厅关于_简化提取已故存款人小额存款相关事宜的通知_附件1：承诺书参考样本（提取申请人为已故存款人的配偶、子女、父母.doc",
+    "notice_title": "中国银保监会办公厅 中国人民银行办公厅关于 简化提取已故存款人小额存款相关事宜的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4977,6 +5289,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/505_中国银保监会办公厅_中国人民银行办公厅关于_简化提取已故存款人小额存款相关事宜的通知_附件2：承诺书参考样本（提取申请人为已故存款人的公证遗嘱指定的继.doc",
+    "notice_title": "中国银保监会办公厅 中国人民银行办公厅关于 简化提取已故存款人小额存款相关事宜的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4987,6 +5300,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/506_中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知_1.现场检查通知书.doc",
+    "notice_title": "中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知",
     "parse_profile": "regulation"
   },
   {
@@ -4997,6 +5311,7 @@
     "publish_date": "",
     "source_url": "",
     "local_path": "data/raw/nfra_page_attachments_500/507_中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知_2.现场检查公告_.doc",
+    "notice_title": "中国银保监会办公厅关于印发银保监会现场检查立项和实施程序规定（试行）的通知 2.现场检查公告",
     "parse_profile": "regulation"
   }
 ]
