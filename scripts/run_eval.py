@@ -115,6 +115,7 @@ def main():
     results = []
     correct = 0
     by_source: dict[str, dict] = {}
+    by_qa_type: dict[str, dict] = {}
 
     for item in items:
         full_q = build_mc_question(item)
@@ -148,6 +149,12 @@ def main():
         if is_correct:
             by_source[src]["correct"] += 1
 
+        qa_type = item.get("qa_type", "unknown")
+        by_qa_type.setdefault(qa_type, {"total": 0, "correct": 0})
+        by_qa_type[qa_type]["total"] += 1
+        if is_correct:
+            by_qa_type[qa_type]["correct"] += 1
+
         results.append(
             {
                 "id": item["id"],
@@ -171,17 +178,29 @@ def main():
         }
         for src, v in by_source.items()
     }
+    qa_type_summary = {
+        qt: {
+            "total": v["total"],
+            "correct": v["correct"],
+            "accuracy": round(v["correct"] / v["total"], 4) if v["total"] else 0,
+        }
+        for qt, v in by_qa_type.items()
+    }
     report = {
         "total": total,
         "correct": correct,
         "accuracy": round(correct / total, 4) if total else 0,
         "by_source": source_summary,
+        "by_qa_type": qa_type_summary,
         "results": results,
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n评测完成：{correct}/{total}，准确率 {report['accuracy']:.1%}")
     for src, v in source_summary.items():
         print(f"  {src}: {v['correct']}/{v['total']} = {v['accuracy']:.1%}")
+    print(f"  --- 按题型 ---")
+    for qt, v in qa_type_summary.items():
+        print(f"  {qt}: {v['correct']}/{v['total']} = {v['accuracy']:.1%}")
     print(f"报告保存至：{REPORT_PATH}")
 
 
