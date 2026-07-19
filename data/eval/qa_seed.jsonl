@@ -1,5 +1,0 @@
-{"id": "Q001", "question": "商业银行资本充足率监管要求是多少？", "answer": "不得低于10.5%", "source_title": "商业银行资本管理办法", "qa_type": "threshold", "difficulty": "easy"}
-{"id": "Q002", "question": "不良贷款的认定标准是什么？", "answer": "借款人逾期90天以上的贷款应归入不良", "source_title": "商业银行金融资产风险分类办法", "qa_type": "definition", "difficulty": "medium"}
-{"id": "Q003", "question": "商业银行流动性覆盖率最低要求是多少？", "answer": "不低于100%", "source_title": "商业银行流动性风险管理办法", "qa_type": "threshold", "difficulty": "easy"}
-{"id": "Q004", "question": "银行理财产品销售时需要向客户披露哪些信息？", "answer": "包括产品风险等级、预期收益率、费用说明、投资范围等", "source_title": "商业银行理财业务监督管理办法", "qa_type": "process", "difficulty": "medium"}
-{"id": "Q005", "question": "商业银行反洗钱大额交易报告的金额标准是多少？", "answer": "人民币5万元以上的现金交易需上报", "source_title": "金融机构大额交易和可疑交易报告管理办法", "qa_type": "threshold", "difficulty": "easy"}

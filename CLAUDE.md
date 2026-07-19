@@ -50,7 +50,7 @@ docker compose up -d              # 启动 qdrant + backend + frontend
 # 前端：http://localhost  后端：http://localhost:8000  Qdrant：localhost:6333
 ```
 
-`backend` 容器通过 volume 挂载宿主机的 HuggingFace 模型缓存（`HF_HOME` 环境变量指定的目录），无需重复下载。
+`backend` 容器启动时（`entrypoint.sh`）会先运行 `scripts/build_index.py` 再启动 API 服务，因此容器镜像里已包含 `data/chunks/` 产物。容器通过 volume 挂载宿主机的 HuggingFace 模型缓存（`HF_HOME` 环境变量指定的目录），无需重复下载。
 
 ### 测试与评测
 ```bash
@@ -116,6 +116,12 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 **Chunk 结构**（定义于 `src/parser/base.py`）：所有解析器均输出 `Chunk` dataclass 实例。表格证据可包含 `table_name`、`indicator`、`period`、`unit`、`row_index`、`cell_ref`、`row_label`、`column_header`、`raw_value`；PDF/段落证据可包含 `page_no` 与 `section_path`。`parent_chunk_id` 用于子条款追溯父块。`to_dict()` 会自动忽略值为 `None` 的字段。
 
+**`retrieve()` 签名**（`src/retriever/hybrid_retriever.py`）：
+
+```python
+def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: int = 5) -> list[dict]
+```
+
 **`/api/ask` 请求**：`question`（必填）、`filters`（可选）、`history`（可选，`[{role, content}]` 数组）。
 
 **`/api/ask` 响应**：固定返回 `answer`、`confidence`（`high/medium/low`）、`evidence[]`（含 `source_title`、`section`、`text`、`source_url`）、`refuse_reason`（null 或字符串）、`latency_ms`。
@@ -141,8 +147,9 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 - 总 chunk 数：38,287（clause 8,927 + table 29,360）
 - 覆盖文档：481 / 500（19 个 skip）
 - 平均 chunk 长度：129 字
-- 零重复，零碎片（<20字）
+- 零碎片（<20字）
+- 已知问题：`clause_chunks.jsonl` 中存在 343 条重复 `chunk_id`（源于子条款/超长切分命名规则在个别边界情况下产生冲突），尚未修复
 
 ## 入库 Manifest
 
-`data/manifest.json` 驱动 `scripts/ingest.py`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`、`parse_profile`。脚本按 `parse_profile`（优先）和后缀名路由解析器。`data/raw/` 与 `data/converted/` 目录不提交到 Git。
+`data/manifest.json` 驱动 `scripts/ingest.py`，当前包含 500 条文件记录。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`、`parse_profile`。脚本按 `parse_profile`（优先）和后缀名路由解析器。`data/raw/` 与 `data/converted/` 目录不提交到 Git。

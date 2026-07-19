@@ -328,7 +328,6 @@ GET  /api/health    # 服务健康检查
 ```
 data/eval/
   ├── QA数据.xlsx          # 300 道选择题（100 excel + 100 word + 100 pdf）
-  ├── qa_seed.jsonl        # 种子评测数据
   └── eval_report.json    # 评测结果输出
 ```
 
