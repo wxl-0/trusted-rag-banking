@@ -25,17 +25,8 @@ docker compose up -d
 
 ### 4. 构建知识库
 ```bash
-python scripts/ingest.py
-python -c "
-from src.indexer.qdrant_index import QdrantIndex
-idx = QdrantIndex()
-idx.create_collections()
-idx.index_chunks('data/chunks/clause_chunks.jsonl', 'regulations')
-idx.index_chunks('data/chunks/table_chunks.jsonl', 'tables')
-from src.indexer.bm25_index import BM25Index
-bm25 = BM25Index()
-bm25.build(['data/chunks/clause_chunks.jsonl', 'data/chunks/table_chunks.jsonl'])
-"
+python scripts/ingest.py        # 解析原始文件 → JSONL chunks
+python scripts/build_index.py   # 向量入库 + 构建 BM25（需 Qdrant 已启动，支持断点续传）
 ```
 
 ### 5. 启动服务
@@ -50,6 +41,7 @@ uvicorn src.api.main:app --reload
 ```bash
 python scripts/run_eval.py
 ```
+评测支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`，中断后重跑自动续上；从头重跑需先删除该文件。结果输出至 `data/eval/eval_report.json`。
 
 ## 运行测试
 ```bash

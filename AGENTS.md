@@ -99,6 +99,8 @@ pytest tests/test_api.py::test_health -v          # 单个测试用例
 python scripts/run_eval.py                        # 端到端评测 → data/eval/eval_report.json
 ```
 
+`run_eval.py` 支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`（已 gitignore），中断后重跑自动跳过已完成题、重试出错题；从头重跑需先删除该文件。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
+
 ### 真实数据解析检查
 
 ```bash
@@ -127,8 +129,8 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/parser/`**：将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（`.doc/.docx`，含表格提取和合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 `.xls/.xlsx`）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
 - **`src/indexer/`**：两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
-- **`src/retriever/`**：`QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
-- **`src/generator/`**：`QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解 → 检索 → chunk 去重 → grounded-generation 系统提示 + 多轮历史调用 LLM。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`LLMClient.chat()` 接受 `history` 参数，取最近 6 条（3 轮对话）。
+- **`src/retriever/`**：`QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`（`out_of_scope` 仅限与监管制度/行业统计完全无关的问题；调用失败或返回空时默认 `hybrid`）。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
+- **`src/generator/`**：`QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解 → 检索（top_k=8）→ chunk 去重 → grounded-generation 系统提示 + 多轮历史调用 LLM。系统提示共 7 条规则，含拒答门槛校准（资料相关必须作答，完全无关才拒答）与比较/计算类问题的逐步推理要求。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`LLMClient.chat()` 接受 `history` 参数，取最近 6 条（3 轮对话）；响应为空或调用异常时自动重试 3 次（指数退避）。
 - **`src/api/`**：FastAPI 应用。主要路由为 `POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。存在前端构建产物时，后端也可在 `/` 提供页面；Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 - **`src/frontend/`**：React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件包括 `ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
 
@@ -181,6 +183,7 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 - 总 chunk 数：38,287（clause 8,927 + table 29,360）
 - 覆盖文档：481 / 500（19 个 `skip`）
 - 平均 chunk 长度：约 130 字
+- 评测基线：首轮 300 题准确率 41%（拒答率 50% 为主要失分），报告见 `data/eval/eval_report.json`；生成层健壮性优化（重试/拒答校准/top_k=8）后的复测待跑
 - 当前无 `<20` 字碎片；`clause_chunks.jsonl` 仍存在重复 `chunk_id` 行，需要后续修复
 
 ## 入库 Manifest

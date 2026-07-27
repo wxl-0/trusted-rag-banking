@@ -13,11 +13,11 @@
 ```python
 vector_results += self.qdrant.search(query, col, filters=filters, top_k=20)  # 向量召回数量
 bm25_results = self.bm25.search(query, top_k=20)                              # BM25 召回数量
-return self.reranker.rerank(query, merged, top_k=top_k)                       # 最终传给LLM的数量（默认5）
+return self.reranker.rerank(query, merged, top_k=top_k)                       # 最终传给LLM的数量（AnswerBuilder 传 8）
 ```
 
 - 召回阶段 `top_k=20`：越大命中率越高，但速度变慢
-- 精排后 `top_k=5`：传给生成层的最终数量，可调整为 3～8
+- 精排后 `top_k=8`：`AnswerBuilder.answer()` 调用时显式传入（`retrieve()` 签名默认仍为 5），prompt 中证据切片同步为 8 条
 - **建议：** 命中率不达标时，先把召回阶段改为 `top_k=30`
 
 ---
@@ -44,11 +44,15 @@ def chat(self, system: str, user: str, temperature: float = 0) -> str:
 1. 只能使用【参考资料】中的内容作答，禁止引入外部知识
 2. 涉及金额、比例、日期、机构名称、文号必须原文引用，不得改写
 3. 注意区分"应当/必须""可以""不得""原则上"等规范强度词
-4. 若参考资料不足以回答问题，在 refuse_reason 中说明原因，answer 留空
-5. 严格按照 JSON 格式输出，不要输出其他内容
+4. 只要【参考资料】与问题相关，就必须基于资料给出答案，允许根据资料进行推理、比较和计算；
+   仅当资料与问题完全无关或明显不足以回答时，才在 refuse_reason 中说明原因并将 answer 留空
+5. 涉及比较类问题（如"哪项最高/最低"），先逐项列出各候选项的数值，再比较得出结论
+6. 涉及计算类问题（如"变化量/合计/占比"），先列出取到的数值和计算式，再给出结果
+7. 严格按照 JSON 格式输出，不要输出其他内容
 ```
 
 - 规则措辞越严，拒答率越高、幻觉越少
+- 第 4 条是拒答门槛：过松→过度拒答（首轮评测 50% 拒答的主因），过严→超范围题拒答率不达标，需两边平衡
 - 后期某类指标不达标，**优先在这里调整**
 
 ---
@@ -58,12 +62,12 @@ def chat(self, system: str, user: str, temperature: float = 0) -> str:
 **影响指标：** 制度事实准确率（目标 ≥85%）、表格取数准确率（目标 ≥80%）
 
 ```
-LLM_MODEL=gpt-4o-mini    # 默认，成本低
-LLM_MODEL=gpt-4o         # 准确率更高，约贵10倍
+LLM_MODEL=deepseek/deepseek-v4-pro    # 当前使用（经 OpenRouter 中转）
 ```
 
 - 模型是准确率的最大影响因素
-- 开发阶段用 `gpt-4o-mini`，评测冲指标时可换 `gpt-4o`
+- 中转平台偶发返回空 content，`llm_client.py` 已内置重试 3 次（`_MAX_ATTEMPTS`，退避 1s→2s→4s）
+- 换模型时改 `.env` 的 `LLM_MODEL` 即可，注意 `OPENAI_BASE_URL` 要与中转平台匹配
 
 ---
 
