@@ -23,7 +23,7 @@ class AnswerBuilder:
                 query=sq["question"],
                 query_type=sq.get("type"),
                 filters=filters,
-                top_k=5,
+                top_k=8,
             )
             all_chunks.extend(chunks)
 
@@ -44,7 +44,7 @@ class AnswerBuilder:
                 "latency_ms": int((time.time() - start) * 1000),
             }
 
-        user_msg = build_user_prompt(question, unique_chunks[:5])
+        user_msg = build_user_prompt(question, unique_chunks[:8])
         raw = self.llm.chat(SYSTEM_PROMPT, user_msg, history=history)
 
         try:

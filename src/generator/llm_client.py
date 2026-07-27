@@ -1,8 +1,11 @@
 import os
+import time
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+_MAX_ATTEMPTS = 3
 
 
 class LLMClient:
@@ -18,9 +21,23 @@ class LLMClient:
         if history:
             messages.extend(history[-6:])
         messages.append({"role": "user", "content": user})
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=temperature,
-        )
-        return response.choices[0].message.content
+
+        last_error = None
+        for attempt in range(_MAX_ATTEMPTS):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=temperature,
+                )
+                content = response.choices[0].message.content
+                if content:
+                    return content
+                # 中转平台偶发返回空 content，退避后重试
+            except Exception as e:
+                last_error = e
+            time.sleep(2 ** attempt)
+
+        if last_error is not None:
+            raise last_error
+        return ""
