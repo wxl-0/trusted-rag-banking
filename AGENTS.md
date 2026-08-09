@@ -95,9 +95,10 @@ uv run --frozen python -m pytest tests/ -v                                  # �
 uv run --frozen python -m pytest tests/test_parser.py -v                    # 单个测试文件
 uv run --frozen python -m pytest tests/test_api.py::test_health -v          # 单个测试用例
 uv run --frozen python scripts/run_eval.py                                  # 端到端评测 → data/eval/eval_report.json
+uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke # 指定题号 → data/eval/runs/smoke/
 ```
 
-`run_eval.py` 支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`（已 gitignore），中断后重跑自动跳过已完成题、重试出错题；从头重跑需先删除该文件。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
+`run_eval.py` 支持断点续传：使用 `--run-name` 时，每题结果与报告隔离写入 `data/eval/runs/<run-name>/`（已 gitignore）；不指定时继续使用原有路径。评测模式要求模型返回结构化 `choice`，按“结构化选项 → 回答中的明确选项 → 规范化选项文本”确定性判分；仍无法判断时标记 `unparseable`，不调用 LLM Judge。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
 
 ### 真实数据解析检查
 
@@ -127,8 +128,8 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/parser/`**：将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（`.doc/.docx`，含表格提取和合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 `.xls/.xlsx`）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
 - **`src/indexer/`**：两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
-- **`src/retriever/`**：`QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`（`out_of_scope` 仅限与监管制度/行业统计完全无关的问题；调用失败或返回空时默认 `hybrid`）。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
-- **`src/generator/`**：`QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解 → 检索（top_k=8）→ chunk 去重 → grounded-generation 系统提示 + 多轮历史调用 LLM。系统提示共 7 条规则，含拒答门槛校准（资料相关必须作答，完全无关才拒答）与比较/计算类问题的逐步推理要求。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`LLMClient.chat()` 接受 `history` 参数，取最近 6 条（3 轮对话）；响应为空或调用异常时自动重试 3 次（指数退避）。
+- **`src/retriever/`**：`QueryRouter` 在调用方未提供 `query_type` 时调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
+- **`src/generator/`**：`QueryDecomposer` 先用确定性关键词规则判断 `regulation | table | hybrid`，只有无法明确判断时才调用 LLM 尝试拆分，失败回退 `hybrid`。`AnswerBuilder.answer()` 是顶层调用：分析/分解 → 检索（top_k=8）→ chunk 去重 → grounded-generation 系统提示 + 多轮历史调用 LLM。系统提示共 7 条规则，含拒答门槛校准与比较/计算类问题的逐步推理要求。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；`confidence` 删除属于上文已确认但尚未实施的接口改动。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
 - **`src/api/`**：FastAPI 应用。主要路由为 `POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。存在前端构建产物时，后端也可在 `/` 提供页面；Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 - **`src/frontend/`**：React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件包括 `ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
 
@@ -164,7 +165,7 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 
 - 删除 `confidence` 字段。实施时必须同步修改生成提示词、后端响应模型与接口、前端展示、测试和相关文档；在整组改动完成前，上述 `/api/ask` 响应描述仍代表当前代码现状。不要用新的主观置信度字段替代它，除非另有明确设计。
 - `choice` 只属于选择题评测适配层，不进入正式前端的开放问答接口。评测模式可要求模型结构化返回 `choice`（`A/B/C/D`）和 `answer`，正式 `/api/ask` 仍返回自然语言答案与证据。
-- 正式选择题判分优先使用确定性规则（选项字母、规范化数值、规范化文本）；只有无法确定时才允许可选的 LLM Judge，并必须单独标记判分方法，不能把模型判分伪装成确定性结果。
+- 正式选择题判分使用确定性规则（结构化选项、回答中的明确选项、规范化选项文本）；无法确定时标记 `unparseable` 并人工复核，不调用 LLM Judge。
 
 ## 环境变量（`.env`）
 

@@ -44,8 +44,10 @@ npm run dev
 ### 7. 运行评测
 ```powershell
 uv run --frozen python scripts/run_eval.py
+# 指定题号并把本轮结果保存到独立目录
+uv run --frozen python scripts/run_eval.py --ids Q035,Q068,Q101,Q103,Q201,Q202,Q203 --run-name diverse-baseline-v1
 ```
-评测支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`，中断后重跑自动续上；从头重跑需先删除该文件。结果输出至 `data/eval/eval_report.json`。
+评测支持断点续传。使用 `--run-name` 时，进度和报告分别写入 `data/eval/runs/<run-name>/progress.jsonl` 与 `report.json`；不指定时继续使用原来的 `data/eval/eval_progress.jsonl` 与 `eval_report.json`。评测模式要求模型结构化返回 `choice`，并用确定性规则判分，不调用 LLM Judge。
 
 ## 运行测试
 ```powershell

@@ -20,6 +20,7 @@ class QdrantIndex:
         self.client = QdrantClient(
             host=os.environ.get("QDRANT_HOST", "localhost"),
             port=int(os.environ.get("QDRANT_PORT", 6333)),
+            trust_env=False,
         )
         self.embedder = Embedder()
 

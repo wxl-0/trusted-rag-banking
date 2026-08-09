@@ -56,9 +56,10 @@ uv run --frozen python -m pytest tests/ -v                                  # �
 uv run --frozen python -m pytest tests/test_parser.py -v                    # 单个测试文件
 uv run --frozen python -m pytest tests/test_api.py::test_health -v          # 单个测试用例
 uv run --frozen python scripts/run_eval.py                                  # 端到端评测 → data/eval/eval_report.json
+uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke # 指定题号 → data/eval/runs/smoke/
 ```
 
-`run_eval.py` 支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`（已 gitignore），中断后重跑自动跳过已完成题、重试出错题；从头重跑需先删除该文件。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
+`run_eval.py` 支持断点续传：使用 `--run-name` 时，每题结果与报告隔离写入 `data/eval/runs/<run-name>/`（已 gitignore）；不指定时继续使用原有路径。评测模式要求模型返回结构化 `choice` 并使用确定性规则判分；无法判断时标记 `unparseable`，不调用 LLM Judge。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
 
 ### 真实数据解析检查
 ```bash
@@ -88,9 +89,9 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/indexer/`** — 两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
 
-- **`src/retriever/`** — `QueryRouter` 单次调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`（`out_of_scope` 仅限与监管制度/行业统计完全无关的问题；调用失败或返回空时默认 `hybrid`）。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
+- **`src/retriever/`** — `QueryRouter` 仅在调用方未提供 `query_type` 时调用 LLM 分类；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
 
-- **`src/generator/`** — `QueryDecomposer` 可选地将多跳问题拆分为子问题。`AnswerBuilder.answer()` 是顶层调用：分解→检索（top_k=8）→chunk 去重→grounded-generation 系统提示 + 多轮历史调用 LLM。系统提示共 7 条规则，含拒答门槛校准（资料相关必须作答，完全无关才拒答）与比较/计算类问题的逐步推理要求。LLM 必须返回包含 `answer`、`confidence`、`evidence[]`、`refuse_reason` 的结构化 JSON。`LLMClient.chat()` 接受 `history` 参数，取最近 6 条（3 轮对话）；响应为空或调用异常时自动重试 3 次（指数退避）。
+- **`src/generator/`** — `QueryDecomposer` 先用确定性规则判断 `regulation | table | hybrid`，只有无法明确判断时才调用 LLM 尝试拆分，失败回退 `hybrid`。`AnswerBuilder.answer()` 是顶层调用：分析/分解→检索（top_k=8）→chunk 去重→grounded-generation 系统提示 + 多轮历史调用 LLM。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；响应为空或调用异常时自动重试 3 次（指数退避）。
 
 - **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。生产模式下挂载 `src/frontend/dist/` 静态文件。Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 

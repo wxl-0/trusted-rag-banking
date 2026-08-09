@@ -7,6 +7,7 @@ data/raw/
 data/converted/
 data/chunks/
 data/eval/eval_progress.jsonl
+data/eval/runs/
 src/frontend/node_modules/
 src/frontend/dist/
 .venv/
