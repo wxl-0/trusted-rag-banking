@@ -1,3 +1,5 @@
+import time
+
 from src.indexer.qdrant_index import QdrantIndex, COLLECTION_REGULATIONS, COLLECTION_TABLES
 from src.indexer.bm25_index import BM25Index
 from src.retriever.router import QueryRouter
@@ -5,18 +7,29 @@ from src.retriever.reranker import Reranker
 
 
 class HybridRetriever:
-    def __init__(self):
-        self.qdrant = QdrantIndex()
-        self.bm25 = BM25Index()
-        self.router = QueryRouter()
-        self.reranker = Reranker()
+    def __init__(self, qdrant=None, bm25=None, router=None, reranker=None):
+        self.qdrant = qdrant or QdrantIndex()
+        self.bm25 = bm25 or BM25Index()
+        self.router = router or QueryRouter()
+        self.reranker = reranker or Reranker()
+        self.last_diagnostics = {}
 
     def retrieve(self, query: str, query_type: str = None,
-                 filters: dict = None, top_k: int = 5) -> list:
+                 filters: dict = None, top_k: int = 5,
+                 title_hint: str = None) -> list:
+        total_start = time.perf_counter()
         if query_type is None:
             query_type = self.router.route(query)
 
         if query_type == "out_of_scope":
+            self.last_diagnostics = {
+                "route": query_type,
+                "title_hint": title_hint or "",
+                "title_match": "none",
+                "matched_titles": [],
+                "candidate_counts": {"vector": 0, "bm25": 0, "merged": 0, "final": 0},
+                "timing_ms": {"total": int((time.perf_counter() - total_start) * 1000)},
+            }
             return []
 
         if query_type == "regulation":
@@ -26,15 +39,105 @@ class HybridRetriever:
         else:  # hybrid
             collections = [COLLECTION_REGULATIONS, COLLECTION_TABLES]
 
+        effective_filters = dict(filters or {})
+        matched_titles = []
+        title_match = "none"
+        if title_hint and "source_title" not in effective_filters:
+            matched_titles, title_match = self.bm25.resolve_source_titles(title_hint)
+            if title_match == "exact":
+                effective_filters["source_title"] = (
+                    matched_titles[0] if len(matched_titles) == 1 else matched_titles
+                )
+
+        vector_start = time.perf_counter()
         vector_results = []
         for col in collections:
-            vector_results += self.qdrant.search(query, col, filters=filters, top_k=20)
+            vector_results += self.qdrant.search(
+                query, col, filters=effective_filters or None, top_k=20
+            )
+        preferred_vector_results = []
+        if title_match == "near" and matched_titles:
+            preferred_filters = {
+                **effective_filters,
+                "source_title": (
+                    matched_titles[0] if len(matched_titles) == 1 else matched_titles
+                ),
+            }
+            for col in collections:
+                preferred_vector_results += self.qdrant.search(
+                    query, col, filters=preferred_filters, top_k=5
+                )
+            vector_results += preferred_vector_results
+        vector_ms = int((time.perf_counter() - vector_start) * 1000)
 
-        bm25_results = self.bm25.search(query, top_k=20)
+        bm25_filters = dict(effective_filters)
+        if query_type == "regulation":
+            bm25_filters["chunk_type"] = "clause"
+        elif query_type == "table":
+            bm25_filters["chunk_type"] = "table_row"
+        bm25_start = time.perf_counter()
+        bm25_results = self.bm25.search(
+            query, top_k=20, filters=bm25_filters or None
+        )
+        preferred_bm25_results = []
+        if title_match == "near" and matched_titles:
+            preferred_bm25_filters = {
+                **bm25_filters,
+                "source_title": (
+                    matched_titles[0] if len(matched_titles) == 1 else matched_titles
+                ),
+            }
+            preferred_bm25_results = self.bm25.search(
+                query, top_k=5, filters=preferred_bm25_filters
+            )
+            bm25_results += preferred_bm25_results
+        bm25_ms = int((time.perf_counter() - bm25_start) * 1000)
 
+        merge_start = time.perf_counter()
         merged = self._rrf_merge(vector_results, bm25_results)
+        merge_ms = int((time.perf_counter() - merge_start) * 1000)
 
-        return self.reranker.rerank(query, merged, top_k=top_k)
+        rerank_start = time.perf_counter()
+        rerank_limit = len(merged) if title_match == "near" else top_k
+        ranked = self.reranker.rerank(query, merged, top_k=rerank_limit)
+        if title_match == "near" and matched_titles:
+            preferred = set(matched_titles)
+            ranked.sort(key=lambda chunk: chunk.get("source_title") not in preferred)
+            ranked = ranked[:top_k]
+        context_chunks = []
+        if query_type == "regulation" and ranked and top_k > 1:
+            context_limit = min(2, max(1, top_k // 4))
+            context_chunks = self.bm25.related_chunks(ranked, max_extra=context_limit)
+            if context_chunks:
+                direct_limit = max(1, top_k - len(context_chunks))
+                ranked = ranked[:direct_limit] + context_chunks
+        ranked = ranked[:top_k]
+        rerank_ms = int((time.perf_counter() - rerank_start) * 1000)
+
+        self.last_diagnostics = {
+            "route": query_type,
+            "title_hint": title_hint or "",
+            "title_match": title_match,
+            "matched_titles": matched_titles,
+            "filters": effective_filters,
+            "candidate_counts": {
+                "vector": len(vector_results),
+                "bm25": len(bm25_results),
+                "preferred_vector": len(preferred_vector_results),
+                "preferred_bm25": len(preferred_bm25_results),
+                "merged": len(merged),
+                "context_added": len(context_chunks),
+                "final": len(ranked),
+            },
+            "timing_ms": {
+                "vector": vector_ms,
+                "bm25": bm25_ms,
+                "fusion": merge_ms,
+                "rerank": rerank_ms,
+                "total": int((time.perf_counter() - total_start) * 1000),
+            },
+        }
+        return ranked
 
     def _rrf_merge(self, list_a: list, list_b: list, k: int = 60) -> list:
         scores = {}

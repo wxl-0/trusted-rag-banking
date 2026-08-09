@@ -29,8 +29,22 @@ def build_user_prompt(question: str, chunks: list) -> str:
     refs = []
     for i, chunk in enumerate(chunks, 1):
         section = "·".join(chunk.get("section_path", [])) or chunk.get("table_name", "")
+        target_labels = [
+            target.get("label", "")
+            for target in chunk.get("_retrieval_targets", [])
+            if target.get("label")
+        ]
+        location_parts = []
+        if chunk.get("page_no"):
+            location_parts.append(f"第 {chunk['page_no']} 页")
+        if chunk.get("cell_ref"):
+            location_parts.append(f"单元格 {chunk['cell_ref']}")
+        target_line = f"检索目标：{'；'.join(target_labels)}\n" if target_labels else ""
+        location_line = f"位置：{'；'.join(location_parts)}\n" if location_parts else ""
         refs.append(
             f"[{i}] 《{chunk.get('source_title', '')}》{section}\n"
+            f"{target_line}"
+            f"{location_line}"
             f"来源：{chunk.get('source_url', '')}\n"
             f"内容：{chunk.get('text', '')}"
         )

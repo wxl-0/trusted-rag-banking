@@ -89,9 +89,9 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/indexer/`** — 两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
 
-- **`src/retriever/`** — `QueryRouter` 仅在调用方未提供 `query_type` 时调用 LLM 分类；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：BM25 + 向量检索 → RRF（倒数排名融合）合并 → `CrossEncoder`（`BAAI/bge-reranker-base`）精排。
+- **`src/retriever/`** — `QueryRouter` 仅在调用方未提供 `query_type` 时调用 LLM 分类；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：标题精确命中时限定来源，近似命中时保留全库候选并追加标题候选；BM25 + 向量检索经 RRF 合并和 `CrossEncoder` 精排。制度类结果会补充同章节或同父块上下文，并记录各阶段诊断。
 
-- **`src/generator/`** — `QueryDecomposer` 先用确定性规则判断 `regulation | table | hybrid`，只有无法明确判断时才调用 LLM 尝试拆分，失败回退 `hybrid`。`AnswerBuilder.answer()` 是顶层调用：分析/分解→检索（top_k=8）→chunk 去重→grounded-generation 系统提示 + 多轮历史调用 LLM。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；响应为空或调用异常时自动重试 3 次（指数退避）。
+- **`src/generator/`** — `QueryDecomposer` 先用确定性规则判断类型并拆分可识别的表格双指标、选项比较和多事实陈述，只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 逐目标进行结构化检索和证据覆盖检查，仅对缺失目标补搜一次，再轮询合并、去重并生成答案。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；响应为空或调用异常时自动重试 3 次（指数退避）。
 
 - **`src/api/`** — FastAPI 应用。三个路由：`POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。生产模式下挂载 `src/frontend/dist/` 静态文件。Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 
@@ -131,7 +131,7 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 
 | 变量 | 用途 |
 |---|---|
-| `OPENAI_API_KEY` | LLM 调用及评测 Judge 必填 |
+| `OPENAI_API_KEY` | 回答生成及选择题评测必填 |
 | `OPENAI_BASE_URL` | API 基础地址（可替换为兼容代理） |
 | `EMBED_MODEL` | 向量模型（默认 `BAAI/bge-large-zh-v1.5`，本地推理） |
 | `LLM_MODEL` | 对话模型（默认 `gpt-4o-mini`） |

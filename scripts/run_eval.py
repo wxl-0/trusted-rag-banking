@@ -282,6 +282,7 @@ def main():
                     "llm_metrics": diagnostics.get("llm", {}),
                     "sub_questions": diagnostics.get("sub_questions", []),
                     "routing": diagnostics.get("routing", {}),
+                    "retrieval": diagnostics.get("retrieval", {}),
                 }
             except Exception as e:  # 单题异常不拖垮整轮，记为错误后继续
                 print(f"    [出错] {e}")
@@ -307,6 +308,7 @@ def main():
                     "llm_metrics": {},
                     "sub_questions": [],
                     "routing": {},
+                    "retrieval": {},
                     "error": str(e),
                 }
 
@@ -380,6 +382,16 @@ def main():
         for result in results
         if result.get("llm_metrics", {}).get("provider_reported_cost") is not None
     ]
+    retrieval_targets = [
+        target
+        for result in results
+        for target in result.get("retrieval", {}).get("targets", [])
+    ]
+    covered_targets = sum(bool(target.get("covered")) for target in retrieval_targets)
+    supplemental_searches = sum(
+        result.get("retrieval", {}).get("supplemental_searches", 0) or 0
+        for result in results
+    )
     report = {
         "run_name": args.run_name,
         "started_at": started_at,
@@ -396,6 +408,15 @@ def main():
             "total_api_calls": total_api_calls,
             "total_tokens": sum(token_values) if token_values else None,
             "provider_reported_cost": sum(cost_values) if cost_values else None,
+            "retrieval": {
+                "target_count": len(retrieval_targets),
+                "covered_target_count": covered_targets,
+                "coverage_rate": (
+                    round(covered_targets / len(retrieval_targets), 4)
+                    if retrieval_targets else None
+                ),
+                "supplemental_searches": supplemental_searches,
+            },
         },
         "by_source": source_summary,
         "by_qa_type": qa_type_summary,

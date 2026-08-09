@@ -1,5 +1,6 @@
 import json
 import pickle
+import re
 from pathlib import Path
 from rank_bm25 import BM25Okapi
 
@@ -29,13 +30,95 @@ class BM25Index:
         self.bm25 = data["bm25"]
         self.chunks = data["chunks"]
 
-    def search(self, query: str, top_k: int = 20) -> list:
+    def search(self, query: str, top_k: int = 20, filters: dict = None) -> list:
         if self.bm25 is None:
             self.load()
         tokens = self._tokenize(query)
         scores = self.bm25.get_scores(tokens)
-        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:top_k]
+        candidate_indices = [
+            i for i, chunk in enumerate(self.chunks)
+            if self._matches_filters(chunk, filters)
+        ]
+        top_indices = sorted(candidate_indices, key=lambda i: scores[i], reverse=True)[:top_k]
         return [{"score": float(scores[i]), **self.chunks[i]} for i in top_indices if scores[i] > 0]
+
+    def resolve_source_titles(self, title_hint: str) -> tuple[list[str], str]:
+        if self.bm25 is None:
+            self.load()
+        normalized_hint = self._normalize_title(title_hint)
+        if not normalized_hint:
+            return [], "none"
+
+        titles = list(dict.fromkeys(
+            chunk.get("source_title", "") for chunk in self.chunks
+            if chunk.get("source_title")
+        ))
+        exact = [title for title in titles if self._normalize_title(title) == normalized_hint]
+        if exact:
+            return exact, "exact"
+
+        near = [
+            title for title in titles
+            if normalized_hint in self._normalize_title(title)
+            or self._normalize_title(title) in normalized_hint
+        ]
+        near.sort(key=lambda title: abs(len(self._normalize_title(title)) - len(normalized_hint)))
+        return near[:5], "near" if near else "none"
+
+    def related_chunks(self, chunks: list, max_extra: int = 2) -> list:
+        if self.bm25 is None:
+            self.load()
+        index_by_id = {
+            chunk.get("chunk_id"): index
+            for index, chunk in enumerate(self.chunks)
+            if chunk.get("chunk_id")
+        }
+        selected_ids = {chunk.get("chunk_id") for chunk in chunks}
+        related = []
+        for chunk in chunks:
+            index = index_by_id.get(chunk.get("chunk_id"))
+            if index is None:
+                continue
+            for offset in (-1, 1, -2, 2):
+                neighbor_index = index + offset
+                if not 0 <= neighbor_index < len(self.chunks):
+                    continue
+                neighbor = self.chunks[neighbor_index]
+                if neighbor.get("chunk_id") in selected_ids:
+                    continue
+                if not self._same_context(chunk, neighbor):
+                    continue
+                related.append(neighbor)
+                selected_ids.add(neighbor.get("chunk_id"))
+                if len(related) >= max_extra:
+                    return related
+        return related
+
+    def _matches_filters(self, chunk: dict, filters: dict = None) -> bool:
+        if not filters:
+            return True
+        for key, expected in filters.items():
+            if expected in (None, "", []):
+                continue
+            actual = chunk.get(key)
+            if isinstance(expected, (list, tuple, set)):
+                if actual not in expected:
+                    return False
+            elif actual != expected:
+                return False
+        return True
+
+    def _same_context(self, chunk: dict, neighbor: dict) -> bool:
+        if chunk.get("doc_id") != neighbor.get("doc_id"):
+            return False
+        parent_id = chunk.get("parent_chunk_id")
+        if parent_id and parent_id == neighbor.get("parent_chunk_id"):
+            return True
+        section_path = chunk.get("section_path")
+        return bool(section_path and section_path == neighbor.get("section_path"))
+
+    def _normalize_title(self, title: str) -> str:
+        return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(title).lower())
 
     def _tokenize(self, text: str) -> list:
         tokens = []

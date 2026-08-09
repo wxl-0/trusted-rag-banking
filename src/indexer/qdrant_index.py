@@ -3,7 +3,7 @@ import json
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance, VectorParams, PointStruct, Filter,
-    FieldCondition, MatchValue,
+    FieldCondition, MatchAny, MatchValue,
 )
 from dotenv import load_dotenv
 from src.indexer.embedder import Embedder
@@ -75,5 +75,8 @@ class QdrantIndex:
         conditions = []
         for key, value in filters.items():
             if value:
-                conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
+                if isinstance(value, (list, tuple, set)):
+                    conditions.append(FieldCondition(key=key, match=MatchAny(any=list(value))))
+                else:
+                    conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
         return Filter(must=conditions) if conditions else None

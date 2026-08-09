@@ -3,6 +3,8 @@
 面向银行业监管制度与统计报表的检索增强生成（RAG）问答系统。
 第五届中国研究生金融科技创新大赛 · 南京银行赛题
 
+检索编排由项目自身的 Python 模块实现，未引入 LangChain/LangGraph。系统先用确定性规则拆分检索目标，再按文件标题、制度章节或表格行列定位证据；目标证据缺失时只对该目标补搜一次。
+
 ## 快速启动
 
 ### 1. 创建环境并安装锁定依赖
@@ -47,7 +49,7 @@ uv run --frozen python scripts/run_eval.py
 # 指定题号并把本轮结果保存到独立目录
 uv run --frozen python scripts/run_eval.py --ids Q035,Q068,Q101,Q103,Q201,Q202,Q203 --run-name diverse-baseline-v1
 ```
-评测支持断点续传。使用 `--run-name` 时，进度和报告分别写入 `data/eval/runs/<run-name>/progress.jsonl` 与 `report.json`；不指定时继续使用原来的 `data/eval/eval_progress.jsonl` 与 `eval_report.json`。评测模式要求模型结构化返回 `choice`，并用确定性规则判分，不调用 LLM Judge。
+评测支持断点续传。使用 `--run-name` 时，进度和报告分别写入 `data/eval/runs/<run-name>/progress.jsonl` 与 `report.json`；不指定时继续使用原来的 `data/eval/eval_progress.jsonl` 与 `eval_report.json`。每题会记录各检索目标、标题匹配、候选数量、阶段耗时、覆盖结果和补搜次数。评测模式要求模型结构化返回 `choice`，并用确定性规则判分，不调用 LLM Judge。
 
 ## 运行测试
 ```powershell
