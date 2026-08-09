@@ -176,3 +176,45 @@ def test_retrieve_regulation_includes_neighbor_from_same_section():
 
     assert [chunk["chunk_id"] for chunk in result] == ["hit", "sibling"]
     assert retriever.last_diagnostics["candidate_counts"]["context_added"] == 1
+
+
+def test_retrieve_returns_every_chunk_when_explicit_source_is_short():
+    title_hint = "应当编报保险集团偿付能力报告的公司名单"
+    source_title = f"有关事项的通知 附件8：{title_hint}"
+    target_chunks = [
+        {
+            "doc_id": "NFRA-467",
+            "chunk_id": f"NFRA-467#{index}",
+            "chunk_type": "clause",
+            "source_title": source_title,
+            "page_no": index,
+            "text": f"名单内容 {index}",
+        }
+        for index in range(1, 8)
+    ]
+    noise = {
+        "doc_id": "other",
+        "chunk_id": "noise",
+        "chunk_type": "clause",
+        "source_title": "寿险合同负债评估折现率曲线",
+        "text": "折现率曲线内容",
+    }
+    chunks = [noise, *target_chunks]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+
+    result = retriever.retrieve(
+        "以下哪项与名单内容一致",
+        query_type="regulation",
+        title_hint=title_hint,
+        top_k=3,
+        full_source=True,
+    )
+
+    assert [chunk["chunk_id"] for chunk in result] == [
+        f"NFRA-467#{index}" for index in range(1, 8)
+    ]
+    assert retriever.last_diagnostics["strategy"] == "full_source"

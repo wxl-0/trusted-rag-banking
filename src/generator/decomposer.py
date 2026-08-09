@@ -51,6 +51,9 @@ class QueryDecomposer:
                 claim_targets = self._decompose_multi_fact_options(question, rule_route)
                 if claim_targets:
                     return claim_targets
+                reference_targets = self._decompose_option_references(question, rule_route)
+                if reference_targets:
+                    return reference_targets
             return [self._single_target(question, rule_route)]
 
         self.last_decision_method = "model"
@@ -205,6 +208,49 @@ class QueryDecomposer:
                 "options": claim_options,
             })
         return targets
+
+    def _decompose_option_references(self, question: str, query_type: str) -> list:
+        options = self._parse_options(question)
+        if not options:
+            return []
+
+        stem = self._routing_text(question)
+        stem_match = re.search(r"《([^》]+)》", stem)
+        stem_title = stem_match.group(1).strip() if stem_match else ""
+        normalized_stem_title = self._normalize_title(stem_title)
+        references = []
+        seen_titles = set()
+        for option, text in options.items():
+            for index, title in enumerate(re.findall(r"《([^》]+)》", text), 1):
+                title = title.strip()
+                normalized_title = self._normalize_title(title)
+                if not normalized_title or normalized_title == normalized_stem_title:
+                    continue
+                if normalized_title in seen_titles:
+                    continue
+                seen_titles.add(normalized_title)
+                claim = re.sub(r"《[^》]+》", "", text).strip().rstrip("。；;")
+                references.append({
+                    "target_id": f"reference_{option}_{index}",
+                    "label": f"选项 {option} 引用：{title}",
+                    "question": text,
+                    "type": query_type,
+                    "source_title": title,
+                    "filters": {},
+                    "strict_filters": {},
+                    "coverage_terms": [claim] if claim else [],
+                    "option": option,
+                    "full_source": True,
+                })
+
+        if not references:
+            return []
+        main_target = self._single_target(question, query_type)
+        main_target["full_source"] = True
+        return [main_target, *references]
+
+    def _normalize_title(self, title: str) -> str:
+        return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(title).lower())
 
     def _single_target(self, question: str, query_type: str) -> dict:
         stem = self._routing_text(question).strip()

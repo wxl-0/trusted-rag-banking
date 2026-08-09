@@ -16,7 +16,7 @@ class HybridRetriever:
 
     def retrieve(self, query: str, query_type: str = None,
                  filters: dict = None, top_k: int = 5,
-                 title_hint: str = None) -> list:
+                 title_hint: str = None, full_source: bool = False) -> list:
         total_start = time.perf_counter()
         if query_type is None:
             query_type = self.router.route(query)
@@ -24,6 +24,7 @@ class HybridRetriever:
         if query_type == "out_of_scope":
             self.last_diagnostics = {
                 "route": query_type,
+                "strategy": "none",
                 "title_hint": title_hint or "",
                 "title_match": "none",
                 "matched_titles": [],
@@ -48,6 +49,46 @@ class HybridRetriever:
                 effective_filters["source_title"] = (
                     matched_titles[0] if len(matched_titles) == 1 else matched_titles
                 )
+
+        if full_source and len(matched_titles) == 1:
+            source_filters = dict(effective_filters)
+            source_filters.pop("source_title", None)
+            if query_type == "regulation":
+                source_filters["chunk_type"] = "clause"
+            elif query_type == "table":
+                source_filters["chunk_type"] = "table_row"
+            source_chunks = self.bm25.chunks_for_source_titles(
+                matched_titles,
+                filters=source_filters or None,
+                max_chunks=20,
+            )
+            if source_chunks:
+                total_ms = int((time.perf_counter() - total_start) * 1000)
+                self.last_diagnostics = {
+                    "route": query_type,
+                    "strategy": "full_source",
+                    "title_hint": title_hint or "",
+                    "title_match": title_match,
+                    "matched_titles": matched_titles,
+                    "filters": {**source_filters, "source_title": matched_titles[0]},
+                    "candidate_counts": {
+                        "vector": 0,
+                        "bm25": 0,
+                        "preferred_vector": 0,
+                        "preferred_bm25": 0,
+                        "merged": len(source_chunks),
+                        "context_added": 0,
+                        "final": len(source_chunks),
+                    },
+                    "timing_ms": {
+                        "vector": 0,
+                        "bm25": 0,
+                        "fusion": 0,
+                        "rerank": 0,
+                        "total": total_ms,
+                    },
+                }
+                return source_chunks
 
         vector_start = time.perf_counter()
         vector_results = []
@@ -116,6 +157,7 @@ class HybridRetriever:
 
         self.last_diagnostics = {
             "route": query_type,
+            "strategy": "hybrid",
             "title_hint": title_hint or "",
             "title_match": title_match,
             "matched_titles": matched_titles,

@@ -41,13 +41,14 @@ class AnswerBuilder:
                 filters=strict_filters or None,
                 top_k=initial_top_k,
                 title_hint=sq.get("source_title") or None,
+                full_source=bool(sq.get("full_source")),
             )
             searches = [copy.deepcopy(self.retriever.last_diagnostics)]
             coverage_terms = sq.get("coverage_terms") or []
-            covered = self._chunks_cover_terms(chunks, coverage_terms)
+            coverage_status = self._coverage_status(chunks, sq)
             supplemented = False
 
-            if not covered:
+            if coverage_status == "missing":
                 supplemental_searches += 1
                 supplemented = True
                 supplemental = self.retriever.retrieve(
@@ -56,10 +57,11 @@ class AnswerBuilder:
                     filters=planned_filters or None,
                     top_k=8,
                     title_hint=sq.get("source_title") or None,
+                    full_source=bool(sq.get("full_source")),
                 )
                 searches.append(copy.deepcopy(self.retriever.last_diagnostics))
                 chunks = self._dedupe_chunks(chunks + supplemental)
-                covered = self._chunks_cover_terms(chunks, coverage_terms)
+                coverage_status = self._coverage_status(chunks, sq)
 
             target_id = sq.get("target_id") or f"target_{index}"
             label = sq.get("label") or sq["question"]
@@ -73,7 +75,8 @@ class AnswerBuilder:
                 "filters": planned_filters,
                 "strict_filters": strict_filters,
                 "coverage_terms": coverage_terms,
-                "covered": covered,
+                "coverage_status": coverage_status,
+                "covered": coverage_status == "supported",
                 "supplemented": supplemented,
                 "result_count": len(chunks),
                 "searches": searches,
@@ -180,24 +183,98 @@ class AnswerBuilder:
             "route": self.decomposer.last_route,
         }
 
-    def _chunks_cover_terms(self, chunks: list, terms: list) -> bool:
+    def _chunks_cover_terms(self, chunks: list, terms: list,
+                            aggregate_context: bool = False) -> bool:
         if not chunks:
             return False
         normalized_terms = [self._normalize_text(term) for term in terms if term]
         if not normalized_terms:
             return True
+        search_texts = [self._chunk_search_text(chunk) for chunk in chunks]
+        if aggregate_context:
+            contexts = {}
+            for index, chunk in enumerate(chunks):
+                parent_id = chunk.get("parent_chunk_id")
+                section_path = tuple(chunk.get("section_path", []))
+                context_key = (
+                    chunk.get("doc_id"),
+                    ("parent", parent_id) if parent_id
+                    else ("section", section_path) if section_path
+                    else ("chunk", index),
+                )
+                contexts.setdefault(context_key, []).append(chunk)
+            for context_chunks in contexts.values():
+                ordered = sorted(
+                    context_chunks,
+                    key=lambda item: (
+                        item.get("page_no") or 0,
+                        item.get("row_index") or 0,
+                        item.get("chunk_id") or "",
+                    ),
+                )
+                search_texts.append(
+                    "".join(
+                        self._normalize_text(chunk.get("text", ""))
+                        for chunk in ordered
+                    )
+                )
+        return any(
+            all(self._term_covered(term, search_text) for term in normalized_terms)
+            for search_text in search_texts
+        )
+
+    def _term_covered(self, normalized_term: str, search_text: str) -> bool:
+        if normalized_term in search_text:
+            return True
+        if len(normalized_term) < 12:
+            return False
+        numbers = re.findall(r"\d+(?:\.\d+)?", normalized_term)
+        if any(number not in search_text for number in numbers):
+            return False
+        anchor_size = 4
+        anchors = {
+            normalized_term[index:index + anchor_size]
+            for index in range(len(normalized_term) - anchor_size + 1)
+        }
+        if not anchors:
+            return False
+        matched = sum(anchor in search_text for anchor in anchors)
+        return matched / len(anchors) >= 0.55
+
+    def _chunk_search_text(self, chunk: dict) -> str:
+        values = [
+            chunk.get("text", ""),
+            chunk.get("table_name", ""),
+            chunk.get("indicator", ""),
+            chunk.get("row_label", ""),
+            chunk.get("column_header", ""),
+            " ".join(chunk.get("section_path", [])),
+        ]
+        return self._normalize_text(" ".join(str(value) for value in values))
+
+    def _coverage_status(self, chunks: list, sub_question: dict) -> str:
+        if not chunks:
+            return "missing"
+        coverage_terms = sub_question.get("coverage_terms") or []
+        aggregate_context = sub_question.get("type") in {"regulation", "hybrid"}
+        if not coverage_terms or self._chunks_cover_terms(
+            chunks, coverage_terms, aggregate_context=aggregate_context
+        ):
+            return "supported"
+        if (
+            sub_question.get("type") in {"regulation", "hybrid"}
+            and self._chunks_match_source(chunks, sub_question.get("source_title", ""))
+        ):
+            return "not_supported"
+        return "missing"
+
+    def _chunks_match_source(self, chunks: list, source_title: str) -> bool:
+        normalized_title = self._normalize_text(source_title)
+        if not normalized_title:
+            return False
         for chunk in chunks:
-            values = [
-                chunk.get("text", ""),
-                chunk.get("source_title", ""),
-                chunk.get("table_name", ""),
-                chunk.get("indicator", ""),
-                chunk.get("row_label", ""),
-                chunk.get("column_header", ""),
-                " ".join(chunk.get("section_path", [])),
-            ]
-            normalized_chunk = self._normalize_text(" ".join(str(value) for value in values))
-            if all(term in normalized_chunk for term in normalized_terms):
+            chunk_title = self._normalize_text(chunk.get("source_title", ""))
+            if normalized_title in chunk_title or chunk_title in normalized_title:
                 return True
         return False
 

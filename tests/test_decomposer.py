@@ -159,3 +159,42 @@ def test_decomposer_keeps_single_fact_question_with_source_title_hint():
         "strict_filters": {},
         "coverage_terms": [],
     }]
+
+
+def test_decomposer_adds_target_for_document_referenced_by_an_option():
+    question = (
+        "检索《应当编报保险集团偿付能力报告的公司名单》后，"
+        "以下哪一项与材料内容一致？\n"
+        "A. 寿险合同负债评估采用折现率曲线。\n"
+        "B. 基础利率曲线由三段组成。\n"
+        "C. 移动平均曲线适用于0年到20年。\n"
+        "D. 列入名单的保险集团应当按照"
+        "《保险公司偿付能力监管规则第19号：保险集团》有关规定"
+        "编报保险集团偿付能力报告。"
+    )
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("明确文件引用不应调用模型"))
+
+    result = decomposer.decompose(question)
+
+    assert [target["target_id"] for target in result] == ["main", "reference_D_1"]
+    assert result[0]["source_title"] == "应当编报保险集团偿付能力报告的公司名单"
+    assert result[0]["full_source"] is True
+    assert result[1] == {
+        "target_id": "reference_D_1",
+        "label": "选项 D 引用：保险公司偿付能力监管规则第19号：保险集团",
+        "question": (
+            "列入名单的保险集团应当按照"
+            "《保险公司偿付能力监管规则第19号：保险集团》有关规定"
+            "编报保险集团偿付能力报告。"
+        ),
+        "type": "regulation",
+        "source_title": "保险公司偿付能力监管规则第19号：保险集团",
+        "filters": {},
+        "strict_filters": {},
+        "coverage_terms": [
+            "列入名单的保险集团应当按照有关规定编报保险集团偿付能力报告"
+        ],
+        "option": "D",
+        "full_source": True,
+    }

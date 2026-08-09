@@ -111,3 +111,74 @@ def test_answer_supplements_only_missing_table_target_once():
     assert "9034.54" in llm.last_user_message
     assert "检索目标：全国合计 / 合计" in llm.last_user_message
     assert "检索目标：全国合计 / 健康险" in llm.last_user_message
+
+
+def test_answer_does_not_supplement_unsupported_regulation_claims():
+    title = "意外伤害保险业务监管办法"
+    source_title = f"中国银保监会办公厅关于印发《{title}》的通知"
+    shared = (
+        "意外伤害保险是以被保险人因遭受意外伤害造成死亡、伤残或者"
+        "发生保险合同约定的其他事故为给付保险金条件的人身保险。"
+    )
+    pricing = "保险公司厘定保险费应采用公平、合理的定价假设。"
+    chunks = [
+        {
+            "doc_id": "reg-1",
+            "chunk_id": "definition-1",
+            "chunk_type": "clause",
+            "source_title": source_title,
+            "section_path": ["总则"],
+            "parent_chunk_id": "definition",
+            "text": "第二条 本办法所称意外伤害保险（以下简称意外险）",
+        },
+        {
+            "doc_id": "reg-1",
+            "chunk_id": "definition-2",
+            "chunk_type": "clause",
+            "source_title": source_title,
+            "section_path": ["总则"],
+            "parent_chunk_id": "definition",
+            "text": (
+                "是以被保险人因遭受意外伤害造成死亡、伤残或者发生保险 "
+                "合同约定的其他事故为给付保险金条件的人身保险。"
+            ),
+        },
+        {
+            "doc_id": "reg-1",
+            "chunk_id": "pricing",
+            "chunk_type": "clause",
+            "source_title": source_title,
+            "section_path": ["产品管理"],
+            "text": pricing,
+        },
+    ]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=retriever,
+        decomposer=QueryDecomposer(),
+    )
+    question = (
+        f"关于《{title}》，下列哪一组选项中的两项表述均属于该材料内容？\n"
+        f"A. {shared}；基础利率曲线由三段组成。\n"
+        f"B. {shared}；移动平均曲线适用于0年到20年。\n"
+        f"C. {shared}；{pricing}\n"
+        f"D. {shared}；折现率曲线由基础利率曲线加综合溢价形成。"
+    )
+
+    result = builder.answer(question, include_diagnostics=True)
+
+    retrieval = result["diagnostics"]["retrieval"]
+    assert retrieval["supplemental_searches"] == 0
+    assert [target["coverage_status"] for target in retrieval["targets"]] == [
+        "supported",
+        "not_supported",
+        "not_supported",
+        "supported",
+        "not_supported",
+    ]

@@ -65,6 +65,29 @@ class BM25Index:
         near.sort(key=lambda title: abs(len(self._normalize_title(title)) - len(normalized_hint)))
         return near[:5], "near" if near else "none"
 
+    def chunks_for_source_titles(self, titles: list, filters: dict = None,
+                                 max_chunks: int = 20) -> list:
+        if self.bm25 is None:
+            self.load()
+        if not titles:
+            return []
+        scoped_filters = dict(filters or {})
+        scoped_filters["source_title"] = titles
+        matches = []
+        seen = set()
+        for chunk in self.chunks:
+            if not self._matches_filters(chunk, scoped_filters):
+                continue
+            chunk_id = chunk.get("chunk_id")
+            if chunk_id and chunk_id in seen:
+                continue
+            if chunk_id:
+                seen.add(chunk_id)
+            matches.append(chunk)
+            if len(matches) > max_chunks:
+                return []
+        return matches
+
     def related_chunks(self, chunks: list, max_extra: int = 2) -> list:
         if self.bm25 is None:
             self.load()

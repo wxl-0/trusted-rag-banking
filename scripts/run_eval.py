@@ -388,6 +388,12 @@ def main():
         for target in result.get("retrieval", {}).get("targets", [])
     ]
     covered_targets = sum(bool(target.get("covered")) for target in retrieval_targets)
+    coverage_statuses: dict[str, int] = {}
+    for target in retrieval_targets:
+        status = target.get("coverage_status") or (
+            "supported" if target.get("covered") else "missing"
+        )
+        coverage_statuses[status] = coverage_statuses.get(status, 0) + 1
     supplemental_searches = sum(
         result.get("retrieval", {}).get("supplemental_searches", 0) or 0
         for result in results
@@ -411,6 +417,7 @@ def main():
             "retrieval": {
                 "target_count": len(retrieval_targets),
                 "covered_target_count": covered_targets,
+                "coverage_statuses": coverage_statuses,
                 "coverage_rate": (
                     round(covered_targets / len(retrieval_targets), 4)
                     if retrieval_targets else None

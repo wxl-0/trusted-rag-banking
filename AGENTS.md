@@ -128,8 +128,8 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 - **`src/parser/`**：将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（`.doc/.docx`，含表格提取和合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 `.xls/.xlsx`）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
 - **`src/indexer/`**：两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
-- **`src/retriever/`**：`QueryRouter` 在调用方未提供 `query_type` 时调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：文件标题精确命中时限定来源，近似命中时保留全库候选并追加标题候选；BM25 + 向量检索经 RRF 合并和 `CrossEncoder` 精排。制度类结果会补充同章节或同父块上下文，并记录候选数量与阶段耗时。
-- **`src/generator/`**：`QueryDecomposer` 先用确定性规则判断类型并拆分可识别的表格双指标、选项比较和多事实陈述，只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 对表格使用行指标/列口径过滤，对制度使用标题/章节上下文；逐目标检查证据覆盖，仅对缺失目标补搜一次，再轮询合并和去重证据。系统提示共 7 条规则，含拒答门槛校准与比较/计算类问题的逐步推理要求。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；`confidence` 删除属于上文已确认但尚未实施的接口改动。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
+- **`src/retriever/`**：`QueryRouter` 在调用方未提供 `query_type` 时调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：明确来源且不超过 20 个 chunk 时可按页序返回全量；否则文件标题精确命中时限定来源，近似命中时保留全库候选并追加标题候选，再经 BM25、向量检索、RRF 和 `CrossEncoder` 精排。制度类结果会补充同章节或同父块上下文，并记录候选数量与阶段耗时。
+- **`src/generator/`**：`QueryDecomposer` 先用确定性规则判断类型并拆分表格双指标、选项比较、多事实陈述，以及选项中明确引用的其他文件；只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 对表格使用行指标/列口径过滤，对制度使用标题/章节上下文；覆盖状态分为 `supported | not_supported | missing`，相邻同父块或同章节 chunk 可合并判断，且仅对 `missing` 补搜一次。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；`confidence` 删除属于上文已确认但尚未实施的接口改动。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
 - **`src/api/`**：FastAPI 应用。主要路由为 `POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。存在前端构建产物时，后端也可在 `/` 提供页面；Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 - **`src/frontend/`**：React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件包括 `ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
 
@@ -155,7 +155,8 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 
 ```python
 def retrieve(query: str, query_type: str = None, filters: dict = None,
-             top_k: int = 5, title_hint: str = None) -> list[dict]
+             top_k: int = 5, title_hint: str = None,
+             full_source: bool = False) -> list[dict]
 ```
 
 **`/api/ask` 请求**：`question`（必填）、`filters`（可选）、`history`（可选，`[{role, content}]` 数组）。
