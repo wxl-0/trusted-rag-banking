@@ -76,7 +76,7 @@ LLM_MODEL=deepseek/deepseek-v4-pro    # 当前使用（经 OpenRouter 中转）
 先跑评测脚本，看哪项指标不达标，再针对性调整：
 
 ```bash
-python scripts/run_eval.py --limit 50
+uv run --frozen python scripts/run_eval.py --limit 50
 ```
 
 | 指标不达标 | 调整位置 |

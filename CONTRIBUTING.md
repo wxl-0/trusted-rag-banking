@@ -7,17 +7,16 @@
 ## 一、分支策略
 
 ```
-main          ← 保护分支，只接受来自 dev 的 PR，代表可演示版本
-  └── dev     ← 集成分支，功能开发完成后合入此处
-        ├── feature/parser       ← 成员 A 负责
-        ├── feature/retriever    ← 成员 B 负责
-        └── feature/generator    ← 成员 C 负责（含前端）
+main          ← 唯一最新基线，代表当前可演示版本
+  ├── feature/parser-*       ← 解析模块任务分支
+  ├── feature/retriever-*    ← 检索模块任务分支
+  └── feature/generator-*    ← 生成、评测或前端任务分支
 ```
 
 **规则：**
-- 禁止直接向 `main` 或 `dev` 推送提交
-- 所有代码必须通过 Pull Request 合入 `dev`
-- `main` 只由队长在里程碑节点从 `dev` 合入
+- `main` 是唯一最新基线，不再使用 `dev` 作为集成分支
+- 每项开发任务从最新 `main` 新建 `feature/xxx` 或 `hotfix/xxx` 分支
+- 禁止直接向 `main` 推送提交，所有代码必须通过 Pull Request 合入 `main`
 
 ---
 
@@ -39,14 +38,14 @@ main          ← 保护分支，只接受来自 dev 的 PR，代表可演示版
 ## 三、Pull Request 流程
 
 1. 本地开发完毕，确保代码能运行
-2. 更新 `requirements.txt`（如新增依赖）
-3. 向 `dev` 分支发起 PR，标题格式同 commit 规范
+2. 如新增依赖，使用 `uv add 包名` 更新 `pyproject.toml` 和 `uv.lock`
+3. 向 `main` 分支发起 PR，标题格式同 commit 规范
 4. PR 描述中说明：做了什么、如何测试、是否影响接口
 5. 等待队长 review，resolve 所有 comment 后合并
 
 **PR 合并前检查清单：**
 - [ ] 本地运行无报错
-- [ ] 新增依赖已写入 `requirements.txt`
+- [ ] 新增依赖已通过 `uv add` 写入 `pyproject.toml` 和 `uv.lock`
 - [ ] 若修改了接口，已更新 `docs/interface.md`
 - [ ] 无调试用的 `print` 或硬编码路径
 
@@ -92,9 +91,9 @@ def retrieve(
 ```bash
 git clone https://github.com/wxl-0/trusted-rag-banking.git
 cd trusted-rag-banking
-pip install -r requirements.txt
-docker compose up -d
-uvicorn src.api.main:app --reload
+uv sync --frozen
+docker compose up -d qdrant
+uv run --frozen python -m uvicorn src.api.main:app --reload
 ```
 
 ---
@@ -114,4 +113,4 @@ uvicorn src.api.main:app --reload
 
 - 接口变更：先在群里说明，再发 PR
 - 阻塞问题：当天告知队长，不要卡着不说
-- 紧急 bug：直接在 `dev` 开 `hotfix/xxx` 分支，快速合入
+- 紧急 bug：从最新 `main` 新建 `hotfix/xxx` 分支，验证后通过 PR 合入 `main`

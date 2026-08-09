@@ -33,39 +33,44 @@ git clone https://github.com/wxl-0/trusted-rag-banking.git
 cd trusted-rag-banking
 ```
 
-### 4. 切到自己的分支
+### 4. 从最新 main 创建任务分支
 
-克隆完成后默认在 `main` 分支，需要切到自己负责的分支：
+`main` 是项目唯一最新基线。克隆完成后，先更新 `main`，再为当前任务创建新分支：
+
+```bash
+git checkout main
+git pull origin main
+```
+
+分支名称应写明模块和具体任务，例如：
 
 - **成员 A（解析模块）：**
   ```bash
-  git checkout feature/parser
+  git checkout -b feature/parser-fix-chunk-id
   ```
 
 - **成员 B（检索模块）：**
   ```bash
-  git checkout feature/retriever
+  git checkout -b feature/retriever-tuning
   ```
 
 - **成员 C（生成+前端模块）：**
   ```bash
-  git checkout feature/generator
+  git checkout -b feature/generator-eval
   ```
 
 验证当前分支：
 
 ```bash
 git branch
-# 带 * 号的就是当前分支，例如：* feature/parser
+# 带 * 号的就是当前分支，例如：* feature/parser-fix-chunk-id
 ```
 
 ### 5. 搭建本地环境
 
 ```bash
-# 安装 Python 依赖
-python -m venv .venv
-.venv\Scripts\activate        # Windows 激活虚拟环境
-pip install -r requirements.txt
+# 按锁文件创建虚拟环境并安装 Python 依赖
+uv sync --frozen
 
 # 复制环境变量文件
 copy .env.example .env
@@ -79,10 +84,11 @@ copy .env.example .env
 
 ## 二、日常开发流程
 
-### 每次开始写代码前，先拉取最新内容
+### 每次开始写代码前，先同步 main 的最新内容
 
 ```bash
-git pull
+git fetch origin
+git merge origin/main
 ```
 
 ### 写完代码后，提交到本地
@@ -114,7 +120,8 @@ git commit -m "feat: 实现 Word 文档条款级分块"
 ### 推送到 GitHub
 
 ```bash
-git push
+git push -u origin 当前分支名   # 当前分支第一次推送
+git push                       # 后续推送
 ```
 
 推送后，去 GitHub 仓库页面可以看到你最新的提交。
@@ -123,7 +130,7 @@ git push
 
 ## 三、提交 Pull Request（PR）
 
-当你完成了一个功能，需要把代码合并到 `dev` 分支，步骤如下：
+当你完成了一个功能，需要通过 PR 把代码合并到 `main`，步骤如下：
 
 1. 确认已经 `git push` 推送到 GitHub
 
@@ -135,7 +142,7 @@ git push
    - 标题格式同 commit，例如：`feat: 完成 Word/PDF 解析模块`
    - 描述中说明：做了什么、怎么测试的、是否影响接口
 
-5. 确认 **base 分支是 `dev`**（不要合到 `main`）
+5. 确认 **base 分支是 `main`**
 
 6. 点击 **"Create pull request"**
 
@@ -143,23 +150,23 @@ git push
 
 ---
 
-## 四、同步队长或其他成员合入 dev 的最新代码
+## 四、同步 main 的最新代码
 
-当别人的代码已经合入 `dev` 后，你需要把这些更新同步到自己的分支：
+当别人的代码已经合入 `main` 后，你需要把这些更新同步到自己的任务分支：
 
 ```bash
 # 获取远程最新状态
 git fetch origin
 
-# 把 dev 的最新内容合并到当前分支
-git merge origin/dev
+# 把 main 的最新内容合并到当前分支
+git merge origin/main
 ```
 
 如果出现冲突（conflict），终端会提示冲突的文件名。打开对应文件，找到 `<<<<<<<` 和 `>>>>>>>` 标记的地方，手动选择保留哪段代码，然后：
 
 ```bash
 git add 冲突的文件名
-git commit -m "fix: 解决与 dev 的合并冲突"
+git commit -m "fix: 解决与 main 的合并冲突"
 ```
 
 ---
@@ -181,7 +188,7 @@ git commit -m "fix: 解决与 dev 的合并冲突"
 
 ## 六、注意事项
 
-- **不要**直接向 `main` 或 `dev` 推送代码，所有代码通过 PR 合入
+- **不要**直接向 `main` 推送代码；每项任务从最新 `main` 新建分支，所有代码通过 PR 合入 `main`
 - **不要**提交 `.env` 文件（里面有 API Key）
 - **不要**提交 `.venv/` 目录
 - **不要**提交 `data/chunks/` 目录下的 JSONL 文件（共 40MB+，可本地重新生成）
@@ -198,11 +205,11 @@ git commit -m "fix: 解决与 dev 的合并冲突"
 # 1. 确保 data/raw/ 下有原始文件（从共享网盘下载，不提交 git）
 
 # 2. 解析文件 → 生成 chunk（输出到 data/chunks/）
-python scripts/ingest.py
+uv run --frozen python scripts/ingest.py
 
 # 3. 启动 Qdrant 并构建向量索引
 docker compose up qdrant -d
-python scripts/build_index.py
+uv run --frozen python scripts/build_index.py
 ```
 
 如果队友更新了解析代码（parser/chunk_processor 等），拉取后需要重新执行上述步骤。
@@ -210,6 +217,6 @@ python scripts/build_index.py
 **重建索引前需清空旧数据**（chunk 内容变了，旧索引对不上）：
 
 ```bash
-python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
-python scripts/build_index.py
+uv run --frozen python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
+uv run --frozen python scripts/build_index.py
 ```

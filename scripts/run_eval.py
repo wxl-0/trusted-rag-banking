@@ -13,15 +13,15 @@ import openpyxl
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+# 嵌入/重排模型已在本地缓存，必须在导入生成模块前启用离线模式。
+os.environ.setdefault("HF_HUB_OFFLINE", "1")
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
 from src.generator.answer_builder import AnswerBuilder
 
 load_dotenv()
-
-# 嵌入/重排模型已在本地缓存，离线加载避免联网校验被代理拦截
-os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 QA_PATH = Path("data/eval/QA数据.xlsx")
 REPORT_PATH = Path("data/eval/eval_report.json")

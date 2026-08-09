@@ -10,9 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### 环境初始化（首次·本地开发）
 ```bash
-python -m venv .venv
-.venv/Scripts/activate        # Windows
-pip install -r requirements.txt
+uv sync --frozen
 cp .env.example .env           # 填入 OPENAI_API_KEY 等
 docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
 ```
@@ -20,26 +18,26 @@ docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
 ### 构建知识库
 ```bash
 # 1. 自动分类 manifest（首次或有新文件时）
-python scripts/classify_manifest.py        # 写入 parse_profile 字段
-python scripts/classify_manifest.py --dry-run  # 只打印统计，不写入
+uv run --frozen python scripts/classify_manifest.py        # 写入 parse_profile 字段
+uv run --frozen python scripts/classify_manifest.py --dry-run  # 只打印统计，不写入
 
 # 2. 解析原始文件 → JSONL chunks（需要 data/raw/ 下有原始文件）
-python scripts/ingest.py
+uv run --frozen python scripts/ingest.py
 
 # 3. 向量入库 + 构建 BM25（需要 Qdrant 已启动）
-python scripts/build_index.py
+uv run --frozen python scripts/build_index.py
 ```
 
 `build_index.py` 支持断点续传：自动检测 Qdrant `points_count`，从已有进度继续索引。中断后重新运行即可。若 chunk 内容有变更（重新切块后），需先清空集合再重建：
 
 ```bash
-python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
-python scripts/build_index.py
+uv run --frozen python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
+uv run --frozen python scripts/build_index.py
 ```
 
 ### 启动服务（本地开发）
 ```bash
-uvicorn src.api.main:app --reload   # 后端 http://localhost:8000
+uv run --frozen python -m uvicorn src.api.main:app --reload   # 后端 http://localhost:8000
 cd src/frontend && npm run dev      # 前端开发服务器 http://localhost:5173
 cd src/frontend && npm run build    # 构建前端产物至 src/frontend/dist/
 ```
@@ -54,24 +52,24 @@ docker compose up -d              # 启动 qdrant + backend + frontend
 
 ### 测试与评测
 ```bash
-pytest tests/ -v                                  # 全部测试
-pytest tests/test_parser.py -v                    # 单个测试文件
-pytest tests/test_api.py::test_health -v          # 单个测试用例
-python scripts/run_eval.py                        # 端到端评测 → data/eval/eval_report.json
+uv run --frozen python -m pytest tests/ -v                                  # 全部测试
+uv run --frozen python -m pytest tests/test_parser.py -v                    # 单个测试文件
+uv run --frozen python -m pytest tests/test_api.py::test_health -v          # 单个测试用例
+uv run --frozen python scripts/run_eval.py                                  # 端到端评测 → data/eval/eval_report.json
 ```
 
 `run_eval.py` 支持断点续传：每题结果实时写入 `data/eval/eval_progress.jsonl`（已 gitignore），中断后重跑自动跳过已完成题、重试出错题；从头重跑需先删除该文件。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
 
 ### 真实数据解析检查
 ```bash
-python scripts/check_chunk_quality.py --suffix .xls --limit-files 2 --sample-chunks 2
-python scripts/check_chunk_quality.py --suffix .doc --limit-files 2 --sample-chunks 2
-python scripts/check_chunk_quality.py --suffix .pdf --limit-files 2 --sample-chunks 2
+uv run --frozen python scripts/check_chunk_quality.py --suffix .xls --limit-files 2 --sample-chunks 2
+uv run --frozen python scripts/check_chunk_quality.py --suffix .doc --limit-files 2 --sample-chunks 2
+uv run --frozen python scripts/check_chunk_quality.py --suffix .pdf --limit-files 2 --sample-chunks 2
 ```
 
 ### `.doc` 转 `.docx`
 ```bash
-python scripts/convert_doc_with_libreoffice.py --soffice "C:\Program Files\LibreOffice\program\soffice.exe" --force --timeout-seconds 60
+uv run --frozen python scripts/convert_doc_with_libreoffice.py --soffice "C:\Program Files\LibreOffice\program\soffice.exe" --force --timeout-seconds 60
 ```
 
 转换产物写入 `data/converted/docx/`，该目录不提交到 Git。
@@ -139,10 +137,11 @@ def retrieve(query: str, query_type: str = None, filters: dict = None, top_k: in
 | `QDRANT_HOST/PORT` | Qdrant 连接地址（默认 `localhost:6333`） |
 | `RERANKER_MODEL` | HuggingFace 交叉编码器（默认 `BAAI/bge-reranker-base`） |
 | `HF_HOME` | HuggingFace 模型缓存目录（队友需各自设置，容器内自动挂载） |
+| `HF_HUB_OFFLINE` | 设为 `1` 时只使用本地模型缓存，避免启动时联网检查 |
 
 ## 分支策略
 
-见 `CONTRIBUTING.md`：`main` 为保护分支（可演示版本），`dev` 为集成分支。功能分支：`feature/parser`（成员 A）、`feature/retriever`（成员 B）、`feature/generator`（成员 C）。所有代码必须通过 PR 合入 `dev`；`main` 仅由队长在里程碑节点从 `dev` 合入。禁止直接向 `main` 或 `dev` 推送提交。
+见 `CONTRIBUTING.md`：`main` 是唯一最新基线和当前可演示版本，不再使用 `dev` 作为集成分支。每项任务从最新 `main` 新建 `feature/xxx` 或 `hotfix/xxx` 分支，验证后通过 PR 合入 `main`；禁止直接向 `main` 推送提交。
 
 ## 当前知识库规模
 

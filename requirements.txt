@@ -1,3 +1,4 @@
+# 兼容旧 pip 流程；依赖的权威定义为 pyproject.toml 和 uv.lock。
 python-docx==1.1.2
 pymupdf==1.24.5
 pdfplumber==0.11.0

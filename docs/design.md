@@ -416,7 +416,10 @@ project/
 │   └── run_eval.py          # 端到端评测
 ├── tests/
 ├── docker-compose.yml
-├── requirements.txt
+├── pyproject.toml          # uv 项目与直接依赖定义
+├── uv.lock                 # 完整依赖锁文件
+├── .python-version         # 本地默认 Python 版本
+├── requirements.txt        # 旧 pip 流程兼容清单
 └── CONTRIBUTING.md
 ```
 
