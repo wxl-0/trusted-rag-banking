@@ -33,37 +33,22 @@ git clone https://github.com/wxl-0/trusted-rag-banking.git
 cd trusted-rag-banking
 ```
 
-### 4. 从最新 main 创建任务分支
+### 4. 切换并同步 main
 
-`main` 是项目唯一最新基线。克隆完成后，先更新 `main`，再为当前任务创建新分支：
+`main` 是项目唯一最新基线和默认开发分支。克隆完成后，切换并更新 `main`：
 
 ```bash
 git checkout main
-git pull origin main
+git pull --ff-only origin main
 ```
 
-分支名称应写明模块和具体任务，例如：
-
-- **成员 A（解析模块）：**
-  ```bash
-  git checkout -b feature/parser-fix-chunk-id
-  ```
-
-- **成员 B（检索模块）：**
-  ```bash
-  git checkout -b feature/retriever-tuning
-  ```
-
-- **成员 C（生成+前端模块）：**
-  ```bash
-  git checkout -b feature/generator-eval
-  ```
+日常开发直接在 `main` 上进行。只有用户或团队明确要求隔离开发或代码评审时，才临时创建任务分支。
 
 验证当前分支：
 
 ```bash
 git branch
-# 带 * 号的就是当前分支，例如：* feature/parser-fix-chunk-id
+# 带 * 号的就是当前分支，默认应显示：* main
 ```
 
 ### 5. 搭建本地环境
@@ -87,8 +72,8 @@ copy .env.example .env
 ### 每次开始写代码前，先同步 main 的最新内容
 
 ```bash
-git fetch origin
-git merge origin/main
+git checkout main
+git pull --ff-only origin main
 ```
 
 ### 写完代码后，提交到本地
@@ -120,49 +105,47 @@ git commit -m "feat: 实现 Word 文档条款级分块"
 ### 推送到 GitHub
 
 ```bash
-git push -u origin 当前分支名   # 当前分支第一次推送
-git push                       # 后续推送
+git push origin main
 ```
 
 推送后，去 GitHub 仓库页面可以看到你最新的提交。
 
 ---
 
-## 三、提交 Pull Request（PR）
+## 三、可选的 Pull Request（PR）
 
-当你完成了一个功能，需要通过 PR 把代码合并到 `main`，步骤如下：
+默认直接在 `main` 开发和提交。只有用户或团队明确要求代码评审或隔离开发时，才创建临时分支并通过 PR 合入 `main`：
 
-1. 确认已经 `git push` 推送到 GitHub
+1. 从最新 `main` 创建临时分支，例如：`git checkout -b feature/parser-fix`
 
-2. 打开浏览器，访问：https://github.com/wxl-0/trusted-rag-banking
+2. 完成开发和提交后，执行 `git push -u origin feature/parser-fix`
 
-3. 页面顶部会出现黄色提示条，点击 **"Compare & pull request"**
+3. 打开浏览器，访问：https://github.com/wxl-0/trusted-rag-banking
 
-4. 填写 PR 信息：
+4. 页面顶部会出现黄色提示条，点击 **"Compare & pull request"**
+
+5. 填写 PR 信息：
    - 标题格式同 commit，例如：`feat: 完成 Word/PDF 解析模块`
    - 描述中说明：做了什么、怎么测试的、是否影响接口
 
-5. 确认 **base 分支是 `main`**
+6. 确认 **base 分支是 `main`**
 
-6. 点击 **"Create pull request"**
+7. 点击 **"Create pull request"**
 
-7. 等待队长 Review，根据反馈修改后合并。
+8. 等待队长 Review，根据反馈修改后合并。
 
 ---
 
 ## 四、同步 main 的最新代码
 
-当别人的代码已经合入 `main` 后，你需要把这些更新同步到自己的任务分支：
+开始开发或推送前，先同步远程 `main`：
 
 ```bash
-# 获取远程最新状态
-git fetch origin
-
-# 把 main 的最新内容合并到当前分支
-git merge origin/main
+git checkout main
+git pull --ff-only origin main
 ```
 
-如果出现冲突（conflict），终端会提示冲突的文件名。打开对应文件，找到 `<<<<<<<` 和 `>>>>>>>` 标记的地方，手动选择保留哪段代码，然后：
+如果 `--ff-only` 提示不能快进，先停止并确认本地、远程提交关系，不要直接执行强制覆盖。只有明确选择合并并出现冲突标记时，才打开对应文件处理 `<<<<<<<` 和 `>>>>>>>`，然后：
 
 ```bash
 git add 冲突的文件名
@@ -188,7 +171,7 @@ git commit -m "fix: 解决与 main 的合并冲突"
 
 ## 六、注意事项
 
-- **不要**直接向 `main` 推送代码；每项任务从最新 `main` 新建分支，所有代码通过 PR 合入 `main`
+- 默认直接在最新 `main` 开发和提交；推送前确认暂存区和提交中没有无关文件
 - **不要**提交 `.env` 文件（里面有 API Key）
 - **不要**提交 `.venv/` 目录
 - **不要**提交 `data/chunks/` 目录下的 JSONL 文件（共 40MB+，可本地重新生成）

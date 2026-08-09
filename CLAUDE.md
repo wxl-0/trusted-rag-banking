@@ -144,7 +144,7 @@ def retrieve(query: str, query_type: str = None, filters: dict = None,
 
 ## 分支策略
 
-见 `CONTRIBUTING.md`：`main` 是唯一最新基线和当前可演示版本，不再使用 `dev` 作为集成分支。每项任务从最新 `main` 新建 `feature/xxx` 或 `hotfix/xxx` 分支，验证后通过 PR 合入 `main`；禁止直接向 `main` 推送提交。
+见 `CONTRIBUTING.md`：`main` 是唯一最新基线、默认开发分支和当前可演示版本，不再使用 `dev` 作为集成分支。日常修改直接在最新 `main` 上开发和提交；提交前必须选择性暂存并完成相应验证。只有用户或团队明确要求隔离开发或代码评审时，才临时创建功能分支并使用 PR。
 
 ## 当前知识库规模
 
