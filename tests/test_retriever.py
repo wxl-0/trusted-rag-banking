@@ -96,7 +96,7 @@ def test_retrieve_exact_title_scopes_vector_and_keyword_results():
     assert retriever.last_diagnostics["title_match"] == "exact"
 
 
-def test_retrieve_near_title_boosts_match_without_hiding_other_documents():
+def test_retrieve_near_title_scopes_results_to_matching_documents():
     title_hint = "应当编报保险集团偿付能力报告的公司名单"
     target_title = f"关于公布《{title_hint}》的通知"
     chunks = [
@@ -130,7 +130,46 @@ def test_retrieve_near_title_boosts_match_without_hiding_other_documents():
 
     assert [chunk["chunk_id"] for chunk in result] == ["target"]
     assert retriever.last_diagnostics["title_match"] == "near"
-    assert retriever.last_diagnostics["filters"] == {}
+    assert retriever.last_diagnostics["filters"] == {"source_title": target_title}
+
+
+def test_retrieve_unique_title_alias_scopes_results_to_parent_document():
+    title_hint = "中资商业银行行政许可事项申请材料目录及格式要求（2023年版）"
+    parent_title = (
+        "中国银保监会关于印发中资商业银行行政许可事项申请材料"
+        "目录及格式要求的通知"
+    )
+    chunks = [
+        {
+            "chunk_id": "noise",
+            "chunk_type": "clause",
+            "source_title": "寿险合同负债评估折现率曲线",
+            "text": "折现率曲线由基础利率曲线加综合溢价形成。",
+        },
+        {
+            "chunk_id": "target",
+            "chunk_type": "clause",
+            "source_title": parent_title,
+            "text": "中资商业银行法人机构开业核准属于机构设立类行政许可事项。",
+        },
+    ]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+
+    result = retriever.retrieve(
+        "折现率曲线由基础利率曲线加综合溢价形成",
+        query_type="regulation",
+        title_hint=title_hint,
+        top_k=3,
+    )
+
+    assert [chunk["chunk_id"] for chunk in result] == ["target"]
+    assert retriever.last_diagnostics["title_match"] == "alias"
+    assert retriever.last_diagnostics["matched_titles"] == [parent_title]
+    assert retriever.last_diagnostics["filters"] == {"source_title": parent_title}
 
 
 def test_retrieve_regulation_includes_neighbor_from_same_section():

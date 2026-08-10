@@ -45,7 +45,7 @@ class HybridRetriever:
         title_match = "none"
         if title_hint and "source_title" not in effective_filters:
             matched_titles, title_match = self.bm25.resolve_source_titles(title_hint)
-            if title_match == "exact":
+            if matched_titles and title_match in {"exact", "near", "alias"}:
                 effective_filters["source_title"] = (
                     matched_titles[0] if len(matched_titles) == 1 else matched_titles
                 )
@@ -97,18 +97,6 @@ class HybridRetriever:
                 query, col, filters=effective_filters or None, top_k=20
             )
         preferred_vector_results = []
-        if title_match == "near" and matched_titles:
-            preferred_filters = {
-                **effective_filters,
-                "source_title": (
-                    matched_titles[0] if len(matched_titles) == 1 else matched_titles
-                ),
-            }
-            for col in collections:
-                preferred_vector_results += self.qdrant.search(
-                    query, col, filters=preferred_filters, top_k=5
-                )
-            vector_results += preferred_vector_results
         vector_ms = int((time.perf_counter() - vector_start) * 1000)
 
         bm25_filters = dict(effective_filters)
@@ -121,17 +109,6 @@ class HybridRetriever:
             query, top_k=20, filters=bm25_filters or None
         )
         preferred_bm25_results = []
-        if title_match == "near" and matched_titles:
-            preferred_bm25_filters = {
-                **bm25_filters,
-                "source_title": (
-                    matched_titles[0] if len(matched_titles) == 1 else matched_titles
-                ),
-            }
-            preferred_bm25_results = self.bm25.search(
-                query, top_k=5, filters=preferred_bm25_filters
-            )
-            bm25_results += preferred_bm25_results
         bm25_ms = int((time.perf_counter() - bm25_start) * 1000)
 
         merge_start = time.perf_counter()
@@ -139,12 +116,7 @@ class HybridRetriever:
         merge_ms = int((time.perf_counter() - merge_start) * 1000)
 
         rerank_start = time.perf_counter()
-        rerank_limit = len(merged) if title_match == "near" else top_k
-        ranked = self.reranker.rerank(query, merged, top_k=rerank_limit)
-        if title_match == "near" and matched_titles:
-            preferred = set(matched_titles)
-            ranked.sort(key=lambda chunk: chunk.get("source_title") not in preferred)
-            ranked = ranked[:top_k]
+        ranked = self.reranker.rerank(query, merged, top_k=top_k)
         context_chunks = []
         if query_type == "regulation" and ranked and top_k > 1:
             context_limit = min(2, max(1, top_k // 4))

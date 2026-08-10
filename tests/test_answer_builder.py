@@ -24,6 +24,37 @@ class FakeReranker:
         return chunks[:top_k]
 
 
+class OrderedReranker:
+    def rerank(self, query, chunks, top_k=5):
+        return sorted(chunks, key=lambda chunk: chunk["rank"])[:top_k]
+
+
+class TargetAwareReranker:
+    def rerank(self, query, chunks, top_k=5):
+        rank_key = "rank_a" if "目标甲" in query else "rank_b"
+        return sorted(chunks, key=lambda chunk: chunk[rank_key])[:top_k]
+
+
+class StructuralReranker:
+    def __init__(self):
+        self.queries = []
+
+    def rerank(self, query, chunks, top_k=5):
+        self.queries.append(query)
+        rank_key = "structural_rank" if "申请材料目录" in query else "initial_rank"
+        return sorted(chunks, key=lambda chunk: chunk[rank_key])[:top_k]
+
+
+class StaticDecomposer:
+    def __init__(self, targets):
+        self.targets = targets
+        self.last_decision_method = "rule"
+        self.last_route = "regulation"
+
+    def decompose(self, question):
+        return self.targets
+
+
 class FakeLLM:
     def __init__(self):
         self.last_call_metrics = {
@@ -182,3 +213,293 @@ def test_answer_does_not_supplement_unsupported_regulation_claims():
         "supported",
         "not_supported",
     ]
+
+
+def test_answer_multi_fact_uses_relevant_evidence_ranked_after_third():
+    title = "测试监管办法"
+    shared = "监管机构应当依法审查申请材料。"
+    correct = "法人机构开业核准属于机构设立类行政许可事项。"
+    chunks = [
+        {
+            "doc_id": "reg-long",
+            "chunk_id": "shared",
+            "chunk_type": "clause",
+            "source_title": title,
+            "rank": 1,
+            "text": shared,
+        },
+        *[
+            {
+                "doc_id": "reg-long",
+                "chunk_id": f"filler-{rank}",
+                "chunk_type": "clause",
+                "source_title": title,
+                "rank": rank,
+                "text": f"第{rank}条无关的程序性规定。",
+            }
+            for rank in (2, 3)
+        ],
+        {
+            "doc_id": "reg-long",
+            "chunk_id": "correct",
+            "chunk_type": "clause",
+            "source_title": title,
+            "rank": 4,
+            "text": correct,
+        },
+        *[
+            {
+                "doc_id": "reg-long",
+                "chunk_id": f"filler-{rank}",
+                "chunk_type": "clause",
+                "source_title": title,
+                "rank": rank,
+                "text": f"第{rank}条其他程序性规定。",
+            }
+            for rank in range(5, 10)
+        ],
+    ]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=OrderedReranker(),
+    )
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=QueryDecomposer(),
+    )
+    question = (
+        f"关于《{title}》，下列哪一组选项中的两项表述均属于该材料内容？\n"
+        f"A. {shared}；{correct}\n"
+        f"B. {shared}；寿险合同负债采用折现率曲线。\n"
+        f"C. {shared}；基础利率曲线由三段组成。\n"
+        f"D. {shared}；移动平均曲线适用于0年到20年。"
+    )
+
+    result = builder.answer(question, include_diagnostics=True)
+
+    retrieval = result["diagnostics"]["retrieval"]
+    assert retrieval["targets"][1]["coverage_status"] == "supported"
+    assert retrieval["supplemental_searches"] == 0
+
+
+def test_answer_pools_initial_evidence_from_targets_with_same_resolved_source():
+    title = "测试监管办法"
+    claim_a = "目标甲应当按照规定办理开业核准。"
+    claim_b = "目标乙应当提交完整申请材料。"
+    chunks = [
+        {
+            "doc_id": "reg-shared",
+            "chunk_id": "claim-a",
+            "chunk_type": "clause",
+            "source_title": title,
+            "rank_a": 9,
+            "rank_b": 1,
+            "text": claim_a,
+        },
+        {
+            "doc_id": "reg-shared",
+            "chunk_id": "claim-b",
+            "chunk_type": "clause",
+            "source_title": title,
+            "rank_a": 1,
+            "rank_b": 2,
+            "text": claim_b,
+        },
+        *[
+            {
+                "doc_id": "reg-shared",
+                "chunk_id": f"filler-{rank}",
+                "chunk_type": "clause",
+                "source_title": title,
+                "rank_a": rank,
+                "rank_b": rank + 1,
+                "text": f"第{rank}条其他程序性规定。",
+            }
+            for rank in range(2, 10)
+        ],
+    ]
+    targets = [
+        {
+            "target_id": "claim_a",
+            "label": claim_a,
+            "question": f"《{title}》目标甲：{claim_a}",
+            "type": "regulation",
+            "source_title": title,
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [claim_a],
+        },
+        {
+            "target_id": "claim_b",
+            "label": claim_b,
+            "question": f"《{title}》目标乙：{claim_b}",
+            "type": "regulation",
+            "source_title": title,
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [claim_b],
+        },
+    ]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=TargetAwareReranker(),
+    )
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=StaticDecomposer(targets),
+    )
+
+    result = builder.answer("测试同源证据复用", include_diagnostics=True)
+
+    retrieval = result["diagnostics"]["retrieval"]
+    assert [target["coverage_status"] for target in retrieval["targets"]] == [
+        "supported",
+        "supported",
+    ]
+    assert retrieval["supplemental_searches"] == 0
+
+
+def test_answer_does_not_accept_claim_from_unresolved_unrelated_source():
+    claim = "法人机构开业核准属于机构设立类行政许可事项。"
+    chunks = [
+        {
+            "doc_id": "other-source",
+            "chunk_id": "other-claim",
+            "chunk_type": "clause",
+            "source_title": "寿险合同负债评估折现率曲线",
+            "text": claim,
+        },
+    ]
+    targets = [{
+        "target_id": "claim",
+        "label": claim,
+        "question": claim,
+        "type": "regulation",
+        "source_title": "完全不存在的监管材料",
+        "filters": {},
+        "strict_filters": {},
+        "coverage_terms": [claim],
+    }]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=StaticDecomposer(targets),
+    )
+
+    result = builder.answer("测试来源约束", include_diagnostics=True)
+
+    retrieval = result["diagnostics"]["retrieval"]
+    assert retrieval["targets"][0]["coverage_status"] == "missing"
+    assert retrieval["supplemental_searches"] == 0
+
+
+def test_answer_accepts_reordered_numeric_fact_anchors_from_same_source():
+    title = "意外伤害保险业务监管办法"
+    claim = "保险期限一年及以下的个人意外险平均附加费用率上限为35%。"
+    chunks = [{
+        "doc_id": "reg-fee",
+        "chunk_id": "fee-cap",
+        "chunk_type": "clause",
+        "source_title": title,
+        "text": "业务类 保险期限一年及以下的意外险 个人 35%",
+    }]
+    targets = [{
+        "target_id": "fee_cap",
+        "label": claim,
+        "question": claim,
+        "type": "regulation",
+        "source_title": title,
+        "filters": {},
+        "strict_filters": {},
+        "coverage_terms": [claim],
+    }]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=StaticDecomposer(targets),
+    )
+
+    result = builder.answer("测试数值事实锚点", include_diagnostics=True)
+
+    target = result["diagnostics"]["retrieval"]["targets"][0]
+    assert target["coverage_status"] == "supported"
+    assert target["supplemented"] is False
+
+
+def test_answer_uses_distinct_structural_query_for_partial_classification_fact():
+    title = "测试监管办法"
+    claim = "法人机构开业核准属于机构设立类行政许可事项。"
+    evidence_text = f"关键目录证据：{claim}"
+    chunks = [
+        {
+            "doc_id": "reg-structure",
+            "chunk_id": "correct-structure",
+            "chunk_type": "clause",
+            "source_title": title,
+            "initial_rank": 9,
+            "structural_rank": 1,
+            "text": evidence_text,
+        },
+        *[
+            {
+                "doc_id": "reg-structure",
+                "chunk_id": f"filler-{rank}",
+                "chunk_type": "clause",
+                "source_title": title,
+                "initial_rank": rank,
+                "structural_rank": rank + 1,
+                "text": (
+                    "法人机构设立申请应当提交完整材料。"
+                    if rank == 1 else f"第{rank}条其他程序性规定。"
+                ),
+            }
+            for rank in range(1, 10)
+        ],
+    ]
+    targets = [{
+        "target_id": "classification",
+        "label": claim,
+        "question": claim,
+        "type": "regulation",
+        "source_title": title,
+        "filters": {},
+        "strict_filters": {},
+        "coverage_terms": [claim],
+    }]
+    reranker = StructuralReranker()
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=reranker,
+    )
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=retriever,
+        decomposer=StaticDecomposer(targets),
+    )
+
+    result = builder.answer("测试结构分类补搜", include_diagnostics=True)
+
+    retrieval = result["diagnostics"]["retrieval"]
+    assert retrieval["targets"][0]["coverage_status"] == "supported"
+    assert retrieval["targets"][0]["supplemented"] is True
+    assert retrieval["supplemental_searches"] == 1
+    assert len(reranker.queries) == 2
+    assert "申请材料目录" not in reranker.queries[0]
+    assert "申请材料目录" in reranker.queries[1]
+    assert evidence_text in llm.last_user_message

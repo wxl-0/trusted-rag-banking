@@ -1,6 +1,7 @@
 import json
 import pickle
 import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from rank_bm25 import BM25Okapi
 
@@ -63,7 +64,34 @@ class BM25Index:
             or self._normalize_title(title) in normalized_hint
         ]
         near.sort(key=lambda title: abs(len(self._normalize_title(title)) - len(normalized_hint)))
-        return near[:5], "near" if near else "none"
+        if near:
+            return near[:5], "near"
+
+        alias_hint = self._normalize_title_alias(title_hint)
+        alias_matches = [
+            title for title in titles
+            if self._titles_overlap(alias_hint, self._normalize_title_alias(title))
+        ]
+        if len(alias_matches) == 1:
+            return alias_matches, "alias"
+
+        scored = sorted(
+            (
+                SequenceMatcher(
+                    None,
+                    alias_hint,
+                    self._normalize_title_alias(title),
+                ).ratio(),
+                title,
+            )
+            for title in titles
+        )
+        if scored:
+            best_score, best_title = scored[-1]
+            second_score = scored[-2][0] if len(scored) > 1 else 0
+            if best_score >= 0.78 and best_score - second_score >= 0.08:
+                return [best_title], "alias"
+        return [], "none"
 
     def chunks_for_source_titles(self, titles: list, filters: dict = None,
                                  max_chunks: int = 20) -> list:
@@ -142,6 +170,16 @@ class BM25Index:
 
     def _normalize_title(self, title: str) -> str:
         return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(title).lower())
+
+    def _normalize_title_alias(self, title: str) -> str:
+        normalized = self._normalize_title(title)
+        return re.sub(r"20\d{2}年版", "", normalized)
+
+    def _titles_overlap(self, left: str, right: str) -> bool:
+        return bool(
+            min(len(left), len(right)) >= 8
+            and (left in right or right in left)
+        )
 
     def _tokenize(self, text: str) -> list:
         tokens = []
