@@ -12,7 +12,6 @@ SYSTEM_PROMPT = """你是银行业监管制度问答助手。请严格依据下�
 输出格式（JSON）：
 {
   "answer": "答案文本，若拒答则为空字符串",
-  "confidence": "high 或 medium 或 low",
   "evidence": [
     {
       "source_title": "文件名称",

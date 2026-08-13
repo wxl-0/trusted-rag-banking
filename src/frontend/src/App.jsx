@@ -25,7 +25,7 @@ export default function App() {
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: { answer: '', confidence: 'low', evidence: [], refuse_reason: err.message }
+        content: { answer: '', evidence: [], refuse_reason: err.message }
       }])
     } finally {
       setLoading(false)

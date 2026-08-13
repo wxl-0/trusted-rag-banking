@@ -128,7 +128,6 @@ class AnswerBuilder:
         if not unique_chunks:
             result = {
                 "answer": "",
-                "confidence": "low",
                 "evidence": [],
                 "refuse_reason": "知识库中未检索到与该问题相关的监管依据",
                 "latency_ms": int((time.perf_counter() - start) * 1000),
@@ -152,11 +151,11 @@ class AnswerBuilder:
         except json.JSONDecodeError:
             result = {
                 "answer": raw,
-                "confidence": "low",
                 "evidence": [],
                 "refuse_reason": None,
             }
 
+        result.pop("confidence", None)
         result["latency_ms"] = int((time.perf_counter() - start) * 1000)
         if include_diagnostics:
             result["diagnostics"] = self._build_diagnostics(

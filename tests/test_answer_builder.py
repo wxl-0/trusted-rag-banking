@@ -279,6 +279,7 @@ def test_answer_multi_fact_uses_relevant_evidence_ranked_after_third():
 
     result = builder.answer(question, include_diagnostics=True)
 
+    assert "confidence" not in result
     retrieval = result["diagnostics"]["retrieval"]
     assert retrieval["targets"][1]["coverage_status"] == "supported"
     assert retrieval["supplemental_searches"] == 0

@@ -48,7 +48,6 @@ def client():
 def test_ask_with_history_passes_to_builder(client):
     mock_result = {
         "answer": "追问的回答。",
-        "confidence": "high",
         "evidence": [],
         "refuse_reason": None,
         "latency_ms": 200,
@@ -75,7 +74,6 @@ def test_ask_with_history_passes_to_builder(client):
 def test_ask_without_history_works(client):
     mock_result = {
         "answer": "回答内容。",
-        "confidence": "medium",
         "evidence": [],
         "refuse_reason": None,
         "latency_ms": 100,
@@ -93,7 +91,6 @@ def test_ask_without_history_works(client):
 def test_ask_history_empty_list(client):
     mock_result = {
         "answer": "回答。",
-        "confidence": "low",
         "evidence": [],
         "refuse_reason": None,
         "latency_ms": 50,

@@ -20,7 +20,6 @@ def test_ask_empty_question():
 def test_ask_returns_structured_response():
     mock_result = {
         "answer": "资本充足率不得低于10.5%。",
-        "confidence": "high",
         "evidence": [
             {
                 "source_title": "商业银行资本管理办法",
@@ -37,5 +36,5 @@ def test_ask_returns_structured_response():
     assert response.status_code == 200
     data = response.json()
     assert data["answer"] == "资本充足率不得低于10.5%。"
-    assert data["confidence"] == "high"
+    assert "confidence" not in data
     assert len(data["evidence"]) == 1

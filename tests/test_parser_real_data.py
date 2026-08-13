@@ -295,6 +295,35 @@ def test_word_parser_includes_tables(tmp_path):
     assert "Keep for 10 years" in table_chunks[0].text
 
 
+def test_word_parser_assigns_unique_ids_to_repeated_sections(tmp_path):
+    from docx import Document
+    from src.parser.word_parser import WordParser
+
+    document = Document()
+    document.add_heading("第一章 重复标题", level=1)
+    document.add_paragraph("第一段正文。")
+    document.add_heading("第一章 重复标题", level=1)
+    document.add_paragraph("第二段正文。")
+    path = tmp_path / "repeated-headings.docx"
+    document.save(path)
+
+    chunks = WordParser(
+        doc_id="DOC-REPEATED",
+        source_title="重复标题测试",
+        issuer="NFRA",
+        doc_no="",
+        publish_date="2024-01-01",
+        source_url="",
+        local_path=str(path),
+    ).parse()
+
+    from src.parser.chunk_processor import process_chunks
+
+    processed = process_chunks(chunks, profile="regulation")
+    chunk_ids = [chunk.chunk_id for chunk in processed]
+    assert len(chunk_ids) == len(set(chunk_ids))
+
+
 def test_word_parser_rejects_doc_without_converter(tmp_path, monkeypatch):
     from src.parser.word_parser import WordParser
 

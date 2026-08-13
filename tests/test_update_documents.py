@@ -113,6 +113,7 @@ def test_parse_manifest_entry_returns_target_collection(tmp_path):
 class _MemoryQdrant:
     def __init__(self, records):
         self.records = list(records)
+        self.upsert_batches = []
 
     @staticmethod
     def _doc_id(qdrant_filter):
@@ -128,6 +129,7 @@ class _MemoryQdrant:
         self.records = [record for record in self.records if record.payload["doc_id"] != doc_id]
 
     def upsert(self, collection_name, points, wait):
+        self.upsert_batches.append(list(points))
         self.records.extend(
             SimpleNamespace(id=point.id, payload=point.payload, vector=point.vector)
             for point in points
@@ -152,6 +154,36 @@ def test_replace_qdrant_document_keeps_other_documents():
         client, "tables", "D1",
     )] == ["D1#new"]
     assert [record.payload["chunk_id"] for record in client.records if record.payload["doc_id"] == "D2"] == ["D2#stable"]
+
+
+def test_replace_qdrant_document_upserts_large_updates_in_batches():
+    client = _MemoryQdrant([])
+    points = [
+        PointStruct(
+            id=make_point_id("tables", "D1", f"D1#new-{index}"),
+            vector=[float(index)],
+            payload=_chunk("D1", f"D1#new-{index}", f"new content {index}"),
+        )
+        for index in range(130)
+    ]
+
+    summary = replace_qdrant_document(client, "tables", "D1", points)
+
+    assert summary == {"before": 0, "after": 130}
+    assert [len(batch) for batch in client.upsert_batches] == [64, 64, 2]
+
+
+def test_replace_qdrant_document_allows_empty_replacement():
+    client = _MemoryQdrant([
+        SimpleNamespace(id=1, payload=_chunk("D1", "D1#old", "old content"), vector=[0.1]),
+        SimpleNamespace(id=2, payload=_chunk("D2", "D2#stable", "stable content"), vector=[0.2]),
+    ])
+
+    summary = replace_qdrant_document(client, "tables", "D1", [])
+
+    assert summary == {"before": 1, "after": 0}
+    assert client.upsert_batches == []
+    assert [record.payload["doc_id"] for record in client.records] == ["D2"]
 
 
 def test_prepare_document_updates_selects_scope_and_avoids_global_text_duplicates(tmp_path):

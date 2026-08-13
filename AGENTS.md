@@ -129,7 +129,7 @@ Parser → Indexer → Retriever → Generator → API/Frontend
 - **`src/parser/`**：将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（`.doc/.docx`，含表格提取和合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 `.xls/.xlsx`）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
 - **`src/indexer/`**：两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
 - **`src/retriever/`**：`QueryRouter` 在调用方未提供 `query_type` 时调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：明确来源且不超过 20 个 chunk 时可按页序返回全量；否则文件标题精确命中时限定来源，近似命中时保留全库候选并追加标题候选，再经 BM25、向量检索、RRF 和 `CrossEncoder` 精排。制度类结果会补充同章节或同父块上下文，并记录候选数量与阶段耗时。
-- **`src/generator/`**：`QueryDecomposer` 先用确定性规则判断类型并拆分表格双指标、选项比较、多事实陈述，以及选项中明确引用的其他文件；只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 对表格使用行指标/列口径过滤，对制度使用标题/章节上下文；覆盖状态分为 `supported | not_supported | missing`，相邻同父块或同章节 chunk 可合并判断，且仅对 `missing` 补搜一次。正式 LLM 输出仍包含 `answer`、`confidence`、`evidence[]`、`refuse_reason`；`confidence` 删除属于上文已确认但尚未实施的接口改动。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
+- **`src/generator/`**：`QueryDecomposer` 先用确定性规则判断类型并拆分表格双指标、选项比较、多事实陈述，以及选项中明确引用的其他文件；只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 对表格使用行指标/列口径过滤，对制度使用标题/章节上下文；覆盖状态分为 `supported | not_supported | missing`，相邻同父块或同章节 chunk 可合并判断，且仅对 `missing` 补搜一次。正式 LLM 输出包含 `answer`、`evidence[]`、`refuse_reason`。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
 - **`src/api/`**：FastAPI 应用。主要路由为 `POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。存在前端构建产物时，后端也可在 `/` 提供页面；Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
 - **`src/frontend/`**：React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件包括 `ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
 
@@ -161,11 +161,11 @@ def retrieve(query: str, query_type: str = None, filters: dict = None,
 
 **`/api/ask` 请求**：`question`（必填）、`filters`（可选）、`history`（可选，`[{role, content}]` 数组）。
 
-**`/api/ask` 响应**：固定返回 `answer`、`confidence`（`high/medium/low`）、`evidence[]`（含 `source_title`、`section`、`text`、`source_url`）、`refuse_reason`（null 或字符串）、`latency_ms`。
+**`/api/ask` 响应**：固定返回 `answer`、`evidence[]`（含 `source_title`、`section`、`text`、`source_url`）、`refuse_reason`（null 或字符串）、`latency_ms`。
 
-## 已确认、待实施的接口与评测决策
+## 接口与评测决策
 
-- 删除 `confidence` 字段。实施时必须同步修改生成提示词、后端响应模型与接口、前端展示、测试和相关文档；在整组改动完成前，上述 `/api/ask` 响应描述仍代表当前代码现状。不要用新的主观置信度字段替代它，除非另有明确设计。
+- 正式问答接口不返回 `confidence`，也不使用新的主观置信度字段替代它。
 - `choice` 只属于选择题评测适配层，不进入正式前端的开放问答接口。评测模式可要求模型结构化返回 `choice`（`A/B/C/D`）和 `answer`，正式 `/api/ask` 仍返回自然语言答案与证据。
 - 正式选择题判分使用确定性规则（结构化选项、回答中的明确选项、规范化选项文本）；无法确定时标记 `unparseable` 并人工复核，不调用 LLM Judge。
 
@@ -192,16 +192,17 @@ def retrieve(query: str, query_type: str = None, filters: dict = None,
 - 覆盖文档：481 / 500（19 个 `skip`）
 - 平均 chunk 长度：约 130 字
 - 评测基线：首轮 300 题准确率 41%（拒答率 50% 为主要失分），报告见 `data/eval/eval_report.json`；生成层健壮性优化（重试/拒答校准/top_k=8）后的复测待跑
-- 当前无 `<20` 字碎片；`clause_chunks.jsonl` 仍存在重复 `chunk_id` 行，需要后续修复
+- 当前无 `<20` 字碎片；两套 chunk JSONL 的 `chunk_id` 均全局唯一
 
 ## 已完成的单文档数据修复与剩余题库待办
 
 - `ExcelParser` 已支持多层行头、多层季度列头和重复表格区块；`PdfParser` 已保留标题正文、编号列表项并修正“大字号正文被误判为标题”。
 - `NFRA-128`、`NFRA-130`、`NFRA-132`、`NFRA-467` 已完成正式 chunk 替换、单文档 Qdrant 向量更新和统一 BM25 重建。更新后数量分别为 165、266、30、25；Qdrant 集合总数为 regulations 8,945、tables 29,549。
 - `NFRA-467` 的编号公司条目已继承“保险控股型集团”父级 `section_path`，并完成单文档重新解析、Qdrant 更新和 BM25 重建；Q214、Q220、Q226、Q232 复测为 4/4。
+- `WordParser` 的正文 chunk ID 已加入文档内顺序号，22 个受影响 Word 文档已完成定向重切、Qdrant 更新和 BM25 重建；`clause_chunks.jsonl` 从 96 个重复 ID 修复为 8,945 行、8,945 个唯一 ID。Qdrant 大文档更新按 64 个 point 分批上传，避免单请求超过服务端 32 MB 限制。
 - `scripts/update_documents.py` 提供按 `doc_id` 的安全更新入口；默认只预览，传入 `--apply` 才会写入。它会备份两套 chunk、BM25 和目标文档旧向量，验证非目标 chunk 未变化，并在失败时回滚。不得用会清空全量 chunk 的 `scripts/ingest.py` 代替该入口做单文档修复。
 - 受影响且题意明确的 16 题已复测通过。Q074 已明确限定“1. 银行业金融机构”区块，分解器会把显式区块带入两个表格取数目标；首轮报告见 `data/eval/runs/rechunk-four-docs-v1/`，Q074 修正复测见 `data/eval/runs/rechunk-q074-section-v1/`。
-- Q075 同时跨越“银行业金融机构”和“商业银行合计”两个区块，当前题干不能唯一表达两个取数位置；在重新设计或排除前，不用它判断检索或计算能力。
+- Q075 同时跨越“银行业金融机构”和“商业银行合计”两个区块，当前题干不能唯一表达两个取数位置；题库保留原题并标记 `eval_status=excluded_ambiguous`，默认评测跳过，显式 `--ids Q075` 仍可用于诊断。
 
 ## 入库 Manifest
 

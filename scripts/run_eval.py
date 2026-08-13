@@ -69,6 +69,11 @@ def load_qa_items(source_filter=None, item_ids=None, qa_path=QA_PATH):
         source_type = row[h["source_type"]]
         if source_filter and source_type != source_filter:
             continue
+        eval_status = (
+            row[h["eval_status"]]
+            if "eval_status" in h and h["eval_status"] < len(row)
+            else ""
+        )
         items.append(
             {
                 "id": row[h["id"]],
@@ -83,10 +88,14 @@ def load_qa_items(source_filter=None, item_ids=None, qa_path=QA_PATH):
                 "answer": row[h["answer"]],          # 正确选项字母 A/B/C/D
                 "answer_text": row[h["answer_text"]], # 正确答案的具体内容
                 "source_title": row[h["source_title"]],
+                "eval_status": eval_status or "",
             }
         )
     if item_ids is None:
-        return items
+        return [
+            item for item in items
+            if not item["eval_status"].startswith("excluded")
+        ]
 
     items_by_id = {item["id"]: item for item in items}
     missing_ids = [item_id for item_id in item_ids if item_id not in items_by_id]

@@ -22,7 +22,6 @@ class EvidenceItem(BaseModel):
 
 class AskResponse(BaseModel):
     answer: str
-    confidence: str
     evidence: List[EvidenceItem]
     refuse_reason: Optional[str] = None
     latency_ms: int

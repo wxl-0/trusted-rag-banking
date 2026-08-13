@@ -33,6 +33,7 @@ CLAUSE_PATH = REPO_ROOT / "data/chunks/clause_chunks.jsonl"
 TABLE_PATH = REPO_ROOT / "data/chunks/table_chunks.jsonl"
 BM25_PATH = REPO_ROOT / "data/bm25_index.pkl"
 BACKUP_ROOT = REPO_ROOT / "data/chunks/document_update_backups"
+QDRANT_UPSERT_BATCH_SIZE = 64
 
 
 def make_point_id(collection: str, doc_id: str, chunk_id: str) -> str:
@@ -79,8 +80,12 @@ def replace_qdrant_document(
         points_selector=FilterSelector(filter=_doc_filter(doc_id)),
         wait=True,
     )
-    if points:
-        client.upsert(collection_name=collection, points=points, wait=True)
+    for start in range(0, len(points), QDRANT_UPSERT_BATCH_SIZE):
+        client.upsert(
+            collection_name=collection,
+            points=points[start:start + QDRANT_UPSERT_BATCH_SIZE],
+            wait=True,
+        )
 
     after = scroll_qdrant_document(client, collection, doc_id)
     expected_ids = {point.payload["chunk_id"] for point in points}

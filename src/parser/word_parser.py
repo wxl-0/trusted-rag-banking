@@ -43,9 +43,15 @@ class WordParser:
                 return
             text = " ".join(buffer_text).strip()
             if text:
+                clause_index = sum(
+                    chunk.chunk_type == "clause" for chunk in chunks
+                ) + 1
                 chunks.append(Chunk(
                     doc_id=self.doc_id,
-                    chunk_id=f"{self.doc_id}#{'#'.join(buffer_path) if buffer_path else 'body'}",
+                    chunk_id=(
+                        f"{self.doc_id}#C{clause_index}#"
+                        f"{'#'.join(buffer_path) if buffer_path else 'body'}"
+                    ),
                     text=text,
                     chunk_type="clause",
                     source_title=self.source_title,
