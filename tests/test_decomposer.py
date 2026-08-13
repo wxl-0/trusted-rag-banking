@@ -68,6 +68,32 @@ def test_decomposer_splits_table_change_into_two_lookup_targets():
     assert decomposer.last_route == "table"
 
 
+def test_decomposer_keeps_explicit_table_section_in_change_targets():
+    question = (
+        "根据《2023年银行业总资产、总负债（季度）》，"
+        "在“1. 银行业金融机构”区块中，"
+        "“总负债”从“一季度”到“四季度”的数值变化约为多少？"
+    )
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("明确计算题不应调用模型"))
+
+    result = decomposer.decompose(question)
+
+    assert result[0]["question"] == (
+        "《2023年银行业总资产、总负债（季度）》 "
+        "1. 银行业金融机构 总负债 一季度"
+    )
+    assert result[0]["strict_filters"] == {
+        "row_label": "总负债",
+        "column_header": "一季度",
+        "section_path": "1. 银行业金融机构",
+    }
+    assert result[0]["coverage_terms"] == [
+        "总负债", "一季度", "1. 银行业金融机构",
+    ]
+    assert result[1]["strict_filters"]["column_header"] == "四季度"
+
+
 def test_decomposer_splits_table_comparison_by_option_and_column():
     question = (
         "根据 Excel 附件《2023年4季度保险业资金运用情况表》"
@@ -159,6 +185,35 @@ def test_decomposer_keeps_single_fact_question_with_source_title_hint():
         "strict_filters": {},
         "coverage_terms": [],
     }]
+
+
+def test_eval_decomposer_splits_single_fact_options_with_source_constraints():
+    question = (
+        "检索《银行函证工作操作指引（PDF）》后，以下哪一项与材料内容一致？\n"
+        "A. 折现率曲线由基础利率曲线形成。\n"
+        "B. 基础利率曲线由三段组成。\n"
+        "C. 会计师事务所应当采用公示地址作为邮寄地址。\n"
+        "D. 移动平均曲线适用于0年到20年。"
+    )
+    decomposer = QueryDecomposer(include_single_fact_options=True)
+    decomposer.llm.chat = Mock(side_effect=AssertionError("明确制度题不应调用模型"))
+
+    result = decomposer.decompose(question)
+
+    assert [target["target_id"] for target in result] == [
+        "option_A", "option_B", "option_C", "option_D",
+    ]
+    assert all(
+        target["source_title"] == "银行函证工作操作指引（PDF）"
+        for target in result
+    )
+    assert result[2]["coverage_terms"] == [
+        "会计师事务所应当采用公示地址作为邮寄地址。"
+    ]
+    assert result[2]["question"] == (
+        "《银行函证工作操作指引（PDF）》 "
+        "会计师事务所应当采用公示地址作为邮寄地址。"
+    )
 
 
 def test_decomposer_adds_target_for_document_referenced_by_an_option():

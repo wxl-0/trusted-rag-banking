@@ -44,6 +44,65 @@ def save_chunks(chunks: list, output_path: Path, seen_texts: set):
             f.write(json.dumps(chunk.to_dict(), ensure_ascii=False) + "\n")
 
 
+def parse_manifest_entry(entry: dict) -> tuple[str, list]:
+    local_path = resolve_local_path(entry["local_path"])
+    if not local_path.exists():
+        raise FileNotFoundError(local_path)
+
+    suffix = local_path.suffix.lower()
+    profile = entry.get("parse_profile", "regulation")
+    if profile == "skip":
+        return "skip", []
+
+    notice_title = entry.get("notice_title")
+    source_title = entry["title"]
+    if notice_title:
+        source_title = f"{notice_title} {source_title}"
+
+    common = dict(
+        doc_id=entry["doc_id"],
+        source_title=source_title,
+        issuer=entry.get("issuer", ""),
+        source_url=entry.get("source_url", ""),
+        local_path=str(local_path),
+    )
+
+    if profile == "pdf_table":
+        parser = PdfTableParser(
+            **common,
+            publish_date=entry.get("publish_date", ""),
+        )
+        return "tables", parser.parse()
+    if profile == "report":
+        parser = PdfParser(
+            **common,
+            doc_no=entry.get("doc_no", ""),
+            publish_date=entry.get("publish_date", ""),
+        )
+        return "regulations", process_chunks(parser.parse(), profile="report")
+    if suffix in (".xlsx", ".xls"):
+        parser = ExcelParser(
+            **common,
+            publish_date=entry.get("publish_date", ""),
+        )
+        return "tables", parser.parse()
+    if suffix in (".docx", ".doc"):
+        parser = WordParser(
+            **common,
+            doc_no=entry.get("doc_no", ""),
+            publish_date=entry.get("publish_date", ""),
+        )
+        return "regulations", process_chunks(parser.parse(), profile="regulation")
+    if suffix == ".pdf":
+        parser = PdfParser(
+            **common,
+            doc_no=entry.get("doc_no", ""),
+            publish_date=entry.get("publish_date", ""),
+        )
+        return "regulations", process_chunks(parser.parse(), profile="regulation")
+    raise ValueError(f"Unsupported file type: {suffix}")
+
+
 def main():
     CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
     manifest = load_manifest()
@@ -69,54 +128,13 @@ def main():
 
         print(f"[解析] {local_path.name} (profile={profile})")
 
-        notice_title = entry.get("notice_title")
-        source_title = entry["title"]
-        if notice_title:
-            source_title = f"{notice_title} {source_title}"
-
-        common = dict(
-            doc_id=entry["doc_id"],
-            source_title=source_title,
-            issuer=entry.get("issuer", ""),
-            source_url=entry.get("source_url", ""),
-            local_path=str(local_path),
-        )
-
-        if profile == "pdf_table":
-            parser = PdfTableParser(
-                **common,
-                publish_date=entry.get("publish_date", ""),
-            )
-            save_chunks(parser.parse(), table_path, seen_texts)
-        elif profile == "report":
-            parser = PdfParser(
-                **common,
-                doc_no=entry.get("doc_no", ""),
-                publish_date=entry.get("publish_date", ""),
-            )
-            save_chunks(process_chunks(parser.parse(), profile="report"), clause_path, seen_texts)
-        elif suffix in (".xlsx", ".xls"):
-            parser = ExcelParser(
-                **common,
-                publish_date=entry.get("publish_date", ""),
-            )
-            save_chunks(parser.parse(), table_path, seen_texts)
-        elif suffix in (".docx", ".doc"):
-            parser = WordParser(
-                **common,
-                doc_no=entry.get("doc_no", ""),
-                publish_date=entry.get("publish_date", ""),
-            )
-            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path, seen_texts)
-        elif suffix == ".pdf":
-            parser = PdfParser(
-                **common,
-                doc_no=entry.get("doc_no", ""),
-                publish_date=entry.get("publish_date", ""),
-            )
-            save_chunks(process_chunks(parser.parse(), profile="regulation"), clause_path, seen_texts)
-        else:
+        try:
+            collection, chunks = parse_manifest_entry(entry)
+        except ValueError:
             print(f"[跳过] 不支持的格式: {suffix}")
+            continue
+        output_path = table_path if collection == "tables" else clause_path
+        save_chunks(chunks, output_path, seen_texts)
 
     print(f"\n完成。clause_chunks: {clause_path}, table_chunks: {table_path}")
     print(f"  去重跳过: {len(seen_texts)} 个唯一文本已记录")

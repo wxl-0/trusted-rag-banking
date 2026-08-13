@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock
 from rank_bm25 import BM25Okapi
 
@@ -170,6 +171,74 @@ def test_retrieve_unique_title_alias_scopes_results_to_parent_document():
     assert retriever.last_diagnostics["title_match"] == "alias"
     assert retriever.last_diagnostics["matched_titles"] == [parent_title]
     assert retriever.last_diagnostics["filters"] == {"source_title": parent_title}
+
+
+def test_resolve_source_title_ignores_trailing_file_type_label():
+    title = (
+        "财政部办公厅 金融监管总局办公厅关于印发"
+        "《银行函证工作操作指引》的通知 银行函证工作操作指引"
+    )
+    index = _bm25_with_chunks([{
+        "chunk_id": "guide",
+        "chunk_type": "clause",
+        "source_title": title,
+        "text": "银行函证工作操作指引对具体事项予以明确和细化。",
+    }])
+
+    matched, match_type = index.resolve_source_titles("银行函证工作操作指引（PDF）")
+
+    assert matched == [title]
+    assert match_type == "alias"
+
+
+def test_bm25_search_matches_a_value_inside_section_path(tmp_path):
+    from src.indexer.bm25_index import BM25Index
+
+    chunks_path = tmp_path / "chunks.jsonl"
+    chunks_path.write_text(
+        "\n".join([
+            json.dumps({
+                "doc_id": "D1",
+                "chunk_id": "D1#top",
+                "text": "总负债 一季度 3648440.27",
+                "section_path": ["1. 银行业金融机构"],
+            }, ensure_ascii=False),
+                json.dumps({
+                    "doc_id": "D1",
+                    "chunk_id": "D1#other",
+                    "text": "总负债 一季度 492233.38",
+                    "section_path": ["5. 农村金融机构"],
+                }, ensure_ascii=False),
+                json.dumps({
+                    "doc_id": "D2",
+                    "chunk_id": "D2#1",
+                    "text": "资本充足率 四季度",
+                    "section_path": ["监管指标"],
+                }, ensure_ascii=False),
+                json.dumps({
+                    "doc_id": "D3",
+                    "chunk_id": "D3#1",
+                    "text": "保费收入 本年累计",
+                    "section_path": ["保险数据"],
+                }, ensure_ascii=False),
+                json.dumps({
+                    "doc_id": "D4",
+                    "chunk_id": "D4#1",
+                    "text": "贷款余额 三季度",
+                    "section_path": ["贷款数据"],
+                }, ensure_ascii=False),
+            ]) + "\n",
+        encoding="utf-8",
+    )
+    index = BM25Index(index_path=str(tmp_path / "bm25.pkl"))
+    index.build([str(chunks_path)])
+
+    results = index.search(
+        "总负债 一季度",
+        filters={"section_path": "1. 银行业金融机构"},
+    )
+
+    assert [result["chunk_id"] for result in results] == ["D1#top"]
 
 
 def test_retrieve_regulation_includes_neighbor_from_same_section():

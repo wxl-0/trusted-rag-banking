@@ -47,93 +47,140 @@ class ExcelParser:
 
     def _parse_sheet(self, sheet_name: str, rows: list[list[Any]]) -> list[Chunk]:
         rows = self._normalize_rows(rows)
-        header_idx = self._detect_header_row(rows)
-        if header_idx is None:
+        header_indices = self._detect_header_rows(rows)
+        if not header_indices:
             return []
 
-        header = rows[header_idx]
-        label_col = self._detect_label_column(header)
         unit = self._detect_unit(rows)
         period = self._detect_period([self.source_title, Path(self.local_path).name, sheet_name])
         chunks: List[Chunk] = []
+        sections = [
+            self._section_before_header(
+                rows,
+                header_idx,
+                header_indices[index - 1] + 1 if index else 0,
+                sheet_name,
+            )
+            for index, header_idx in enumerate(header_indices)
+        ]
+        section_rows = {row_idx for _, row_idx in sections if row_idx is not None}
 
-        row_labels_seen: set[str] = set()
-        for row_idx in range(header_idx + 1, len(rows)):
-            row = rows[row_idx]
-            if not self._has_any_value(row):
+        for index, header_idx in enumerate(header_indices):
+            end_idx = (
+                header_indices[index + 1]
+                if index + 1 < len(header_indices)
+                else len(rows)
+            )
+            header = rows[header_idx]
+            data_columns = self._detect_data_columns(
+                header, rows[header_idx + 1:end_idx]
+            )
+            if not data_columns:
                 continue
-            row_label = self._cell_to_text(row[label_col]) if label_col < len(row) else ""
-            if not row_label or self._is_note_row(row_label):
-                continue
-            row_labels_seen.add(row_label)
+            label_columns = list(range(min(data_columns)))
+            base_section = [sections[index][0]] if sections[index][0] else []
+            group_context: dict[int, str] = {}
 
-            for col_idx, value in enumerate(row):
-                if col_idx == label_col or self._is_empty(value) or not self._looks_like_data_cell(value):
+            for row_idx in range(header_idx + 1, end_idx):
+                row = rows[row_idx]
+                if not self._has_any_value(row):
                     continue
-                column_header = self._cell_to_text(header[col_idx]) if col_idx < len(header) else ""
-                if not column_header:
+                non_empty_labels = [
+                    col_idx for col_idx in label_columns
+                    if not self._is_empty(row[col_idx])
+                ]
+                if not non_empty_labels:
                     continue
+                row_label_col = non_empty_labels[-1]
+                row_label = self._cell_to_text(row[row_label_col])
+                if self._is_note_row(row_label):
+                    continue
+                for col_idx in label_columns:
+                    if col_idx >= row_label_col:
+                        break
+                    text = self._cell_to_text(row[col_idx])
+                    if text:
+                        group_context[col_idx] = text
+                section_path = self._dedupe_texts([
+                    *base_section,
+                    *(group_context.get(col_idx, "") for col_idx in label_columns
+                      if col_idx < row_label_col),
+                ])
 
+                for col_idx in data_columns:
+                    value = row[col_idx]
+                    if self._is_empty(value) or not self._looks_like_data_cell(value):
+                        continue
+                    column_header = self._cell_to_text(header[col_idx])
+                    cell_ref = f"{get_column_letter(col_idx + 1)}{row_idx + 1}"
+                    raw_value = self._cell_to_text(value)
+                    chunks.append(Chunk(
+                        doc_id=self.doc_id,
+                        chunk_id=f"{self.doc_id}#{sheet_name}#{cell_ref}",
+                        text=self._build_text(
+                            sheet_name, cell_ref, row_label, column_header,
+                            raw_value, unit, period, section_path,
+                        ),
+                        chunk_type="table_row",
+                        source_title=self.source_title,
+                        issuer=self.issuer,
+                        doc_no="",
+                        publish_date=self.publish_date,
+                        section_path=section_path,
+                        source_url=self.source_url,
+                        local_path=self.local_path,
+                        table_name=sheet_name,
+                        indicator=row_label,
+                        period=period,
+                        unit=unit,
+                        row_index=row_idx + 1,
+                        cell_ref=cell_ref,
+                        row_label=row_label,
+                        column_header=column_header,
+                        raw_value=raw_value,
+                    ))
+
+            for row_idx in range(header_idx + 1, end_idx):
+                if row_idx in section_rows:
+                    continue
+                row = rows[row_idx]
+                if any(
+                    self._looks_like_data_cell(row[col_idx])
+                    for col_idx in data_columns
+                ):
+                    continue
+                texts = [
+                    (col_idx, self._cell_to_text(value))
+                    for col_idx, value in enumerate(row)
+                    if not self._is_empty(value)
+                ]
+                if not texts or self._is_structural_text_row([text for _, text in texts]):
+                    continue
+                col_idx, text_val = texts[0]
                 cell_ref = f"{get_column_letter(col_idx + 1)}{row_idx + 1}"
-                raw_value = self._cell_to_text(value)
                 chunks.append(Chunk(
                     doc_id=self.doc_id,
                     chunk_id=f"{self.doc_id}#{sheet_name}#{cell_ref}",
-                    text=self._build_text(sheet_name, cell_ref, row_label, column_header, raw_value, unit, period),
+                    text=self._build_text(
+                        sheet_name, cell_ref, text_val, "", text_val,
+                        unit, period, base_section,
+                    ),
                     chunk_type="table_row",
                     source_title=self.source_title,
                     issuer=self.issuer,
                     doc_no="",
                     publish_date=self.publish_date,
-                    section_path=[],
+                    section_path=base_section,
                     source_url=self.source_url,
                     local_path=self.local_path,
                     table_name=sheet_name,
-                    indicator=row_label,
+                    indicator=text_val,
                     period=period,
                     unit=unit,
                     row_index=row_idx + 1,
                     cell_ref=cell_ref,
-                    row_label=row_label,
-                    column_header=column_header,
-                    raw_value=raw_value,
-                ))
-
-        header_texts = set(self._cell_to_text(h) for h in header if not self._is_empty(h))
-        all_known = row_labels_seen | header_texts
-        for row_idx in range(header_idx + 1, len(rows)):
-            row = rows[row_idx]
-            for col_idx, value in enumerate(row):
-                if self._is_empty(value):
-                    continue
-                if self._looks_like_data_cell(value):
-                    continue
-                text_val = self._cell_to_text(value)
-                if text_val in all_known:
-                    continue
-                cell_ref = f"{get_column_letter(col_idx + 1)}{row_idx + 1}"
-                row_label = self._cell_to_text(row[label_col]) if label_col < len(row) else ""
-                column_header = self._cell_to_text(header[col_idx]) if col_idx < len(header) else ""
-                chunks.append(Chunk(
-                    doc_id=self.doc_id,
-                    chunk_id=f"{self.doc_id}#{sheet_name}#{cell_ref}",
-                    text=self._build_text(sheet_name, cell_ref, row_label or text_val, column_header, text_val, unit, period),
-                    chunk_type="table_row",
-                    source_title=self.source_title,
-                    issuer=self.issuer,
-                    doc_no="",
-                    publish_date=self.publish_date,
-                    section_path=[],
-                    source_url=self.source_url,
-                    local_path=self.local_path,
-                    table_name=sheet_name,
-                    indicator=row_label or text_val,
-                    period=period,
-                    unit=unit,
-                    row_index=row_idx + 1,
-                    cell_ref=cell_ref,
-                    row_label=row_label,
-                    column_header=column_header,
+                    row_label=text_val,
+                    column_header="",
                     raw_value=text_val,
                 ))
         return chunks
@@ -153,6 +200,76 @@ class ExcelParser:
             if any(self._row_below_has_numeric(rows, row_idx, col_idx) for col_idx, _ in enumerate(row)):
                 return row_idx
         return None
+
+    def _detect_header_rows(self, rows: list[list[Any]]) -> list[int]:
+        labels = {
+            "项目", "指标", "指标名称", "地区", "机构",
+            "metric", "item",
+        }
+        explicit = []
+        for row_idx, row in enumerate(rows):
+            non_empty = [
+                self._cell_to_text(value)
+                for value in row if not self._is_empty(value)
+            ]
+            if len(non_empty) < 2 or not any(value in labels for value in non_empty):
+                continue
+            if any(
+                self._row_below_has_numeric(rows, row_idx, col_idx)
+                for col_idx in range(len(row))
+            ):
+                explicit.append(row_idx)
+        if explicit:
+            return explicit
+        fallback = self._detect_header_row(rows)
+        return [fallback] if fallback is not None else []
+
+    def _detect_data_columns(self, header: list[Any], data_rows: list[list[Any]]) -> list[int]:
+        return [
+            col_idx for col_idx, value in enumerate(header)
+            if not self._is_empty(value)
+            and any(
+                col_idx < len(row) and self._looks_like_data_cell(row[col_idx])
+                for row in data_rows
+            )
+        ]
+
+    def _section_before_header(self, rows: list[list[Any]], header_idx: int,
+                               lower_bound: int, sheet_name: str) -> tuple[str, int | None]:
+        normalized_source = self._normalize_text(self.source_title)
+        normalized_sheet = self._normalize_text(sheet_name)
+        for row_idx in range(header_idx - 1, lower_bound - 1, -1):
+            texts = [
+                self._cell_to_text(value)
+                for value in rows[row_idx] if not self._is_empty(value)
+            ]
+            if len(texts) != 1:
+                continue
+            text = texts[0]
+            normalized = self._normalize_text(text)
+            if not normalized or text.startswith(("单位", "unit", "Unit")):
+                continue
+            if text in {"时间", "项目", "指标"}:
+                continue
+            if normalized in normalized_source or normalized == normalized_sheet:
+                continue
+            return text, row_idx
+        return "", None
+
+    def _is_structural_text_row(self, texts: list[str]) -> bool:
+        if any(text.startswith(("单位", "unit", "Unit")) for text in texts):
+            return True
+        return texts[0] in {"时间", "项目", "指标", "时间/指标"}
+
+    def _dedupe_texts(self, values) -> list[str]:
+        result = []
+        for value in values:
+            if value and value not in result:
+                result.append(value)
+        return result
+
+    def _normalize_text(self, value: str) -> str:
+        return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(value).lower())
 
     def _row_below_has_numeric(self, rows: list[list[Any]], header_idx: int, col_idx: int) -> bool:
         for row in rows[header_idx + 1: header_idx + 6]:
@@ -193,17 +310,22 @@ class ExcelParser:
         return ""
 
     def _build_text(self, sheet_name: str, cell_ref: str, row_label: str,
-                    column_header: str, raw_value: str, unit: str, period: str) -> str:
+                    column_header: str, raw_value: str, unit: str, period: str,
+                    section_path: list[str] = None) -> str:
         formatted_value = self._format_value(raw_value, row_label, unit)
         normalized_unit = self._normalize_unit(unit)
         parts = [
             f"文件《{self.source_title}》",
             f"工作表「{sheet_name}」",
             f"单元格 {cell_ref}",
+        ]
+        if section_path:
+            parts.append(f"所属区块「{' > '.join(section_path)}」")
+        parts.extend([
             f"行指标「{row_label}」",
             f"列口径「{column_header}」",
             f"原始值为 {formatted_value}",
-        ]
+        ])
         if normalized_unit:
             parts.append(f"单位：{normalized_unit}")
         if period:

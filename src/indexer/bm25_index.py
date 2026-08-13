@@ -152,7 +152,13 @@ class BM25Index:
             if expected in (None, "", []):
                 continue
             actual = chunk.get(key)
-            if isinstance(expected, (list, tuple, set)):
+            if isinstance(actual, (list, tuple, set)):
+                if isinstance(expected, (list, tuple, set)):
+                    if not set(actual).intersection(expected):
+                        return False
+                elif expected not in actual:
+                    return False
+            elif isinstance(expected, (list, tuple, set)):
                 if actual not in expected:
                     return False
             elif actual != expected:
@@ -173,7 +179,8 @@ class BM25Index:
 
     def _normalize_title_alias(self, title: str) -> str:
         normalized = self._normalize_title(title)
-        return re.sub(r"20\d{2}年版", "", normalized)
+        normalized = re.sub(r"20\d{2}年版", "", normalized)
+        return re.sub(r"(?:pdf|word|excel|docx?|xlsx?)$", "", normalized)
 
     def _titles_overlap(self, left: str, right: str) -> bool:
         return bool(

@@ -30,8 +30,9 @@ DECOMPOSE_PROMPT = """判断下面的问题是否需要分步查询（先查制�
 
 
 class QueryDecomposer:
-    def __init__(self):
+    def __init__(self, include_single_fact_options: bool = False):
         self.llm = LLMClient()
+        self.include_single_fact_options = include_single_fact_options
         self.last_decision_method = None
         self.last_route = None
 
@@ -51,6 +52,12 @@ class QueryDecomposer:
                 claim_targets = self._decompose_multi_fact_options(question, rule_route)
                 if claim_targets:
                     return claim_targets
+                if self.include_single_fact_options:
+                    option_targets = self._decompose_single_fact_options(
+                        question, rule_route
+                    )
+                    if option_targets:
+                        return option_targets
                 reference_targets = self._decompose_option_references(question, rule_route)
                 if reference_targets:
                     return reference_targets
@@ -97,21 +104,32 @@ class QueryDecomposer:
 
         row_label, first_column, second_column = change_match.groups()
         source_title = title_match.group(1).strip() if title_match else ""
+        section_match = re.search(
+            r"(?:在|于)\s*[“\"]([^”\"]+)[”\"]\s*(?:区块|板块|部分)(?:中|内)?",
+            question,
+        )
+        section_path = section_match.group(1).strip() if section_match else ""
         title_prefix = f"《{source_title}》 " if source_title else ""
         targets = []
         for index, column_header in enumerate((first_column, second_column), 1):
+            query_parts = [title_prefix.strip(), section_path, row_label, column_header]
+            strict_filters = {
+                "row_label": row_label,
+                "column_header": column_header,
+            }
+            coverage_terms = [row_label, column_header]
+            if section_path:
+                strict_filters["section_path"] = section_path
+                coverage_terms.append(section_path)
             targets.append({
                 "target_id": f"operand_{index}",
                 "label": f"{row_label} / {column_header}",
-                "question": f"{title_prefix}{row_label} {column_header}",
+                "question": " ".join(part for part in query_parts if part),
                 "type": "table",
                 "source_title": source_title,
                 "filters": {},
-                "strict_filters": {
-                    "row_label": row_label,
-                    "column_header": column_header,
-                },
-                "coverage_terms": [row_label, column_header],
+                "strict_filters": strict_filters,
+                "coverage_terms": coverage_terms,
             })
         return targets
 
@@ -248,6 +266,31 @@ class QueryDecomposer:
         main_target = self._single_target(question, query_type)
         main_target["full_source"] = True
         return [main_target, *references]
+
+    def _decompose_single_fact_options(self, question: str,
+                                       query_type: str) -> list:
+        options = self._parse_options(question)
+        if not options:
+            return []
+        stem = self._routing_text(question)
+        title_match = re.search(r"《([^》]+)》", stem)
+        source_title = title_match.group(1).strip() if title_match else ""
+        if not source_title:
+            return []
+        return [
+            {
+                "target_id": f"option_{option}",
+                "label": f"{option}. {claim}",
+                "question": f"《{source_title}》 {claim}",
+                "type": query_type,
+                "source_title": source_title,
+                "filters": {},
+                "strict_filters": {},
+                "coverage_terms": [claim],
+                "option": option,
+            }
+            for option, claim in options.items()
+        ]
 
     def _normalize_title(self, title: str) -> str:
         return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(title).lower())

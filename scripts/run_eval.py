@@ -23,6 +23,7 @@ os.environ.setdefault("HF_HUB_OFFLINE", "1")
 from dotenv import load_dotenv
 
 from src.generator.answer_builder import AnswerBuilder
+from src.generator.decomposer import QueryDecomposer
 
 load_dotenv()
 
@@ -219,7 +220,9 @@ def main():
         items = items[: args.limit]
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    builder = AnswerBuilder()
+    builder = AnswerBuilder(
+        decomposer=QueryDecomposer(include_single_fact_options=True)
+    )
     started_at = datetime.now().astimezone().isoformat(timespec="seconds")
     if args.run_name:
         print(f"[运行] {args.run_name}；题目：{', '.join(item['id'] for item in items)}")

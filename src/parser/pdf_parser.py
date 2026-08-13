@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 from typing import List
 
 import fitz
@@ -49,13 +50,26 @@ class PdfParser:
 
         try:
             for page_index, page in enumerate(document, start=1):
-                for text, font_size in self._page_lines(page):
+                page_lines = self._page_lines(page)
+                body_font_size = self._body_font_size(page_lines)
+                for text, font_size in page_lines:
                     if self._is_noise(text):
                         continue
-                    if self._is_heading(text, font_size):
+                    if self._is_heading(text, font_size, body_font_size):
                         flush_buffer()
-                        current_path = [text]
+                        if (
+                            re.match(r"^（[一二三四五六七八九十0-9]+）", text)
+                            and current_path
+                            and re.match(
+                                r"^[一二三四五六七八九十]+、",
+                                current_path[0],
+                            )
+                        ):
+                            current_path = [current_path[0], text]
+                        else:
+                            current_path = [text]
                         buffer_page = page_index
+                        buffer_lines.append(text)
                     else:
                         if not buffer_lines:
                             buffer_page = page_index
@@ -85,15 +99,27 @@ class PdfParser:
                     lines.append((line_text, max(sizes) if sizes else 0))
         return lines
 
-    def _is_heading(self, text: str, font_size: float) -> bool:
+    def _is_heading(self, text: str, font_size: float,
+                    body_font_size: float = 0) -> bool:
         if re.match(
             r"^(第[一二三四五六七八九十百0-9]+[章节]|[一二三四五六七八九十]+、|（[一二三四五六七八九十0-9]+）|Chapter\s+\d+)",
             text,
         ):
             return True
-        if font_size >= 16 and len(text) <= 40 and not text.endswith(("。", "；", "，", ",")):
+        large_font_threshold = max(16, body_font_size + 1.5)
+        if (
+            font_size >= large_font_threshold
+            and len(text) <= 40
+            and not text.endswith(("。", "；", "，", ","))
+        ):
             return True
         return False
+
+    def _body_font_size(self, lines: list[tuple[str, float]]) -> float:
+        sizes = [round(size, 1) for text, size in lines if text and size > 0]
+        if not sizes:
+            return 0
+        return Counter(sizes).most_common(1)[0][0]
 
     def _is_noise(self, text: str) -> bool:
         if re.fullmatch(r"\d+", text):
