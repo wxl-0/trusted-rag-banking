@@ -25,4 +25,4 @@
 
 ## 参赛交付文档
 
-- [技术文档初稿](competition/submission/技术文档.md)
+- [参赛技术文档](competition/submission/技术文档.md)
