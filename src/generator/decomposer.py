@@ -248,7 +248,12 @@ class QueryDecomposer:
             return []
 
         title_match = re.search(r"《([^》]+)》", stem)
-        sheet_match = re.search(r"工作表\s*[：:]\s*([^）)\n]+)", stem)
+        sheet_match = re.search(
+            r"工作表\s*[：:]\s*(.+?)(?=[）)]\s*[，,])",
+            stem,
+        )
+        if not sheet_match:
+            sheet_match = re.search(r"工作表\s*[：:]\s*([^）)\n]+)", stem)
         column_match = re.search(r"在[“\"]([^”\"]+)[”\"]口径", stem)
         source_title = title_match.group(1).strip() if title_match else ""
         table_name = sheet_match.group(1).strip() if sheet_match else ""

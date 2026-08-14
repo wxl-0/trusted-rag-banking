@@ -96,6 +96,7 @@ def test_parse_manifest_entry_returns_target_collection(tmp_path):
     collection, chunks = parse_manifest_entry({
         "doc_id": "D-TABLE",
         "title": "季度测试表",
+        "notice_title": "2023年季度测试",
         "issuer": "测试机构",
         "doc_no": "",
         "publish_date": "2023-01-01",
@@ -107,6 +108,7 @@ def test_parse_manifest_entry_returns_target_collection(tmp_path):
     assert collection == "tables"
     assert len(chunks) == 1
     assert chunks[0].doc_id == "D-TABLE"
+    assert chunks[0].source_title == "2023年季度测试"
     assert chunks[0].raw_value == "100"
 
 

@@ -236,6 +236,37 @@ def test_resolve_source_title_ignores_trailing_file_type_label():
     assert match_type == "alias"
 
 
+def test_resolve_source_title_treats_property_insurance_as_property_alias():
+    indexed_title = "2024年9月财产险公司经营情况表"
+    index = _bm25_with_chunks([
+        {
+            "chunk_id": "property-insurance-2024-09",
+            "chunk_type": "table_row",
+            "source_title": indexed_title,
+            "text": "保险金额为 125426586.62。",
+        },
+        {
+            "chunk_id": "property-insurance-2025-03",
+            "chunk_type": "table_row",
+            "source_title": "2025年3月财产险公司经营情况表",
+            "text": "保险金额为 45933310.37。",
+        },
+        {
+            "chunk_id": "property-insurance-2025-09",
+            "chunk_type": "table_row",
+            "source_title": "2025年9月财产险公司经营情况表",
+            "text": "保险金额为 138937806.41。",
+        },
+    ])
+
+    matched, match_type = index.resolve_source_titles(
+        "2024年9月财产保险公司经营情况表"
+    )
+
+    assert matched == [indexed_title]
+    assert match_type == "alias"
+
+
 def test_bm25_search_matches_a_value_inside_section_path(tmp_path):
     from src.indexer.bm25_index import BM25Index
 

@@ -44,6 +44,28 @@ def save_chunks(chunks: list, output_path: Path, seen_texts: set):
             f.write(json.dumps(chunk.to_dict(), ensure_ascii=False) + "\n")
 
 
+def compose_source_title(title: str, notice_title: str = "") -> str:
+    title = str(title or "").strip()
+    notice_title = str(notice_title or "").strip()
+    if not notice_title:
+        return title
+
+    normalize = lambda value: "".join(char for char in value if char.isalnum()).lower()
+    normalized_title = normalize(title)
+    normalized_notice = normalize(notice_title)
+    if normalized_title and normalized_title in normalized_notice:
+        return notice_title
+    if normalized_notice and normalized_notice in normalized_title:
+        return title
+    title_alias = normalized_title.replace("表", "")
+    notice_alias = normalized_notice.replace("表", "")
+    if title_alias and title_alias in notice_alias:
+        return notice_title
+    if notice_alias and notice_alias in title_alias:
+        return title
+    return f"{notice_title} {title}"
+
+
 def parse_manifest_entry(entry: dict) -> tuple[str, list]:
     local_path = resolve_local_path(entry["local_path"])
     if not local_path.exists():
@@ -54,10 +76,9 @@ def parse_manifest_entry(entry: dict) -> tuple[str, list]:
     if profile == "skip":
         return "skip", []
 
-    notice_title = entry.get("notice_title")
-    source_title = entry["title"]
-    if notice_title:
-        source_title = f"{notice_title} {source_title}"
+    source_title = compose_source_title(
+        entry["title"], entry.get("notice_title", "")
+    )
 
     common = dict(
         doc_id=entry["doc_id"],

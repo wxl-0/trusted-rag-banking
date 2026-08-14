@@ -31,3 +31,39 @@ def test_known_excel_questions_have_verified_answers_and_periods():
         assert "从“一季度”到“四季度”" in items[item_id]["question"]
 
     assert "在“1. 银行业金融机构”区块中" in items["Q074"]["question"]
+
+
+def test_excel_questions_use_explicit_quarter_wording():
+    ids = ["Q019", "Q020", "Q021", "Q079", "Q080", "Q081", "Q082", "Q083", "Q084", "Q085"]
+    items = {item["id"]: item for item in load_qa_items(item_ids=ids)}
+
+    for item_id in ("Q019", "Q020", "Q021"):
+        assert "一季度" in items[item_id]["question"]
+    for item_id in ("Q079", "Q080", "Q081", "Q082", "Q083", "Q084", "Q085"):
+        assert "从“一季度”到“四季度”" in items[item_id]["question"]
+
+    assert (items["Q079"]["answer"], items["Q079"]["answer_text"]) == (
+        "A", -295.18,
+    )
+    assert (items["Q084"]["answer"], items["Q084"]["answer_text"]) == (
+        "D", 3733,
+    )
+
+
+def test_table_comparison_gold_answers_include_the_largest_option():
+    expected = {
+        "Q051": ("D", "保险金额"),
+        "Q052": ("A", "新增保险金额"),
+        "Q053": ("C", "总资产"),
+        "Q059": ("A", "保险金额"),
+        "Q060": ("B", "新增保险金额"),
+        "Q061": ("C", "总资产"),
+        "Q067": ("C", "保险金额"),
+    }
+    items = {
+        item["id"]: item
+        for item in load_qa_items(item_ids=list(expected))
+    }
+
+    for item_id, answer in expected.items():
+        assert (items[item_id]["answer"], items[item_id]["answer_text"]) == answer

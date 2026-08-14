@@ -180,6 +180,8 @@ class BM25Index:
     def _normalize_title_alias(self, title: str) -> str:
         normalized = self._normalize_title(title)
         normalized = re.sub(r"20\d{2}年版", "", normalized)
+        normalized = normalized.replace("财产保险公司", "财产险公司")
+        normalized = normalized.replace("人身保险公司", "人身险公司")
         return re.sub(r"(?:pdf|word|excel|docx?|xlsx?)$", "", normalized)
 
     def _titles_overlap(self, left: str, right: str) -> bool:

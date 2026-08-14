@@ -31,6 +31,9 @@ REPORT_PATH = Path("data/eval/eval_report.json")
 PROGRESS_PATH = Path("data/eval/eval_progress.jsonl")
 RUNS_DIR = Path("data/eval/runs")
 
+REGULATION_FACT_QA_TYPES = {"单事实检索", "多事实检索"}
+TABLE_QA_TYPES = {"表格取数", "表格比较", "表格计算"}
+
 EVAL_SYSTEM_PROMPT = """你是银行业监管制度选择题问答助手。请严格依据下方提供的参考资料回答问题。
 
 规则：
@@ -86,6 +89,7 @@ def load_qa_items(source_filter=None, item_ids=None, qa_path=QA_PATH):
                 "option_d": row[h["option_d"]],
                 "answer": row[h["answer"]],          # 正确选项字母 A/B/C/D
                 "answer_text": row[h["answer_text"]], # 正确答案的具体内容
+                "evidence": row[h["evidence"]] if "evidence" in h else "",
                 "source_title": row[h["source_title"]],
                 "eval_status": eval_status or "",
             }
@@ -207,6 +211,124 @@ def resolve_output_paths(run_name: str | None) -> tuple[Path, Path]:
     return run_dir / "report.json", run_dir / "progress.jsonl"
 
 
+def summarize_accuracy(results: list[dict], field: str) -> dict:
+    """按指定题目字段汇总数量、正确数和准确率。"""
+    grouped: dict[str, dict] = {}
+    for result in results:
+        key = result.get(field) or "unknown"
+        bucket = grouped.setdefault(key, {"total": 0, "correct": 0})
+        bucket["total"] += 1
+        bucket["correct"] += int(bool(result.get("is_correct")))
+    return {
+        key: {
+            "total": values["total"],
+            "correct": values["correct"],
+            "accuracy": round(values["correct"] / values["total"], 4),
+        }
+        for key, values in grouped.items()
+    }
+
+
+def normalize_evidence_title(title: str) -> str:
+    normalized = re.sub(
+        r"[\W_]+",
+        "",
+        unicodedata.normalize("NFKC", str(title or "")).lower(),
+    )
+    normalized = normalized.replace("财产保险公司", "财产险公司")
+    normalized = normalized.replace("人身保险公司", "人身险公司")
+    return normalized
+
+
+def build_competition_metrics(results: list[dict]) -> dict:
+    """按赛题建议口径聚合可复现的量化指标。"""
+    regulation_results = [
+        result
+        for result in results
+        if result.get("qa_type") in REGULATION_FACT_QA_TYPES
+    ]
+    total = len(regulation_results)
+    correct = sum(bool(result.get("is_correct")) for result in regulation_results)
+    rate = round(correct / total, 4) if total else None
+    table_results = [
+        result
+        for result in results
+        if result.get("qa_type") in TABLE_QA_TYPES
+    ]
+    table_total = len(table_results)
+    table_correct = sum(bool(result.get("is_correct")) for result in table_results)
+    table_rate = round(table_correct / table_total, 4) if table_total else None
+    evidence_results = [
+        result for result in results if result.get("expected_source_title")
+    ]
+    evidence_hits = 0
+    for result in evidence_results:
+        expected_title = normalize_evidence_title(result["expected_source_title"])
+        actual_titles = {
+            normalize_evidence_title(evidence.get("source_title") or "")
+            for evidence in (result.get("evidence") or [])
+        }
+        evidence_hits += int(
+            any(expected_title in actual_title for actual_title in actual_titles)
+        )
+    evidence_total = len(evidence_results)
+    evidence_rate = (
+        round(evidence_hits / evidence_total, 4) if evidence_total else None
+    )
+    refused_count = sum(bool(result.get("refused")) for result in results)
+    observed_refusal_rate = (
+        round(refused_count / len(results), 4) if results else None
+    )
+    return {
+        "regulation_fact_accuracy": {
+            "status": "available" if total else "unavailable",
+            "total": total,
+            "correct": correct,
+            "rate": rate,
+            "target": 0.85,
+            "meets_target": rate >= 0.85 if rate is not None else None,
+        },
+        "table_accuracy": {
+            "status": "available" if table_total else "unavailable",
+            "total": table_total,
+            "correct": table_correct,
+            "rate": table_rate,
+            "target": 0.8,
+            "meets_target": table_rate >= 0.8 if table_rate is not None else None,
+        },
+        "evidence_citation_hit_rate": {
+            "status": "available" if evidence_total else "unavailable",
+            "evaluated": evidence_total,
+            "hits": evidence_hits,
+            "rate": evidence_rate,
+            "target": 0.9,
+            "meets_target": (
+                evidence_rate >= 0.9 if evidence_rate is not None else None
+            ),
+            "definition": (
+                "返回证据中至少一个 source_title 经规范化及标题别名处理后"
+                "包含题库标准来源标题"
+            ),
+        },
+        "critical_entity_error_rate": {
+            "status": "unavailable",
+            "rate": None,
+            "target_max": 0.05,
+            "meets_target": None,
+            "reason": "题库尚无结构化的数字、日期、机构名称和文号金标准标注",
+        },
+        "out_of_scope_refusal_rate": {
+            "status": "unavailable",
+            "rate": None,
+            "target": 0.8,
+            "meets_target": None,
+            "observed_refusal_count": refused_count,
+            "observed_refusal_rate": observed_refusal_rate,
+            "reason": "当前评测集均为可回答选择题，尚无库外或依据不足题目标注",
+        },
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None, help="只跑前 N 题，用于调试")
@@ -280,6 +402,8 @@ def main():
                     "options": options,
                     "correct_answer": item["answer"],
                     "correct_answer_text": item["answer_text"],
+                    "expected_evidence": item.get("evidence", ""),
+                    "expected_source_title": item.get("source_title", ""),
                     "raw_choice": result.get("choice"),
                     "choice": score["choice"],
                     "scoring_method": score["scoring_method"],
@@ -306,6 +430,8 @@ def main():
                     "options": options,
                     "correct_answer": item["answer"],
                     "correct_answer_text": item["answer_text"],
+                    "expected_evidence": item.get("evidence", ""),
+                    "expected_source_title": item.get("source_title", ""),
                     "raw_choice": None,
                     "choice": "",
                     "scoring_method": "error",
@@ -329,37 +455,19 @@ def main():
 
     # 从记录聚合本轮范围内的结果
     results = [recorded[item["id"]] for item in items if item["id"] in recorded]
+    items_by_id = {item["id"]: item for item in items}
+    for result in results:
+        item = items_by_id[result["id"]]
+        result["expected_evidence"] = item.get("evidence", "")
+        result["expected_source_title"] = item.get("source_title", "")
     total = len(results)
     correct = sum(1 for r in results if r["is_correct"])
     errored = [r["id"] for r in results if r.get("error")]
     unparseable = [r["id"] for r in results if r.get("scoring_method") == "unparseable"]
 
-    by_source: dict[str, dict] = {}
-    by_qa_type: dict[str, dict] = {}
-    for r in results:
-        s = by_source.setdefault(r["source_type"], {"total": 0, "correct": 0})
-        s["total"] += 1
-        s["correct"] += int(r["is_correct"])
-        q = by_qa_type.setdefault(r.get("qa_type", "unknown"), {"total": 0, "correct": 0})
-        q["total"] += 1
-        q["correct"] += int(r["is_correct"])
-
-    source_summary = {
-        src: {
-            "total": v["total"],
-            "correct": v["correct"],
-            "accuracy": round(v["correct"] / v["total"], 4) if v["total"] else 0,
-        }
-        for src, v in by_source.items()
-    }
-    qa_type_summary = {
-        qt: {
-            "total": v["total"],
-            "correct": v["correct"],
-            "accuracy": round(v["correct"] / v["total"], 4) if v["total"] else 0,
-        }
-        for qt, v in by_qa_type.items()
-    }
+    source_summary = summarize_accuracy(results, "source_type")
+    qa_type_summary = summarize_accuracy(results, "qa_type")
+    difficulty_summary = summarize_accuracy(results, "difficulty")
     scoring_methods: dict[str, int] = {}
     for result in results:
         method = result.get("scoring_method", "legacy")
@@ -436,8 +544,10 @@ def main():
                 "supplemental_searches": supplemental_searches,
             },
         },
+        "competition_metrics": build_competition_metrics(results),
         "by_source": source_summary,
         "by_qa_type": qa_type_summary,
+        "by_difficulty": difficulty_summary,
         "results": results,
     }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -447,6 +557,12 @@ def main():
     print(f"  --- 按题型 ---")
     for qt, v in qa_type_summary.items():
         print(f"  {qt}: {v['correct']}/{v['total']} = {v['accuracy']:.1%}")
+    print(f"  --- 按难度 ---")
+    for difficulty, v in difficulty_summary.items():
+        print(
+            f"  {difficulty}: {v['correct']}/{v['total']} = "
+            f"{v['accuracy']:.1%}"
+        )
     if errored:
         print(f"  [注意] {len(errored)} 题执行出错（已记为错误）：{errored}")
         print(f"         重跑本脚本会自动重试这些题；如需从头跑请先删除 {progress_path}")

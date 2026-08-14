@@ -243,6 +243,27 @@ def test_decomposer_splits_table_comparison_by_option_and_column():
     assert result[-1]["strict_filters"]["indicator"] == "银行存款"
 
 
+def test_decomposer_keeps_parentheses_inside_table_name_for_comparison():
+    question = (
+        "根据 Excel 附件《2023年12月全国各地区原保险保费收入情况表》"
+        "（工作表：各地区数据（月度）），"
+        "在“健康险”口径下，以下哪一项数值最高？\n"
+        "A. 北京\n"
+        "B. 上海\n"
+        "C. 广东\n"
+        "D. 全国"
+    )
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("明确比较题不应调用模型"))
+
+    result = decomposer.decompose(question)
+
+    assert len(result) == 4
+    assert {
+        target["strict_filters"]["table_name"] for target in result
+    } == {"各地区数据（月度）"}
+
+
 def test_decomposer_splits_multi_fact_options_into_unique_claims():
     shared = "意外伤害保险以意外伤害造成死亡或者伤残为给付条件。"
     question = (

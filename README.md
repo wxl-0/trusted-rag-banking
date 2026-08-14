@@ -51,6 +51,8 @@ uv run --frozen python scripts/run_eval.py --ids Q035,Q068,Q101,Q103,Q201,Q202,Q
 ```
 评测支持断点续传。使用 `--run-name` 时，进度和报告分别写入 `data/eval/runs/<run-name>/progress.jsonl` 与 `report.json`；不指定时继续使用原来的 `data/eval/eval_progress.jsonl` 与 `eval_report.json`。每题会记录各检索目标、标题匹配、候选数量、阶段耗时、覆盖结果和补搜次数。评测模式要求模型结构化返回 `choice`，并用确定性规则判分，不调用 LLM Judge。
 
+报告中的 `competition_metrics` 按赛题建议口径汇总制度事实准确率、表格题准确率和证据来源命中率，并明确给出目标值与是否达标。由于当前题库没有结构化关键实体金标准和库外题目标注，关键实体错误率、库外正确拒答率会标记为 `unavailable`，不会用内部检索覆盖率或普通拒答率代替。
+
 ## 运行测试
 ```powershell
 uv run --frozen python -m pytest tests/ -v

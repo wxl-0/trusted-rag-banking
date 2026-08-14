@@ -186,6 +186,37 @@ class AnswerBuilder:
                 result["diagnostics"]["routing"] = self._routing_diagnostics()
             return result
 
+        comparison_targets = [
+            target for target in target_diagnostics
+            if target["type"] == "table"
+            and target["target_id"].startswith("option_")
+        ]
+        incomplete_comparison_targets = [
+            target for target in comparison_targets
+            if target["coverage_status"] != "supported"
+        ]
+        if comparison_targets and incomplete_comparison_targets:
+            missing_labels = "、".join(
+                target["label"] for target in incomplete_comparison_targets
+            )
+            result = {
+                "answer": "",
+                "evidence": [],
+                "refuse_reason": (
+                    "参考资料未提供比较所需的全部数值，缺少："
+                    f"{missing_labels}。"
+                ),
+                "latency_ms": int((time.perf_counter() - start) * 1000),
+            }
+            if include_diagnostics:
+                result["diagnostics"] = self._build_diagnostics(
+                    result["latency_ms"], decompose_ms, retrieval_ms, 0, {},
+                    retrieval_diagnostics,
+                )
+                result["diagnostics"]["sub_questions"] = sub_questions
+                result["diagnostics"]["routing"] = self._routing_diagnostics()
+            return result
+
         if not unique_chunks:
             result = {
                 "answer": "",
@@ -459,6 +490,9 @@ class AnswerBuilder:
         chunks = self._source_scoped_chunks(chunks, sub_question, searches or [])
         if not chunks:
             return "missing"
+        structured_chunks = self._structured_table_chunks(chunks, sub_question)
+        if sub_question.get("type") == "table" and self._table_filters(sub_question):
+            return "supported" if structured_chunks else "missing"
         coverage_terms = sub_question.get("coverage_terms") or []
         aggregate_context = sub_question.get("type") in {"regulation", "hybrid"}
         if not coverage_terms or self._chunks_cover_terms(
@@ -495,6 +529,10 @@ class AnswerBuilder:
     def _prioritize_supporting_chunks(self, chunks: list, coverage_chunks: list,
                                       sub_question: dict,
                                       coverage_status: str) -> list:
+        if sub_question.get("type") == "table" and self._table_filters(sub_question):
+            if coverage_status != "supported":
+                return []
+            return self._structured_table_chunks(coverage_chunks, sub_question)
         coverage_terms = sub_question.get("coverage_terms") or []
         if coverage_status != "supported" or not coverage_terms:
             return chunks
@@ -503,6 +541,43 @@ class AnswerBuilder:
             if self._chunks_cover_terms([chunk], coverage_terms)
         ]
         return self._dedupe_chunks(supporting + chunks)
+
+    @staticmethod
+    def _table_filters(sub_question: dict) -> dict:
+        structural_keys = {
+            "table_name", "indicator", "row_label", "column_header", "section_path",
+        }
+        return {
+            key: value
+            for key, value in (sub_question.get("strict_filters") or {}).items()
+            if key in structural_keys and value not in (None, "", [])
+        }
+
+    def _structured_table_chunks(self, chunks: list, sub_question: dict) -> list:
+        filters = self._table_filters(sub_question)
+        if not filters:
+            return chunks
+        return [
+            chunk for chunk in chunks
+            if all(
+                self._structured_value_matches(chunk.get(key), expected, key)
+                for key, expected in filters.items()
+            )
+        ]
+
+    def _structured_value_matches(self, actual, expected, key: str) -> bool:
+        if isinstance(actual, (list, tuple, set)):
+            actual = " ".join(str(value) for value in actual)
+        normalized_actual = self._normalize_text(actual or "")
+        normalized_expected = self._normalize_text(expected or "")
+        if not normalized_actual or not normalized_expected:
+            return False
+        if key == "table_name":
+            return normalized_actual == normalized_expected
+        return (
+            normalized_expected in normalized_actual
+            or normalized_actual in normalized_expected
+        )
 
     def _resolved_source_key(self, state: dict) -> tuple:
         titles = []

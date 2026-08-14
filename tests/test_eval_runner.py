@@ -18,6 +18,7 @@ def _write_qa_workbook(path):
         "option_d",
         "answer",
         "answer_text",
+        "evidence",
         "source_title",
     ])
     for question_id in ("Q001", "Q002", "Q003"):
@@ -33,6 +34,7 @@ def _write_qa_workbook(path):
             "选项 D",
             "A",
             "选项 A",
+            "测试标准证据",
             "测试文件",
         ])
     wb.save(path)
@@ -45,6 +47,15 @@ def test_load_qa_items_uses_requested_id_order(tmp_path):
     items = load_qa_items(qa_path=qa_path, item_ids=["Q003", "Q001"])
 
     assert [item["id"] for item in items] == ["Q003", "Q001"]
+
+
+def test_load_qa_items_includes_gold_evidence(tmp_path):
+    qa_path = tmp_path / "qa.xlsx"
+    _write_qa_workbook(qa_path)
+
+    item = load_qa_items(qa_path=qa_path, item_ids=["Q001"])[0]
+
+    assert item["evidence"] == "测试标准证据"
 
 
 def test_score_answer_uses_structured_choice():

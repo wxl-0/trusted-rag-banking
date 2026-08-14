@@ -146,6 +146,53 @@ def test_answer_supplements_only_missing_table_target_once():
     assert "检索目标：全国合计 / 健康险" in llm.last_user_message
 
 
+def test_answer_refuses_table_comparison_when_structured_row_does_not_match():
+    title = "2023年12月全国各地区原保险保费收入情况表"
+    wrong_row = {
+        "doc_id": "table-1",
+        "chunk_id": "beijing-health",
+        "chunk_type": "table_row",
+        "source_title": title,
+        "table_name": "各地区数据（月度）",
+        "indicator": "北京",
+        "row_label": "北京",
+        "column_header": "健康险",
+        "raw_value": "100",
+        "text": "注：全国口径；北京健康险为 100。",
+    }
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant([wrong_row]),
+            bm25=_bm25_with_chunks([wrong_row]),
+            reranker=FakeReranker(),
+        ),
+        decomposer=StaticDecomposer([{
+            "target_id": "option_D",
+            "label": "D. 全国",
+            "question": f"《{title}》 工作表 各地区数据（月度） 健康险 全国",
+            "type": "table",
+            "source_title": title,
+            "filters": {},
+            "strict_filters": {
+                "table_name": "各地区数据（月度）",
+                "indicator": "全国",
+                "column_header": "健康险",
+            },
+            "coverage_terms": ["全国", "健康险"],
+            "option": "D",
+        }]),
+    )
+
+    result = builder.answer("哪一项数值最高？", include_diagnostics=True)
+
+    target = result["diagnostics"]["retrieval"]["targets"][0]
+    assert target["coverage_status"] == "missing"
+    assert result["refuse_reason"] == "参考资料未提供比较所需的全部数值，缺少：D. 全国。"
+    assert llm.last_user_message == ""
+
+
 def test_answer_builds_deterministic_change_with_both_values_and_formula():
     chunks = [
         {
