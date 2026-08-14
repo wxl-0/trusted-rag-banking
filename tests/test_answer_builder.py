@@ -50,8 +50,10 @@ class StaticDecomposer:
         self.targets = targets
         self.last_decision_method = "rule"
         self.last_route = "regulation"
+        self.last_history = None
 
-    def decompose(self, question):
+    def decompose(self, question, history=None):
+        self.last_history = history
         return self.targets
 
 
@@ -142,6 +144,281 @@ def test_answer_supplements_only_missing_table_target_once():
     assert "9034.54" in llm.last_user_message
     assert "检索目标：全国合计 / 合计" in llm.last_user_message
     assert "检索目标：全国合计 / 健康险" in llm.last_user_message
+
+
+def test_answer_builds_deterministic_change_with_both_values_and_formula():
+    chunks = [
+        {
+            "doc_id": "table-1",
+            "chunk_id": "q1",
+            "chunk_type": "table_row",
+            "source_title": "2023年银行业总资产、总负债（季度）",
+            "section_path": "银行业金融机构",
+            "row_label": "总负债",
+            "column_header": "一季度",
+            "raw_value": "3648440.26566562",
+            "unit": "单位：亿元、%",
+            "text": "行指标「总负债」；列口径「一季度」；原始值为 3648440.27；单位：亿元、%。",
+        },
+        {
+            "doc_id": "table-1",
+            "chunk_id": "q4",
+            "chunk_type": "table_row",
+            "source_title": "2023年银行业总资产、总负债（季度）",
+            "section_path": "银行业金融机构",
+            "row_label": "总负债",
+            "column_header": "四季度",
+            "raw_value": "3831244.73679857",
+            "unit": "单位：亿元、%",
+            "text": "行指标「总负债」；列口径「四季度」；原始值为 3831244.74；单位：亿元、%。",
+        },
+    ]
+    llm = FakeLLM()
+    llm.chat = lambda system, user, history=None: json.dumps({
+        "answer": "增加了182804.47亿元。",
+        "evidence": [],
+        "refuse_reason": None,
+    }, ensure_ascii=False)
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant(chunks),
+            bm25=_bm25_with_chunks(chunks),
+            reranker=FakeReranker(),
+        ),
+        decomposer=StaticDecomposer([
+            {
+                "target_id": "operand_1",
+                "label": "总负债 / 一季度",
+                "question": "银行业金融机构总负债一季度是多少？",
+                "type": "table",
+                "filters": {},
+                "strict_filters": {
+                    "section_path": "银行业金融机构",
+                    "row_label": "总负债",
+                    "column_header": "一季度",
+                },
+                "coverage_terms": ["总负债", "一季度"],
+            },
+            {
+                "target_id": "operand_2",
+                "label": "总负债 / 四季度",
+                "question": "银行业金融机构总负债四季度是多少？",
+                "type": "table",
+                "filters": {},
+                "strict_filters": {
+                    "section_path": "银行业金融机构",
+                    "row_label": "总负债",
+                    "column_header": "四季度",
+                },
+                "coverage_terms": ["总负债", "四季度"],
+            },
+        ]),
+    )
+
+    result = builder.answer("2023年银行业金融机构的总负债从一季度到四季度增加了多少？")
+
+    assert result["answer"] == (
+        "一季度为3648440.27亿元，四季度为3831244.74亿元，"
+        "增加量为3831244.74 - 3648440.27 = 182804.47亿元。"
+    )
+
+
+def test_answer_limits_single_regulation_target_to_four_generation_evidence():
+    chunks = [
+        {
+            "doc_id": "reg-1",
+            "chunk_id": f"rule-{index}",
+            "chunk_type": "clause",
+            "source_title": "银行函证工作操作指引",
+            "section_path": ["函证发送和收回"],
+            "text": f"函证管理要求第{index}项。",
+        }
+        for index in range(1, 7)
+    ]
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant(chunks),
+            bm25=_bm25_with_chunks(chunks),
+            reranker=FakeReranker(),
+        ),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "label": "函证发送和收回",
+            "question": "应当如何管理银行询证函的发送和收回？",
+            "type": "regulation",
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [],
+        }]),
+    )
+
+    result = builder.answer(
+        "会计师事务所在实施银行函证过程中，应当如何管理银行询证函的发送和收回？",
+        include_diagnostics=True,
+    )
+
+    assert result["diagnostics"]["retrieval"]["evidence_count"] == 4
+    assert "[4]" in llm.last_user_message
+    assert "[5]" not in llm.last_user_message
+
+
+def test_answer_reports_processing_stages_in_execution_order():
+    chunks = [{
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "测试监管办法",
+        "text": "银行业金融机构应当依法开展相关工作。",
+    }]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "label": "相关要求",
+            "question": "相关要求是什么？",
+            "type": "regulation",
+            "source_title": "测试监管办法",
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [],
+        }]),
+    )
+    stages = []
+
+    builder.answer("相关要求是什么？", progress_callback=stages.append)
+
+    assert stages == ["analyzing", "retrieving", "organizing", "generating"]
+
+
+def test_answer_normalizes_inline_numbered_items_to_separate_lines():
+    chunks = [{
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "银行函证工作操作指引",
+        "text": "办理方式包括邮寄银行询证函、跟函和数字化方式。",
+    }]
+    llm = FakeLLM()
+    llm.chat = lambda system, user, history=None: json.dumps({
+        "answer": "办理方式包括：1. 邮寄；2. 跟函；3. 数字化方式。",
+        "evidence": [],
+        "refuse_reason": None,
+    }, ensure_ascii=False)
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant(chunks),
+            bm25=_bm25_with_chunks(chunks),
+            reranker=FakeReranker(),
+        ),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "label": "办理方式",
+            "question": "办理银行询证函可以采用哪些方式？",
+            "type": "regulation",
+            "source_title": "银行函证工作操作指引",
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [],
+        }]),
+    )
+
+    result = builder.answer("办理银行询证函可以采用哪些方式？")
+
+    assert result["answer"] == (
+        "办理方式包括：\n1. 邮寄；\n2. 跟函；\n3. 数字化方式。"
+    )
+
+
+def test_answer_does_not_treat_decimal_values_as_numbered_items():
+    answer = "一季度为1.23亿元，二季度为2.34亿元。"
+
+    assert AnswerBuilder._normalize_answer_format(answer) == answer
+
+
+def test_answer_passes_history_to_retrieval_decomposer():
+    chunks = [{
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "银行函证工作操作指引",
+        "text": "一份银行询证函只列示一个函证基准日。",
+    }]
+    decomposer = StaticDecomposer([{
+        "target_id": "main",
+        "label": "当前追问",
+        "question": "一份银行询证函可以列示几个函证基准日？",
+        "type": "regulation",
+        "source_title": "银行函证工作操作指引",
+        "filters": {},
+        "strict_filters": {},
+        "coverage_terms": [],
+    }])
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant(chunks),
+            bm25=_bm25_with_chunks(chunks),
+            reranker=FakeReranker(),
+        ),
+        decomposer=decomposer,
+    )
+    history = [
+        {"role": "user", "content": "上一轮问题"},
+        {"role": "assistant", "content": "上一轮回答"},
+    ]
+
+    builder.answer("那具体呢？", history=history)
+
+    assert decomposer.last_history == history
+
+
+def test_answer_refuses_table_calculation_when_an_operand_is_missing():
+    title = "2023年12月全国各地区原保险保费收入情况表"
+    chunks = [{
+        "doc_id": "table-1",
+        "chunk_id": "total",
+        "chunk_type": "table_row",
+        "source_title": title,
+        "row_label": "全国合计",
+        "column_header": "合计",
+        "raw_value": "51246.71",
+        "text": "全国合计，合计为 51246.71。",
+    }]
+    retriever = HybridRetriever(
+        qdrant=FakeQdrant(chunks),
+        bm25=_bm25_with_chunks(chunks),
+        reranker=FakeReranker(),
+    )
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=retriever,
+        decomposer=QueryDecomposer(),
+    )
+
+    result = builder.answer(
+        f"根据《{title}》，“全国合计”从“合计”到“健康险”的变化是多少？",
+        include_diagnostics=True,
+    )
+
+    assert result["answer"] == ""
+    assert result["evidence"] == []
+    assert "健康险" in result["refuse_reason"]
+    assert llm.last_user_message == ""
+    assert [
+        target["coverage_status"]
+        for target in result["diagnostics"]["retrieval"]["targets"]
+    ] == ["supported", "missing"]
 
 
 def test_answer_does_not_supplement_unsupported_regulation_claims():

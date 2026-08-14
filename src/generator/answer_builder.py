@@ -2,6 +2,7 @@ import copy
 import json
 import re
 import time
+from decimal import Decimal, InvalidOperation
 from src.generator.llm_client import LLMClient
 from src.generator.prompt_builder import SYSTEM_PROMPT, build_user_prompt
 from src.generator.decomposer import QueryDecomposer
@@ -15,13 +16,20 @@ class AnswerBuilder:
         self.decomposer = decomposer or QueryDecomposer()
 
     def answer(self, question: str, filters: dict = None, history: list = None,
-               system_prompt: str = None, include_diagnostics: bool = False) -> dict:
+               system_prompt: str = None, include_diagnostics: bool = False,
+               progress_callback=None) -> dict:
         start = time.perf_counter()
 
+        def report(stage: str):
+            if progress_callback:
+                progress_callback(stage)
+
+        report("analyzing")
         decompose_start = time.perf_counter()
-        sub_questions = self.decomposer.decompose(question)
+        sub_questions = self.decomposer.decompose(question, history=history)
         decompose_ms = int((time.perf_counter() - decompose_start) * 1000)
 
+        report("retrieving")
         retrieval_start = time.perf_counter()
         target_states = []
         for index, sq in enumerate(sub_questions, 1):
@@ -84,7 +92,9 @@ class AnswerBuilder:
                     state["chunks"] + supplemental
                 )
 
+        report("organizing")
         chunk_groups = []
+        calculation_facts = []
         target_diagnostics = []
         for state in target_states:
             sq = state["sub_question"]
@@ -101,6 +111,19 @@ class AnswerBuilder:
             index = state["index"]
             target_id = sq.get("target_id") or f"target_{index}"
             label = sq.get("label") or sq["question"]
+            if target_id.startswith("operand_"):
+                fact_chunk = next(
+                    (chunk for chunk in chunks if chunk.get("raw_value") is not None),
+                    None,
+                )
+                if fact_chunk:
+                    calculation_facts.append({
+                        "target_id": target_id,
+                        "label": label,
+                        "period": state["strict_filters"].get("column_header") or label,
+                        "raw_value": self._table_display_value(fact_chunk),
+                        "unit": self._table_display_unit(fact_chunk),
+                    })
             tagged_chunks = [self._tag_chunk(chunk, target_id, label, sq) for chunk in chunks]
             chunk_groups.append(tagged_chunks)
             target_diagnostics.append({
@@ -118,12 +141,50 @@ class AnswerBuilder:
                 "searches": state["searches"],
             })
         retrieval_ms = int((time.perf_counter() - retrieval_start) * 1000)
-        unique_chunks = self._round_robin_chunks(chunk_groups, limit=8)
+        evidence_limit = (
+            4
+            if len(sub_questions) == 1
+            and sub_questions[0].get("type") == "regulation"
+            else 8
+        )
+        unique_chunks = self._round_robin_chunks(
+            chunk_groups, limit=evidence_limit
+        )
         retrieval_diagnostics = {
             "targets": target_diagnostics,
             "supplemental_searches": supplemental_searches,
             "evidence_count": len(unique_chunks),
         }
+
+        calculation_targets = [
+            target for target in target_diagnostics
+            if target["target_id"].startswith("operand_")
+        ]
+        incomplete_targets = [
+            target for target in calculation_targets
+            if target["coverage_status"] != "supported"
+        ]
+        if calculation_targets and incomplete_targets:
+            missing_labels = "、".join(
+                target["label"] for target in incomplete_targets
+            )
+            result = {
+                "answer": "",
+                "evidence": [],
+                "refuse_reason": (
+                    "参考资料未同时提供计算所需的全部数值，缺少："
+                    f"{missing_labels}。"
+                ),
+                "latency_ms": int((time.perf_counter() - start) * 1000),
+            }
+            if include_diagnostics:
+                result["diagnostics"] = self._build_diagnostics(
+                    result["latency_ms"], decompose_ms, retrieval_ms, 0, {},
+                    retrieval_diagnostics,
+                )
+                result["diagnostics"]["sub_questions"] = sub_questions
+                result["diagnostics"]["routing"] = self._routing_diagnostics()
+            return result
 
         if not unique_chunks:
             result = {
@@ -141,7 +202,8 @@ class AnswerBuilder:
                 result["diagnostics"]["routing"] = self._routing_diagnostics()
             return result
 
-        user_msg = build_user_prompt(question, unique_chunks[:8])
+        user_msg = build_user_prompt(question, unique_chunks)
+        report("generating")
         generation_start = time.perf_counter()
         raw = self.llm.chat(system_prompt or SYSTEM_PROMPT, user_msg, history=history)
         generation_ms = int((time.perf_counter() - generation_start) * 1000)
@@ -155,6 +217,14 @@ class AnswerBuilder:
                 "refuse_reason": None,
             }
 
+        deterministic_answer = self._build_deterministic_change_answer(
+            question, calculation_facts
+        )
+        if deterministic_answer:
+            result["answer"] = deterministic_answer
+            result["refuse_reason"] = None
+        if isinstance(result.get("answer"), str):
+            result["answer"] = self._normalize_answer_format(result["answer"])
         result.pop("confidence", None)
         result["latency_ms"] = int((time.perf_counter() - start) * 1000)
         if include_diagnostics:
@@ -170,27 +240,110 @@ class AnswerBuilder:
             result["diagnostics"]["routing"] = self._routing_diagnostics()
         return result
 
+    @staticmethod
+    def _normalize_answer_format(answer: str) -> str:
+        markers = [
+            int(match.group(1))
+            for match in re.finditer(
+                r"(?<!\d)([1-9]\d*)[.．、](?!\d)\s*", answer
+            )
+        ]
+        if len(markers) < 2 or markers[:2] != [1, 2]:
+            return answer.strip()
+        normalized = re.sub(
+            r"(?<![\d\n])[ \t]*(?=(?:[1-9]\d*)[.．、](?!\d)\s*)",
+            "\n",
+            answer,
+        )
+        return normalized.strip()
+
+    @staticmethod
+    def _table_display_value(chunk: dict) -> str:
+        match = re.search(
+            r"原始值为\s*([-+]?\d[\d,]*(?:\.\d+)?)",
+            str(chunk.get("text") or ""),
+        )
+        if match:
+            return match.group(1)
+        return str(chunk.get("raw_value") or "").strip()
+
+    @staticmethod
+    def _table_display_unit(chunk: dict) -> str:
+        unit = re.sub(
+            r"^\s*单位\s*[:：]?\s*", "", str(chunk.get("unit") or "")
+        ).strip()
+        candidates = [
+            candidate.strip()
+            for candidate in re.split(r"[、,，/]", unit)
+            if candidate.strip()
+        ]
+        if not candidates:
+            return ""
+        row_label = str(chunk.get("row_label") or chunk.get("indicator") or "")
+        if re.search(r"率|比例|占比", row_label) and "%" in candidates:
+            return "%"
+        return candidates[0]
+
+    @staticmethod
+    def _build_deterministic_change_answer(question: str, facts: list) -> str | None:
+        if len(facts) != 2:
+            return None
+        facts = sorted(facts, key=lambda fact: fact["target_id"])
+        try:
+            first = Decimal(facts[0]["raw_value"].replace(",", ""))
+            second = Decimal(facts[1]["raw_value"].replace(",", ""))
+        except InvalidOperation:
+            return None
+        if facts[0]["unit"] != facts[1]["unit"]:
+            return None
+
+        if re.search(r"减少|下降", question):
+            result = first - second
+            operation_label = "减少量"
+            left, right = facts[0], facts[1]
+        else:
+            result = second - first
+            operation_label = "增加量" if re.search(r"增加|增长|上升", question) else "变化量"
+            left, right = facts[1], facts[0]
+
+        result_text = format(result, "f").rstrip("0").rstrip(".")
+        unit = facts[0]["unit"]
+        return (
+            f"{facts[0]['period']}为{facts[0]['raw_value']}{unit}，"
+            f"{facts[1]['period']}为{facts[1]['raw_value']}{unit}，"
+            f"{operation_label}为{left['raw_value']} - {right['raw_value']} "
+            f"= {result_text}{unit}。"
+        )
+
     def _build_diagnostics(self, total_ms: int, decompose_ms: int,
                            retrieval_ms: int, generation_ms: int,
                            generation_metrics: dict,
                            retrieval_diagnostics: dict = None) -> dict:
+        contextualization_metrics = dict(
+            getattr(self.decomposer, "last_contextualization_metrics", {}) or {}
+        )
         decomposition_metrics = (
             dict(self.decomposer.llm.last_call_metrics)
             if self.decomposer.last_decision_method == "model"
             else {}
         )
         llm_calls = (
-            decomposition_metrics.get("api_calls", 0)
+            contextualization_metrics.get("api_calls", 0)
+            + decomposition_metrics.get("api_calls", 0)
             + generation_metrics.get("api_calls", 0)
         )
         token_values = [
             metrics.get("total_tokens")
-            for metrics in (decomposition_metrics, generation_metrics)
+            for metrics in (
+                contextualization_metrics, decomposition_metrics, generation_metrics,
+            )
             if metrics.get("total_tokens") is not None
         ]
         cost_values = [
             metrics.get("provider_reported_cost")
-            for metrics in (decomposition_metrics, generation_metrics)
+            for metrics in (
+                contextualization_metrics, decomposition_metrics, generation_metrics,
+            )
             if metrics.get("provider_reported_cost") is not None
         ]
         diagnostics = {
@@ -201,6 +354,7 @@ class AnswerBuilder:
                 "total": total_ms,
             },
             "llm": {
+                "contextualization": contextualization_metrics,
                 "decomposition": decomposition_metrics,
                 "generation": generation_metrics,
                 "total_api_calls": llm_calls,
@@ -216,6 +370,9 @@ class AnswerBuilder:
         return {
             "method": self.decomposer.last_decision_method,
             "route": self.decomposer.last_route,
+            "contextualized_question": getattr(
+                self.decomposer, "last_contextualized_question", None
+            ),
         }
 
     def _chunks_cover_terms(self, chunks: list, terms: list,

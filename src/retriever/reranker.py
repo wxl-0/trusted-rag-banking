@@ -1,8 +1,9 @@
-from sentence_transformers import CrossEncoder
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from sentence_transformers import CrossEncoder
 
 
 class Reranker:

@@ -5,6 +5,9 @@ from src.indexer.bm25_index import BM25Index
 from src.retriever.router import QueryRouter
 from src.retriever.reranker import Reranker
 
+CANDIDATES_PER_CHANNEL = 12
+MAX_RERANK_CANDIDATES = 24
+
 
 class HybridRetriever:
     def __init__(self, qdrant=None, bm25=None, router=None, reranker=None):
@@ -94,8 +97,9 @@ class HybridRetriever:
         vector_results = []
         for col in collections:
             vector_results += self.qdrant.search(
-                query, col, filters=effective_filters or None, top_k=20
-            )
+                query, col, filters=effective_filters or None,
+                top_k=CANDIDATES_PER_CHANNEL,
+            )[:CANDIDATES_PER_CHANNEL]
         preferred_vector_results = []
         vector_ms = int((time.perf_counter() - vector_start) * 1000)
 
@@ -106,13 +110,16 @@ class HybridRetriever:
             bm25_filters["chunk_type"] = "table_row"
         bm25_start = time.perf_counter()
         bm25_results = self.bm25.search(
-            query, top_k=20, filters=bm25_filters or None
-        )
+            query, top_k=CANDIDATES_PER_CHANNEL,
+            filters=bm25_filters or None,
+        )[:CANDIDATES_PER_CHANNEL]
         preferred_bm25_results = []
         bm25_ms = int((time.perf_counter() - bm25_start) * 1000)
 
         merge_start = time.perf_counter()
-        merged = self._rrf_merge(vector_results, bm25_results)
+        merged = self._rrf_merge(
+            vector_results, bm25_results
+        )[:MAX_RERANK_CANDIDATES]
         merge_ms = int((time.perf_counter() - merge_start) * 1000)
 
         rerank_start = time.perf_counter()

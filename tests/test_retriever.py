@@ -22,6 +22,15 @@ class FakeReranker:
         return chunks[:top_k]
 
 
+class CandidateCountingReranker:
+    def __init__(self):
+        self.candidate_count = 0
+
+    def rerank(self, query, chunks, top_k=5):
+        self.candidate_count = len(chunks)
+        return chunks[:top_k]
+
+
 def _matches_filters(chunk, filters):
     for key, expected in filters.items():
         actual = chunk.get(key)
@@ -62,6 +71,42 @@ def test_retrieve_out_of_scope_returns_empty():
     retriever.router.route.return_value = "out_of_scope"
     result = retriever.retrieve("今天天气怎么样")
     assert result == []
+
+
+def test_retrieve_limits_candidates_before_local_reranking():
+    vector_chunks = [
+        {
+            "chunk_id": f"vector-{index}",
+            "chunk_type": "clause",
+            "source_title": "向量来源",
+            "text": f"向量候选 {index}",
+        }
+        for index in range(20)
+    ]
+    keyword_chunks = [
+        {
+            "chunk_id": f"keyword-{index}",
+            "chunk_type": "clause",
+            "source_title": "关键词来源",
+            "text": f"关键词候选 {index}",
+        }
+        for index in range(20)
+    ]
+    qdrant = MagicMock()
+    qdrant.search.return_value = vector_chunks
+    bm25 = MagicMock()
+    bm25.search.return_value = keyword_chunks
+    bm25.related_chunks.return_value = []
+    reranker = CandidateCountingReranker()
+    retriever = HybridRetriever(
+        qdrant=qdrant,
+        bm25=bm25,
+        reranker=reranker,
+    )
+
+    retriever.retrieve("银行询证函回复时限", query_type="regulation", top_k=8)
+
+    assert reranker.candidate_count <= 24
 
 
 def test_retrieve_exact_title_scopes_vector_and_keyword_results():

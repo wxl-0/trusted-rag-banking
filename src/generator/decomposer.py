@@ -5,16 +5,20 @@ from src.generator.llm_client import LLMClient
 
 TABLE_CUES = (
     "excel", "工作表", "取数", "数值", "计算", "合计", "变化", "余额",
-    "收入", "最高", "最低", "增长", "占比", "金额", "统计数据", "指标",
+    "收入", "最高", "最低", "增长", "增加", "减少", "上升", "下降",
+    "占比", "金额", "统计数据", "指标", "季度", "总资产", "总负债",
 )
 REGULATION_CUES = (
     "办法", "规定", "指引", "监管规则", "应当", "不得", "定义", "表述",
-    "材料内容", "名单", "制度", "监管",
+    "材料内容", "名单", "制度", "监管", "询证函", "函证",
 )
 
-DECOMPOSE_PROMPT = """判断下面的问题是否需要分步查询（先查制度，再查统计数据）。
+DECOMPOSE_PROMPT = """判断下面的问题是否需要分步查询。
 
 如果需要分步，将其拆分为子问题列表，每个子问题标注类型（regulation 或 table）。
+表格跨期变化、增减、增长或比较问题必须把两个时期分别拆成独立的 table
+取数子问题，并在每个子问题中保留区块、指标和对应时期。即使问题没有文件名、
+没有引号，也不能把两个时期合并为一次检索。
 如果不需要分步，返回原问题。
 
 输出 JSON 格式：
@@ -28,6 +32,20 @@ DECOMPOSE_PROMPT = """判断下面的问题是否需要分步查询（先查制�
 
 问题：{question}"""
 
+CONTEXTUALIZE_PROMPT = """结合对话历史，把当前追问改写成不依赖上文、可以直接用于知识库检索的独立问题。
+
+要求：
+1. 不要回答问题，只改写问题
+2. 只补全历史中明确出现的文件名、主体、指标、时间和口径，不得猜测
+3. 保留当前追问真正想问的内容，不要重复上一轮已经回答的问题
+4. 只输出 JSON：{{"question": "改写后的独立问题"}}
+
+【对话历史】
+{history}
+
+【当前追问】
+{question}"""
+
 
 class QueryDecomposer:
     def __init__(self, include_single_fact_options: bool = False):
@@ -35,8 +53,18 @@ class QueryDecomposer:
         self.include_single_fact_options = include_single_fact_options
         self.last_decision_method = None
         self.last_route = None
+        self.last_contextualized_question = None
+        self.last_contextualization_metrics = {}
 
-    def decompose(self, question: str) -> list:
+    def decompose(self, question: str, history: list = None) -> list:
+        self.last_contextualized_question = None
+        self.last_contextualization_metrics = {}
+        if history and self._needs_history_context(question):
+            question = self._contextualize(question, history)
+            self.last_contextualized_question = question
+        return self._decompose(question)
+
+    def _decompose(self, question: str) -> list:
         rule_route = self._rule_route(self._routing_text(question))
         if rule_route:
             self.last_decision_method = "rule"
@@ -78,6 +106,57 @@ class QueryDecomposer:
         self.last_route = "hybrid"
         return [self._single_target(question, "hybrid")]
 
+    def _needs_history_context(self, question: str) -> bool:
+        text = question.strip()
+        if re.match(
+            r"^(?:那|那么)(?:一|每|各|任一)(?:份|个|家|项|类|种|条|笔|张)",
+            text,
+        ):
+            return False
+        return bool(re.search(
+            r"^(?:那|那么|它|其|该|这个|这项|这些|上述|前述|其中|前者|后者|"
+            r"具体|还有|另外)|(?:该|上述|前述|这个|这些|其)"
+            r"(?:规定|文件|公司|机构|指标|数值|要求|情况)|(?:呢|又如何)[？?]?$",
+            text,
+        ))
+
+    def _contextualize(self, question: str, history: list) -> str:
+        messages = [
+            message for message in history
+            if message.get("role") in {"user", "assistant"}
+            and str(message.get("content", "")).strip()
+        ][-6:]
+        if not messages:
+            return question
+        history_text = "\n".join(
+            f"{message['role']}: {message['content']}" for message in messages
+        )
+        try:
+            response = self.llm.chat(
+                system="你是一个检索问题改写助手，只输出 JSON。",
+                user=CONTEXTUALIZE_PROMPT.format(
+                    history=history_text,
+                    question=question,
+                ),
+            )
+            metrics = getattr(self.llm, "last_call_metrics", {})
+            if isinstance(metrics, dict):
+                self.last_contextualization_metrics = dict(metrics)
+            rewritten = json.loads(response).get("question", "").strip()
+            if rewritten:
+                return rewritten
+        except Exception:
+            pass
+        previous_user = next(
+            (
+                str(message["content"]).strip()
+                for message in reversed(messages)
+                if message["role"] == "user"
+            ),
+            "",
+        )
+        return f"{previous_user} 当前追问：{question}".strip()
+
     def _rule_route(self, question: str) -> str | None:
         normalized = question.lower()
         has_table_cue = any(cue in normalized for cue in TABLE_CUES)
@@ -99,16 +178,42 @@ class QueryDecomposer:
             r"[“\"]([^”\"]+)[”\"]\s*从[“\"]([^”\"]+)[”\"]\s*到[“\"]([^”\"]+)[”\"]",
             question,
         )
-        if not change_match:
-            return []
-
-        row_label, first_column, second_column = change_match.groups()
+        section_path = ""
+        if change_match:
+            row_label, first_column, second_column = change_match.groups()
+        else:
+            period = r"(?:第?[一二三四1234]季度|期初|期末|年初|年末|上年末|本期|上期)"
+            natural_match = re.search(
+                rf"([^，。；？！]+?)从[“\"]?({period})[”\"]?\s*到[“\"]?({period})[”\"]?",
+                question,
+            )
+            if not natural_match:
+                return []
+            subject, first_column, second_column = natural_match.groups()
+            subject = re.sub(r"^.*?\b\d{4}年", "", subject).strip(" ，,：:")
+            subject = subject.replace("“", "").replace("”", "").strip()
+            if "的" in subject:
+                section_path, row_label = (
+                    part.strip() for part in subject.rsplit("的", 1)
+                )
+            else:
+                row_label = subject
         source_title = title_match.group(1).strip() if title_match else ""
-        section_match = re.search(
-            r"(?:在|于)\s*[“\"]([^”\"]+)[”\"]\s*(?:区块|板块|部分)(?:中|内)?",
-            question,
-        )
-        section_path = section_match.group(1).strip() if section_match else ""
+        if not section_path:
+            section_match = re.search(
+                r"(?:在|于)\s*[“\"]?([^”\"，,]+?)[”\"]?\s*"
+                r"(?:区块|板块|部分)(?:中|内)?",
+                question,
+            )
+            section_path = section_match.group(1).strip() if section_match else ""
+        if not section_path:
+            possessive_match = re.search(
+                rf"(?:^|[，,])(?:\d{{4}}年)?[“\"]?([^”\"，,]+?)[”\"]?"
+                rf"的[“\"]?{re.escape(row_label)}[”\"]?\s*从",
+                question,
+            )
+            if possessive_match:
+                section_path = possessive_match.group(1).strip()
         title_prefix = f"《{source_title}》 " if source_title else ""
         targets = []
         for index, column_header in enumerate((first_column, second_column), 1):

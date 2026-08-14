@@ -1,8 +1,9 @@
 import os
-from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 
 load_dotenv()
+
+from sentence_transformers import SentenceTransformer
 
 DEFAULT_MODEL = "BAAI/bge-large-zh-v1.5"
 VECTOR_DIM = 1024

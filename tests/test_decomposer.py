@@ -94,6 +94,116 @@ def test_decomposer_keeps_explicit_table_section_in_change_targets():
     assert result[1]["strict_filters"]["column_header"] == "四季度"
 
 
+@pytest.mark.parametrize(
+    "question",
+    [
+        "2023年银行业金融机构的总负债从一季度到四季度增加了多少？",
+        "2023年“银行业金融机构”的总负债从一季度到四季度增加了多少？",
+        "2023年“银行业金融机构”的“总负债”从“一季度”到“四季度”增加了多少？",
+        (
+            "根据《2023年银行业总资产、总负债（季度）》，"
+            "在银行业金融机构区块中，总负债从一季度到四季度增加了多少？"
+        ),
+        (
+            "根据《2023年银行业总资产、总负债（季度）》，"
+            "在“银行业金融机构”区块中，“总负债”从“一季度”到“四季度”增加了多少？"
+        ),
+    ],
+)
+def test_decomposer_splits_natural_table_change_with_optional_title_and_quotes(question):
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("明确计算题不应调用模型"))
+
+    result = decomposer.decompose(question)
+
+    assert [target["target_id"] for target in result] == ["operand_1", "operand_2"]
+    assert result[0]["question"].endswith("银行业金融机构 总负债 一季度")
+    assert result[1]["question"].endswith("银行业金融机构 总负债 四季度")
+    assert result[0]["strict_filters"] == {
+        "row_label": "总负债",
+        "column_header": "一季度",
+        "section_path": "银行业金融机构",
+    }
+    assert result[1]["strict_filters"]["column_header"] == "四季度"
+    assert decomposer.last_decision_method == "rule"
+    assert decomposer.last_route == "table"
+
+
+def test_decomposer_rewrites_context_dependent_follow_up_for_retrieval():
+    history = [
+        {
+            "role": "user",
+            "content": "根据《银行函证工作操作指引》，一份询证函可以列示几个基准日？",
+        },
+        {"role": "assistant", "content": "只列示一个函证基准日。"},
+    ]
+    rewritten = (
+        "根据《银行函证工作操作指引》，"
+        "会计师事务所应当如何管理银行询证函的发送和收回？"
+    )
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(return_value=(
+        '{"question": "' + rewritten + '"}'
+    ))
+
+    result = decomposer.decompose("那发送和收回应该怎么管理？", history=history)
+
+    assert result[0]["question"] == rewritten
+    assert result[0]["source_title"] == "银行函证工作操作指引"
+    assert result[0]["type"] == "regulation"
+    assert decomposer.last_contextualized_question == rewritten
+    prompt = decomposer.llm.chat.call_args.kwargs["user"]
+    assert "一份询证函可以列示几个基准日" in prompt
+    assert "那发送和收回应该怎么管理" in prompt
+
+
+def test_decomposer_falls_back_when_follow_up_rewrite_fails():
+    history = [{
+        "role": "user",
+        "content": "根据《银行函证工作操作指引》，函证工作有哪些要求？",
+    }]
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=RuntimeError("model unavailable"))
+
+    result = decomposer.decompose("那具体是哪一条？", history=history)
+
+    assert result[0]["type"] == "regulation"
+    assert "银行函证工作操作指引" in result[0]["question"]
+    assert "那具体是哪一条" in result[0]["question"]
+
+
+def test_decomposer_does_not_rewrite_complete_question_with_history():
+    question = "根据《银行函证工作操作指引》，一份询证函列示几个基准日？"
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("完整问题不应改写"))
+
+    result = decomposer.decompose(
+        question,
+        history=[{"role": "user", "content": "上一轮无关问题"}],
+    )
+
+    assert result[0]["question"] == question
+    assert decomposer.last_contextualized_question is None
+
+
+def test_decomposer_does_not_rewrite_follow_up_with_explicit_subject():
+    question = "那一份银行询证函可以列示几个函证基准日？"
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("完整追问不应调用模型"))
+
+    result = decomposer.decompose(
+        question,
+        history=[{
+            "role": "user",
+            "content": "会计师事务所应当如何管理银行询证函的发送和收回？",
+        }],
+    )
+
+    assert result[0]["question"] == question
+    assert result[0]["type"] == "regulation"
+    assert decomposer.last_contextualized_question is None
+
+
 def test_decomposer_splits_table_comparison_by_option_and_column():
     question = (
         "根据 Excel 附件《2023年4季度保险业资金运用情况表》"

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import MessageList from './components/MessageList'
 import ChatInput from './components/ChatInput'
-import { askQuestion } from './api/client'
+import { askQuestionStream, buildHistory } from './api/client'
 
 export default function App() {
   const [messages, setMessages] = useState([])
@@ -9,24 +9,49 @@ export default function App() {
 
   const handleSend = async (question) => {
     const newMessages = [...messages, { role: 'user', content: question }]
-    setMessages(newMessages)
+    const requestId = `${Date.now()}-${Math.random()}`
+    setMessages([...newMessages, {
+      role: 'assistant',
+      requestId,
+      content: {
+        processing: true,
+        stage: 'connecting',
+        message: '正在提交问题',
+        startedAt: Date.now(),
+      },
+    }])
     setLoading(true)
 
-    const history = newMessages
-      .filter(m => m.role === 'user' || (m.role === 'assistant' && m.content.answer))
-      .map(m => ({
-        role: m.role,
-        content: m.role === 'user' ? m.content : m.content.answer,
-      }))
+    const history = buildHistory(messages)
 
     try {
-      const result = await askQuestion(question, null, history)
-      setMessages(prev => [...prev, { role: 'assistant', content: result }])
+      const result = await askQuestionStream(
+        question,
+        null,
+        history,
+        (event, data) => {
+          if (event !== 'progress') return
+          setMessages(prev => prev.map(message => (
+            message.requestId === requestId
+              ? { ...message, content: { ...message.content, ...data } }
+              : message
+          )))
+        },
+      )
+      setMessages(prev => prev.map(message => (
+        message.requestId === requestId
+          ? { role: 'assistant', content: result }
+          : message
+      )))
     } catch (err) {
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: { answer: '', evidence: [], refuse_reason: err.message }
-      }])
+      setMessages(prev => prev.map(message => (
+        message.requestId === requestId
+          ? {
+              role: 'assistant',
+              content: { answer: '', evidence: [], refuse_reason: err.message },
+            }
+          : message
+      )))
     } finally {
       setLoading(false)
     }

@@ -14,18 +14,17 @@ import unicodedata
 from pathlib import Path
 
 import openpyxl
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+load_dotenv()
 
 # 嵌入/重排模型已在本地缓存，必须在导入生成模块前启用离线模式。
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
-from dotenv import load_dotenv
-
 from src.generator.answer_builder import AnswerBuilder
 from src.generator.decomposer import QueryDecomposer
-
-load_dotenv()
 
 QA_PATH = Path("data/eval/QA数据.xlsx")
 REPORT_PATH = Path("data/eval/eval_report.json")
