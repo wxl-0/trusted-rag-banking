@@ -559,8 +559,7 @@ project/
 ├── Dockerfile.backend
 ├── Dockerfile.frontend
 ├── pyproject.toml
-├── uv.lock
-└── CONTRIBUTING.md
+└── uv.lock
 ```
 
 模块间的核心契约是：

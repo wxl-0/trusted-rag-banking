@@ -8,14 +8,6 @@
 - [切块策略](architecture/chunking-strategy.md)
 - [参数调优指南](<architecture/parameter tuning guide.md>)
 
-## 使用指南
-
-- [Git 操作说明](guides/git-guide.md)
-
-## 项目协作
-
-- [团队分工](<project/分工.md>)
-
 ## 竞赛资料
 
 - [赛题说明](<competition/03-金融大模型与智能体赛道-南京银行-面向银行业监管制度与统计报表的可信RAG问答.md>)

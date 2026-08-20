@@ -179,12 +179,12 @@ def retrieve(query: str, query_type: str = None, filters: dict = None,
 | `LLM_MODEL` | 对话模型，默认 `gpt-4o-mini` |
 | `QDRANT_HOST/PORT` | Qdrant 连接地址，默认 `localhost:6333` |
 | `RERANKER_MODEL` | HuggingFace 交叉编码器，默认 `BAAI/bge-reranker-base` |
-| `HF_HOME` | HuggingFace 模型缓存目录；队友需各自设置，Docker Compose 将该目录挂载到 backend 容器 |
+| `HF_HOME` | HuggingFace 模型缓存目录；开发者需自行设置，Docker Compose 将该目录挂载到 backend 容器 |
 | `HF_HUB_OFFLINE` | 设为 `1` 时只使用本地模型缓存，避免启动时联网检查 |
 
 ## 分支策略
 
-见 `CONTRIBUTING.md`：`main` 是唯一最新基线、默认开发分支和当前可演示版本，不再使用 `dev` 作为集成分支。日常修改直接在最新 `main` 上开发和提交；提交前必须选择性暂存并完成相应验证。只有用户或团队明确要求隔离开发或代码评审时，才临时创建功能分支并使用 PR。
+`main` 是唯一最新基线、默认开发分支和当前可演示版本，不再使用 `dev` 作为集成分支。日常修改直接在最新 `main` 上开发和提交；提交前必须选择性暂存并完成相应验证。只有用户或维护者明确要求隔离开发或代码评审时，才临时创建功能分支并使用 PR。
 
 ## 当前知识库规模
 

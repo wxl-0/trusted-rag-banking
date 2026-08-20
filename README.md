@@ -182,7 +182,7 @@ src/generator/    问题分解、证据检查与答案生成
 src/api/          FastAPI 与 SSE 接口
 src/frontend/     React + Vite 前端
 scripts/          建库、更新、评测和质量检查脚本
-docs/             架构、比赛技术文档和操作指南
+docs/             架构与比赛技术文档
 tests/            单元测试与回归测试
 ```
 
@@ -191,7 +191,6 @@ tests/            单元测试与回归测试
 - [技术文档](docs/competition/submission/技术文档.md)
 - [系统设计](docs/architecture/design.md)
 - [切块策略](docs/architecture/chunking-strategy.md)
-- [Git 协作指南](docs/guides/git-guide.md)
 
 ## 当前限制
 
