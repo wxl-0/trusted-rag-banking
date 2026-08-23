@@ -17,9 +17,9 @@ services:
     environment:
       - QDRANT_HOST=qdrant
       - HF_HOME=/models
-      - HF_HUB_OFFLINE=1
+      - HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-0}
     volumes:
-      - ${HF_HOME:-D:/huggingface_cache}:/models
+      - ${HF_HOME:-./models}:/models
       - ./data:/app/data
     depends_on:
       - qdrant

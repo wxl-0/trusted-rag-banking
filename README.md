@@ -37,6 +37,14 @@ flowchart LR
 
 检索编排由项目自身的 Python 模块实现，未引入 LangChain 或 LangGraph。证据覆盖状态分为 `supported | not_supported | missing`，仅对 `missing` 的检索目标补搜一次。
 
+## 已验证结果
+
+- 299 道非歧义正式评测题答对 291 题，准确率 97.32%；
+- 制度事实类准确率 96.50%，表格题总体准确率 98.99%；
+- 证据引用命中率 99.00%。
+
+评测口径、错题分析与运行边界见[技术文档](docs/competition/submission/技术文档.md)。
+
 ## 使用自己的资料
 
 本项目可以复用为相似的制度、合规和统计资料问答系统。当前版本采用“文件目录 + Manifest + 命令行建库”的方式，不是网页上传后自动入库。
@@ -72,7 +80,7 @@ data/raw/my_documents/
 
 ### 3. 分类、切块并建立索引
 
-```powershell
+```bash
 # 为没有 parse_profile 的记录判断解析类型
 uv run --frozen python scripts/classify_manifest.py --dry-run
 uv run --frozen python scripts/classify_manifest.py
@@ -96,6 +104,7 @@ uv run --frozen python scripts/build_index.py
 - `.doc` 转换产物 `data/converted/`；
 - 完整 Chunk JSONL、BM25 索引和 Qdrant 数据；
 - Hugging Face Embedding 与 Reranker 模型缓存；
+- 100 题专项评测集及其逐题报告；
 - 真实 API Key。
 
 因此，公开仓库用于查看源码和使用自有资料重新建库，不是克隆后无需数据即可直接问答的在线 Demo。完整比赛交付包会另外包含运行数据、数据库快照、部署说明，以及“含模型版”和“无模型版”两种形式。
@@ -106,15 +115,15 @@ uv run --frozen python scripts/build_index.py
 
 需要 Python 3.11、[uv](https://docs.astral.sh/uv/)、Node.js 和 Docker Desktop。
 
-```powershell
+```bash
 uv sync --frozen
 ```
 
 ### 2. 配置环境变量
 
-```powershell
-Copy-Item .env.example .env
-notepad .env
+```bash
+cp .env.example .env
+${EDITOR:-vi} .env
 ```
 
 至少配置：
@@ -130,7 +139,7 @@ HF_HOME=填写HuggingFace模型缓存目录
 
 ### 3. 启动 Qdrant
 
-```powershell
+```bash
 docker compose up -d qdrant
 ```
 
@@ -138,7 +147,7 @@ docker compose up -d qdrant
 
 ### 4. 启动后端
 
-```powershell
+```bash
 uv run --frozen python -m uvicorn src.api.main:app --reload
 ```
 
@@ -146,8 +155,8 @@ uv run --frozen python -m uvicorn src.api.main:app --reload
 
 ### 5. 启动前端
 
-```powershell
-Set-Location src/frontend
+```bash
+cd src/frontend
 npm ci
 npm run dev
 ```
@@ -156,7 +165,7 @@ npm run dev
 
 ## 运行评测
 
-```powershell
+```bash
 # 运行默认评测
 uv run --frozen python scripts/run_eval.py
 
@@ -168,7 +177,7 @@ uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke
 
 ## 运行测试
 
-```powershell
+```bash
 uv run --frozen python -m pytest tests/ -v
 ```
 
