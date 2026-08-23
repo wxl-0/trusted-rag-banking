@@ -4,7 +4,7 @@
 
 系统将 Word、PDF、Excel 资料解析为带来源信息的结构化 Chunk，通过 BM25、向量检索、RRF 融合与交叉编码器精排定位证据，再生成附带原文引用的答案。项目也可以替换为使用者自己的制度、合规和统计资料，重新构建专属知识库。
 
-![系统首页](docs/competition/submission/assets/system-home.png)
+![系统首页](docs/assets/system-home.png)
 
 ## 当前具备的能力
 
@@ -44,7 +44,7 @@ flowchart LR
 - 证据引用命中率 99.00%；
 - 100 道开放式专项评测答对 90 题，关键实体错误率 4.92%，库外处理正确率 93.33%。
 
-评测口径、错题分析与运行边界见[技术文档](docs/competition/submission/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。
+评测口径、错题分析与运行边界见[技术文档](docs/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。
 
 ## 使用自己的资料
 
@@ -181,22 +181,28 @@ uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke
 uv run --frozen python -m pytest tests/ -v
 ```
 
-## 主要目录
+## 目录结构
+
+公开仓库保留下面这些核心目录和文件，便于快速定位实现、评测材料和说明文档：
 
 ```text
-src/parser/       文档解析与结构化切块
-src/indexer/      BGE Embedding、Qdrant 和 BM25
-src/retriever/    查询路由、混合召回、RRF 与精排
-src/generator/    问题分解、证据检查与答案生成
-src/api/          FastAPI 与 SSE 接口
-src/frontend/     React + Vite 前端
-scripts/          建库、更新、评测和质量检查脚本
-docs/             架构与比赛技术文档
-tests/            单元测试与回归测试
+trusted-rag-banking/
+├── src/                    核心源码：解析、索引、检索、生成、API 和前端
+├── scripts/                建库、定向更新、评测与质量检查脚本
+├── tests/                  单元测试与回归测试
+├── data/
+│   ├── manifest.json       资料清单与解析类型配置
+│   └── eval/               可公开的评测集与评测报告
+├── docs/
+│   ├── 技术文档.md         架构、实现、评测与项目边界
+│   └── assets/             技术文档和 README 使用的界面截图
+├── docker-compose.yml      本地与容器化服务编排
+├── pyproject.toml          Python 项目与依赖配置
+└── README.md               项目入口说明
 ```
 
 ## 进一步阅读
 
-- [技术文档](docs/competition/submission/技术文档.md)
-- [系统设计](docs/architecture/design.md)
-- [切块策略](docs/architecture/chunking-strategy.md)
+- [技术文档](docs/技术文档.md)
+- [100 题专项评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)
+- [专项评测报告](data/eval/specialized_eval_report.json)
