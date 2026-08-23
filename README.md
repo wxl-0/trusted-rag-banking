@@ -41,9 +41,10 @@ flowchart LR
 
 - 299 道非歧义正式评测题答对 291 题，准确率 97.32%；
 - 制度事实类准确率 96.50%，表格题总体准确率 98.99%；
-- 证据引用命中率 99.00%。
+- 证据引用命中率 99.00%；
+- 100 道开放式专项评测答对 90 题，关键实体错误率 4.92%，库外处理正确率 93.33%。
 
-评测口径、错题分析与运行边界见[技术文档](docs/competition/submission/技术文档.md)。
+评测口径、错题分析与运行边界见[技术文档](docs/competition/submission/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。
 
 ## 使用自己的资料
 
@@ -104,7 +105,6 @@ uv run --frozen python scripts/build_index.py
 - `.doc` 转换产物 `data/converted/`；
 - 完整 Chunk JSONL、BM25 索引和 Qdrant 数据；
 - Hugging Face Embedding 与 Reranker 模型缓存；
-- 100 题专项评测集及其逐题报告；
 - 真实 API Key。
 
 因此，公开仓库用于查看源码和使用自有资料重新建库，不是克隆后无需数据即可直接问答的在线 Demo。完整比赛交付包会另外包含运行数据、数据库快照、部署说明，以及“含模型版”和“无模型版”两种形式。

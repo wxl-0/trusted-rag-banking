@@ -8,8 +8,6 @@ data/converted/
 data/chunks/
 data/eval/eval_progress.jsonl
 data/eval/runs/
-data/eval/specialized_eval_report.json
-data/eval/银行监管RAG专项评测集_100题.xlsx
 outputs/
 models/
 src/frontend/node_modules/
