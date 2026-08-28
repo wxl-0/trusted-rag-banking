@@ -29,3 +29,12 @@ class AskResponse(BaseModel):
 
 class IngestRequest(BaseModel):
     manifest_path: str = "data/manifest.json"
+
+
+class IdentityResponse(BaseModel):
+    subject: str
+    username: str
+    display_name: str
+    email: Optional[str] = None
+    business_role: str
+    roles: List[str]

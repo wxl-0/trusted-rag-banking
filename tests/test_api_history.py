@@ -41,8 +41,21 @@ def client():
     # Mock AnswerBuilder.__init__ so it doesn't create real objects
     with patch("src.generator.answer_builder.AnswerBuilder.__init__", lambda self: None):
         from src.api.main import app
+        from src.auth import Identity, get_current_identity
         from fastapi.testclient import TestClient
-        return TestClient(app)
+        identity = Identity(
+            subject="test-user",
+            username="test-user",
+            display_name="测试用户",
+            email=None,
+            roles=frozenset({"member"}),
+        )
+        app.dependency_overrides[get_current_identity] = lambda: identity
+        try:
+            with TestClient(app) as test_client:
+                yield test_client
+        finally:
+            app.dependency_overrides.pop(get_current_identity, None)
 
 
 def test_ask_with_history_passes_to_builder(client):

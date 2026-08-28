@@ -32,6 +32,42 @@ services:
       timeout: 5s
       retries: 15
 
+  keycloak-db-init:
+    image: postgres:16-alpine
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB:-trusted_rag}
+      PGUSER: ${POSTGRES_USER:-trusted_rag}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME}
+    command: >-
+      sh -c 'psql -v ON_ERROR_STOP=1
+      -c "CREATE SCHEMA IF NOT EXISTS keycloak AUTHORIZATION CURRENT_USER"'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-trusted_rag}
+      KC_DB_USERNAME: ${POSTGRES_USER:-trusted_rag}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME}
+      KC_DB_SCHEMA: keycloak
+      KC_HOSTNAME: http://localhost:8080
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-CHANGE_ME}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    depends_on:
+      keycloak-db-init:
+        condition: service_completed_successfully
+
   qdrant:
     image: qdrant/qdrant:v1.9.4
     ports:
@@ -50,6 +86,10 @@ services:
         required: false
     environment:
       - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-trusted_rag}:${POSTGRES_PASSWORD:-CHANGE_ME}@postgres:5432/${POSTGRES_DB:-trusted_rag}
+      - KEYCLOAK_ISSUER=${KEYCLOAK_ISSUER:-http://localhost:8080/realms/trusted-rag}
+      - KEYCLOAK_AUDIENCE=${KEYCLOAK_AUDIENCE:-trusted-rag-api}
+      - KEYCLOAK_DISCOVERY_URL=http://keycloak:8080/realms/trusted-rag/.well-known/openid-configuration
+      - KEYCLOAK_JWKS_URL=http://keycloak:8080/realms/trusted-rag/protocol/openid-connect/certs
       - QDRANT_HOST=qdrant
       - HF_HOME=/models
       - HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-0}
@@ -66,10 +106,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        VITE_KEYCLOAK_AUTHORITY: ${VITE_KEYCLOAK_AUTHORITY:-http://localhost:8080/realms/trusted-rag}
+        VITE_KEYCLOAK_CLIENT_ID: ${VITE_KEYCLOAK_CLIENT_ID:-trusted-rag-web}
     ports:
       - "80:80"
     depends_on:
       - backend
+      - keycloak
 
 volumes:
   postgres_data:

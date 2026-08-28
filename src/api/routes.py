@@ -3,7 +3,8 @@ import json
 import subprocess
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
-from src.api.models import AskRequest, AskResponse, IngestRequest
+from src.api.models import AskRequest, AskResponse, IdentityResponse, IngestRequest
+from src.auth import Identity, get_current_identity
 from src.database import Database, get_database
 from src.generator.answer_builder import AnswerBuilder
 
@@ -24,7 +25,7 @@ def _sse_event(event: str, payload: dict) -> str:
 
 
 @router.post("/ask", response_model=AskResponse)
-async def ask(req: AskRequest):
+async def ask(req: AskRequest, _identity: Identity = Depends(get_current_identity)):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="question 不能为空")
     history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
@@ -33,7 +34,10 @@ async def ask(req: AskRequest):
 
 
 @router.post("/ask/stream")
-async def ask_stream(req: AskRequest):
+async def ask_stream(
+    req: AskRequest,
+    _identity: Identity = Depends(get_current_identity),
+):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="question 不能为空")
     history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
@@ -114,3 +118,15 @@ def ready(database: Database = Depends(get_database)):
         "status": "ready",
         "checks": {"postgresql": "available"},
     }
+
+
+@router.get("/auth/me", response_model=IdentityResponse)
+def current_identity(identity: Identity = Depends(get_current_identity)):
+    return IdentityResponse(
+        subject=identity.subject,
+        username=identity.username,
+        display_name=identity.display_name,
+        email=identity.email,
+        business_role=identity.business_role,
+        roles=sorted(identity.roles),
+    )

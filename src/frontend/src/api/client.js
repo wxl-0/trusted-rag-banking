@@ -10,15 +10,37 @@ export function buildHistory(messages) {
     }))
 }
 
-export async function askQuestion(question, filters = null, history = null) {
+function requestHeaders(accessToken) {
+  return {
+    'Content-Type': 'application/json',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+  }
+}
+
+async function responseError(response, fallback) {
+  const payload = await response.json().catch(() => ({}))
+  const detail = payload.detail
+  return detail?.message || (typeof detail === 'string' ? detail : fallback)
+}
+
+export async function fetchIdentity(accessToken) {
+  const response = await fetch('/api/auth/me', {
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) throw new Error(await responseError(response, '身份读取失败'))
+  return response.json()
+}
+
+export async function askQuestion(
+  question, filters = null, history = null, accessToken = null,
+) {
   const response = await fetch('/api/ask', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders(accessToken),
     body: JSON.stringify({ question, filters, history }),
   })
   if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.detail || '请求失败')
+    throw new Error(await responseError(response, '请求失败'))
   }
   return response.json()
 }
@@ -38,15 +60,15 @@ export async function askQuestionStream(
   filters = null,
   history = null,
   onEvent = () => {},
+  accessToken = null,
 ) {
   const response = await fetch('/api/ask/stream', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: requestHeaders(accessToken),
     body: JSON.stringify({ question, filters, history }),
   })
   if (!response.ok) {
-    const err = await response.json()
-    throw new Error(err.detail || '请求失败')
+    throw new Error(await responseError(response, '请求失败'))
   }
   if (!response.body) throw new Error('浏览器不支持流式响应')
 

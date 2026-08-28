@@ -34,6 +34,7 @@ test('askQuestionStream parses SSE events split across network chunks', async ()
   globalThis.fetch = async (url, options) => {
     assert.equal(url, '/api/ask/stream')
     assert.equal(options.method, 'POST')
+    assert.equal(options.headers.Authorization, 'Bearer access-token')
     return new Response(new ReadableStream({
       start(controller) {
         chunks.forEach(chunk => controller.enqueue(encoder.encode(chunk)))
@@ -45,7 +46,7 @@ test('askQuestionStream parses SSE events split across network chunks', async ()
 
   try {
     const answer = await askQuestionStream(
-      '问题', null, [], (event, data) => events.push([event, data]),
+      '问题', null, [], (event, data) => events.push([event, data]), 'access-token',
     )
     assert.deepEqual(events, [[
       'progress', { stage: 'analyzing', message: '正在分析问题' },

@@ -3,23 +3,42 @@ import json
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-from src.api.main import app
 
-client = TestClient(app)
+with patch("src.generator.answer_builder.AnswerBuilder.__init__", lambda self: None):
+    from src.api.main import app
+
+from src.auth import Identity, get_current_identity
 
 
-def test_health():
+@pytest.fixture
+def client():
+    identity = Identity(
+        subject="test-user",
+        username="test-user",
+        display_name="测试用户",
+        email=None,
+        roles=frozenset({"member"}),
+    )
+    app.dependency_overrides[get_current_identity] = lambda: identity
+    try:
+        with TestClient(app) as test_client:
+            yield test_client
+    finally:
+        app.dependency_overrides.pop(get_current_identity, None)
+
+
+def test_health(client):
     response = client.get("/api/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
 
 
-def test_ask_empty_question():
+def test_ask_empty_question(client):
     response = client.post("/api/ask", json={"question": ""})
     assert response.status_code == 400
 
 
-def test_ask_returns_structured_response():
+def test_ask_returns_structured_response(client):
     mock_result = {
         "answer": "资本充足率不得低于10.5%。",
         "evidence": [
@@ -42,7 +61,7 @@ def test_ask_returns_structured_response():
     assert len(data["evidence"]) == 1
 
 
-def test_ask_stream_returns_real_stages_and_final_answer():
+def test_ask_stream_returns_real_stages_and_final_answer(client):
     mock_result = {
         "answer": "资本充足率不得低于10.5%。",
         "evidence": [],
@@ -82,7 +101,7 @@ def test_ask_stream_returns_real_stages_and_final_answer():
     assert events[-1] == ("answer", mock_result)
 
 
-def test_ask_stream_returns_safe_error_event():
+def test_ask_stream_returns_safe_error_event(client):
     with patch("src.api.routes.builder.answer", side_effect=RuntimeError("secret")):
         response = client.post("/api/ask/stream", json={"question": "测试问题"})
 
@@ -92,7 +111,7 @@ def test_ask_stream_returns_safe_error_event():
     assert "secret" not in response.text
 
 
-def test_ask_stream_rejects_empty_question():
+def test_ask_stream_rejects_empty_question(client):
     response = client.post("/api/ask/stream", json={"question": "  "})
 
     assert response.status_code == 400
