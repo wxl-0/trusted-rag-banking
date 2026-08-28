@@ -6,6 +6,18 @@
 
 ![系统首页](docs/assets/system-home.png)
 
+## 当前实现状态
+
+本仓库同时包含当前可运行系统、下一阶段静态原型和已确认的企业化演进方案。三者边界如下：
+
+| 状态 | 当前范围 |
+|---|---|
+| 已实现并可运行 | 文档解析、结构化切块、Qdrant + BM25 混合检索、RRF 与精排、问题分解、证据覆盖、答案生成/拒答、FastAPI REST/SSE 接口、React 单页问答、PostgreSQL 基线，以及 Keycloak OIDC + PKCE 登录、访问令牌校验和问答访问控制 |
+| 静态原型已完成 | 普通成员/知识库维护者角色视图、左侧历史对话、知识库管理、上传与异步入库状态；登录与账户区已接入正式 React，其余原型位于 [`prototype/`](prototype/)，尚未接入正式后端 |
+| 已确认但尚未开发 | PostgreSQL 业务表与会话持久化、Redis 任务队列、MinIO 原始文件版本、网页上传后的解析/索引、服务端上下文预算管理 |
+
+生成层使用 OpenAI 兼容接口，通过 `OPENAI_BASE_URL` 和 `LLM_MODEL` 配置供应商与模型。当前代码默认值仍为 `gpt-4o-mini`；公开评测快照实际使用 `deepseek-v4-flash`。后续企业化版本已经确定以 `deepseek-v4-flash` 为目标模型，但相关默认配置和上下文管理尚未写入正式运行代码。
+
 ## 当前具备的能力
 
 - **多格式解析**：支持 `.docx`、`.pdf`、`.xls`、`.xlsx`；旧版 `.doc` 需要可用的 Word 转换环境，建议预先转换为 `.docx`。
@@ -14,8 +26,9 @@
 - **表格取数与计算**：根据指标、期间、单位和表格区块筛选结构化单元格；只有取得全部操作数后才执行确定性计算。
 - **多目标问题分解**：识别跨文件、多事实、选项比较和季度计算问题；证据缺失时最多补搜一次。
 - **有据回答与拒答**：答案附带原文证据；资料不足、超出知识库范围或缺少必要操作数时拒答或说明缺失信息。
-- **连续对话**：问答接口接受历史消息，可解析“那一份”“上一季度”等上下文指代。
+- **单次页面会话内的连续对话**：React 前端把当前页面内的历史消息随请求发送，生成层最多使用最近 6 条有效消息解析“那一份”“上一季度”等指代；当前没有服务端会话持久化、历史列表和用户间会话隔离。
 - **处理进度展示**：通过 SSE 展示“分析问题、检索资料、整理证据、生成答案”等阶段和已处理时间。
+- **企业登录与问答保护**：React 使用 OIDC Authorization Code Flow with PKCE 跳转 Keycloak；FastAPI 校验令牌签名、issuer、audience、有效期与 `member` / `knowledge_maintainer` 业务角色后才允许问答。
 - **可复现评测**：选择题使用确定性规则判分，记录检索目标、候选数量、阶段耗时、覆盖状态和补搜次数，不使用 LLM Judge 代替正式判分。
 
 ## 系统流程
@@ -107,7 +120,7 @@ uv run --frozen python scripts/build_index.py
 - Hugging Face Embedding 与 Reranker 模型缓存；
 - 真实 API Key。
 
-因此，公开仓库用于查看源码和使用自有资料重新建库，不是克隆后无需数据即可直接问答的在线 Demo。完整比赛交付包会另外包含运行数据、数据库快照、部署说明，以及“含模型版”和“无模型版”两种形式。
+因此，公开仓库用于审查源码、查看评测产物和使用自有资料重新建库，不是克隆后无需数据即可直接问答的在线 Demo。公开仓库已包含 100 题专项评测集和最终专项报告，但不包含运行过程目录 `data/eval/runs/`。
 
 ## 本地开发启动
 
@@ -133,17 +146,31 @@ OPENAI_API_KEY=填写自己的API密钥
 OPENAI_BASE_URL=填写对应的OpenAI兼容接口地址
 LLM_MODEL=填写接口实际支持的模型名称
 HF_HOME=填写HuggingFace模型缓存目录
+DATABASE_URL=填写本地PostgreSQL连接地址
+KEYCLOAK_ADMIN_PASSWORD=替换本地Keycloak管理员占位密码
+KEYCLOAK_ISSUER=http://localhost:8080/realms/trusted-rag
+KEYCLOAK_AUDIENCE=trusted-rag-api
+VITE_KEYCLOAK_AUTHORITY=http://localhost:8080/realms/trusted-rag
+VITE_KEYCLOAK_CLIENT_ID=trusted-rag-web
 ```
 
 首次下载 BGE 模型时设置 `HF_HUB_OFFLINE=0`；模型下载完成且缓存完整后可以设置为 `1`。不要提交填写后的 `.env`。
 
-### 3. 启动 Qdrant
+### 3. 启动 PostgreSQL、Keycloak 与 Qdrant
 
 ```bash
-docker compose up -d qdrant
+docker compose up -d postgres keycloak qdrant
+uv run --frozen alembic upgrade head
 ```
 
-首次使用需要先按照“使用自己的资料”完成解析和索引。
+Keycloak 首次启动会导入 `keycloak/realm-export.json`。管理员密码仍是必须在本地替换的 `CHANGE_ME`；以下账号是有意公开、仅供本地复现角色流程的演示凭证：
+
+| 业务角色 | 用户名 | 密码 |
+|---|---|---|
+| 企业成员 | `member.demo` | `MemberDemo-2026!` |
+| 知识库维护者 | `maintainer.demo` | `MaintainerDemo-2026!` |
+
+不要把这些公开演示密码复用到任何真实环境。首次使用还需要按照“使用自己的资料”完成解析和索引。
 
 ### 4. 启动后端
 
@@ -179,6 +206,13 @@ uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke
 
 ```bash
 uv run --frozen python -m pytest tests/ -v
+
+# 包含真实 PostgreSQL 迁移与 API 就绪验收
+docker compose --profile test up -d --wait postgres-test
+TRUSTED_RAG_TEST_DATABASE_URL=postgresql+psycopg://trusted_rag_test:trusted_rag_test@localhost:5433/trusted_rag_test \
+  uv run --frozen python -m pytest tests/ -v
+docker compose --profile test stop postgres-test
+docker compose --profile test rm -f postgres-test
 ```
 
 ## 目录结构
@@ -190,12 +224,14 @@ trusted-rag-banking/
 ├── src/                    核心源码：解析、索引、检索、生成、API 和前端
 ├── scripts/                建库、定向更新、评测与质量检查脚本
 ├── tests/                  单元测试与回归测试
+├── prototype/              下一阶段企业知识库静态交互原型
 ├── data/
 │   ├── manifest.json       资料清单与解析类型配置
 │   └── eval/               可公开的评测集与评测报告
 ├── docs/
 │   ├── 技术文档.md         架构、实现、评测与项目边界
 │   └── assets/             技术文档和 README 使用的界面截图
+├── CONTEXT.md              已确认决策、实施状态与待确认事项
 ├── docker-compose.yml      本地与容器化服务编排
 ├── pyproject.toml          Python 项目与依赖配置
 └── README.md               项目入口说明
@@ -204,5 +240,7 @@ trusted-rag-banking/
 ## 进一步阅读
 
 - [技术文档](docs/技术文档.md)
+- [下一阶段静态原型](prototype/index.html)
+- [产品与技术决策记录](CONTEXT.md)
 - [100 题专项评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)
 - [专项评测报告](data/eval/specialized_eval_report.json)

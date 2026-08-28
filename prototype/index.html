@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>监管制度智能问答 - 原型预览</title>
+  <link rel="icon" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="prototype-shell">
+    <section class="screen login-screen" data-screen="login">
+      <div class="login-brand" aria-label="南京银行监管制度智能问答">
+        <img src="assets/logo.png" alt="南京银行">
+        <span>监管制度智能问答</span>
+      </div>
+
+      <main class="login-main">
+        <div class="login-orbit" aria-hidden="true">
+          <span class="orbit-ring orbit-ring-one"></span>
+          <span class="orbit-ring orbit-ring-two"></span>
+          <span class="orbit-mark">
+            <svg viewBox="0 0 32 32">
+              <path d="M16 3.5 26 7.7v7.4c0 6.7-4 11.4-10 13.6-6-2.2-10-6.9-10-13.6V7.7L16 3.5Z"></path>
+              <path d="m11.3 15.9 3.1 3.1 6.5-7"></path>
+            </svg>
+          </span>
+        </div>
+        <div class="login-copy">
+          <span class="eyebrow">企业监管知识工作台</span>
+          <h1>让每一次制度查询<br>都有原文依据</h1>
+          <p>使用企业账号访问统一维护的监管制度、统计报表与可信证据。</p>
+        </div>
+        <button class="primary-button login-button" type="button" data-action="login">
+          <span>企业账号登录</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5.5 5.5-5.5 5.5"></path></svg>
+        </button>
+        <div class="identity-note">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="8" width="12" height="9" rx="2"></rect><path d="M6.5 8V6.5a3.5 3.5 0 0 1 7 0V8"></path></svg>
+          身份认证与登录会话由 Keycloak 提供
+        </div>
+      </main>
+
+      <footer class="login-footer">企业共享知识库 · 仅限授权成员访问</footer>
+    </section>
+
+    <section class="screen workspace-screen" data-screen="workspace" hidden>
+      <div class="workspace-layout">
+        <aside class="conversation-sidebar" data-sidebar aria-label="对话与功能导航">
+          <div class="sidebar-header">
+            <button class="sidebar-brand" type="button" data-nav="chat" aria-label="返回问答首页">
+              <img src="assets/logo.png" alt="">
+              <span>监管制度智能问答</span>
+            </button>
+            <button class="sidebar-icon-button" type="button" data-action="toggle-history-search" aria-label="搜索历史对话" aria-expanded="false">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"></circle><path d="m12.7 12.7 3.8 3.8"></path></svg>
+            </button>
+          </div>
+
+          <label class="history-search" data-history-search hidden>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"></circle><path d="m12.7 12.7 3.8 3.8"></path></svg>
+            <input type="search" placeholder="搜索对话" data-history-search-input>
+          </label>
+
+          <nav class="sidebar-primary" aria-label="主要功能">
+            <button class="sidebar-nav-item is-active" type="button" data-action="new-chat">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4.5h12v9H9l-4 3v-3H4v-9Z"></path><path d="M10 7v4M8 9h4"></path></svg>
+              <span>新对话</span>
+            </button>
+            <button class="sidebar-nav-item maintainer-only" type="button" data-nav="knowledge">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3.5 5.5 10 3l6.5 2.5L10 8 3.5 5.5Z"></path><path d="M3.5 5.5v7L10 15l6.5-2.5v-7M10 8v7"></path></svg>
+              <span>知识库管理</span>
+            </button>
+          </nav>
+
+          <div class="sidebar-history">
+            <span class="sidebar-section-label">最近</span>
+
+            <div class="role-history member-history">
+              <article class="history-item" data-history-item data-search="不良贷款分类标准">
+                <button class="history-open" type="button" data-history-question="商业银行不良贷款分类的标准是什么？">不良贷款分类标准</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg>
+                </button>
+                <div class="history-menu" hidden>
+                  <button type="button" data-action="rename-history">重命名</button>
+                  <button class="danger" type="button" data-action="delete-history">删除</button>
+                </div>
+              </article>
+              <article class="history-item" data-history-item data-search="资本充足率监管要求">
+                <button class="history-open" type="button" data-history-question="说明资本充足率要求并给出原文证据">资本充足率监管要求</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg></button>
+                <div class="history-menu" hidden><button type="button" data-action="rename-history">重命名</button><button class="danger" type="button" data-action="delete-history">删除</button></div>
+              </article>
+              <article class="history-item" data-history-item data-search="最近一期监管指标">
+                <button class="history-open" type="button" data-history-question="查询最近一期主要监管统计指标">最近一期监管指标</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg></button>
+                <div class="history-menu" hidden><button type="button" data-action="rename-history">重命名</button><button class="danger" type="button" data-action="delete-history">删除</button></div>
+              </article>
+            </div>
+
+            <div class="role-history maintainer-history">
+              <article class="history-item" data-history-item data-search="金融资产风险分类">
+                <button class="history-open" type="button" data-history-question="商业银行金融资产风险分类的标准是什么？">金融资产风险分类</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg></button>
+                <div class="history-menu" hidden><button type="button" data-action="rename-history">重命名</button><button class="danger" type="button" data-action="delete-history">删除</button></div>
+              </article>
+              <article class="history-item" data-history-item data-search="统计指标口径核对">
+                <button class="history-open" type="button" data-history-question="查询最近一期主要监管统计指标">统计指标口径核对</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg></button>
+                <div class="history-menu" hidden><button type="button" data-action="rename-history">重命名</button><button class="danger" type="button" data-action="delete-history">删除</button></div>
+              </article>
+              <article class="history-item" data-history-item data-search="资本管理办法修订">
+                <button class="history-open" type="button" data-history-question="说明资本充足率要求并给出原文证据">资本管理办法修订</button>
+                <button class="history-more" type="button" data-action="toggle-history-menu" aria-label="管理对话" aria-expanded="false"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1"></circle><circle cx="10" cy="10" r="1"></circle><circle cx="16" cy="10" r="1"></circle></svg></button>
+                <div class="history-menu" hidden><button type="button" data-action="rename-history">重命名</button><button class="danger" type="button" data-action="delete-history">删除</button></div>
+              </article>
+            </div>
+            <div class="history-empty" data-history-empty hidden>没有匹配的对话</div>
+          </div>
+        </aside>
+
+        <div class="workspace-content">
+          <header class="topbar">
+            <div class="topbar-inner">
+              <div class="main-header-left">
+                <button class="sidebar-toggle" type="button" data-action="toggle-sidebar" aria-label="收起对话侧栏" aria-expanded="true">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"></rect><path d="M7.5 3.5v13"></path></svg>
+                </button>
+                <div class="view-context">
+                  <strong data-view-title>问答</strong>
+                  <span data-current-conversation>新对话</span>
+                </div>
+              </div>
+
+              <div class="account-area">
+                <button class="account-button" type="button" data-action="toggle-account" aria-expanded="false">
+                  <span class="avatar" data-user-avatar>林</span>
+                  <span class="account-copy">
+                    <strong data-user-name>林然</strong>
+                    <small data-user-role>企业成员</small>
+                  </span>
+                  <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"></path></svg>
+                </button>
+                <div class="account-menu" data-account-menu hidden>
+                  <div class="account-menu-profile">
+                    <span class="avatar" data-user-avatar>林</span>
+                    <div>
+                      <strong data-user-name>林然</strong>
+                      <span data-user-email>linran@example.com</span>
+                    </div>
+                  </div>
+                  <div class="account-menu-divider"></div>
+                  <button type="button" data-action="logout">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4.5v12H8M12 6l4 4-4 4M7 10h9"></path></svg>
+                    退出登录
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main class="workspace-main">
+        <section class="workspace-view chat-view" data-view="chat">
+          <div class="chat-scroll">
+            <div class="chat-empty" data-chat-empty>
+              <div class="knowledge-badge">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 16 5v4.4c0 4-2.4 6.8-6 8.1-3.6-1.3-6-4.1-6-8.1V5l6-2.5Z"></path><path d="m7 9.8 2 2 4-4"></path></svg>
+                可信监管知识库
+              </div>
+              <h1>有依据地查制度、找数据、做计算</h1>
+              <p class="chat-intro">从企业统一维护的监管资料中检索，并让每个结论都能回到原文。</p>
+              <div class="capability-grid">
+                <button class="capability-card" type="button" data-suggestion="商业银行金融资产风险分类的标准是什么？">
+                  <span class="capability-icon">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 7h17l7 7v13"></path><path d="M29 7v8h7M18 21h11M18 27h7"></path><circle cx="33" cy="34" r="7"></circle><path d="m38 39 5 5"></path></svg>
+                  </span>
+                  <strong>制度检索</strong>
+                  <span>定位条款、名单与监管要求</span>
+                </button>
+                <button class="capability-card" type="button" data-suggestion="查询最近一期主要监管统计指标">
+                  <span class="capability-icon">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="9" width="34" height="30" rx="3"></rect><path d="M7 18h34M19 18v21M30 18v21M7 28h34"></path><path d="M33 33h5"></path></svg>
+                  </span>
+                  <strong>数据取数</strong>
+                  <span>查询 Excel / PDF 统计指标</span>
+                </button>
+                <button class="capability-card" type="button" data-suggestion="对比两个季度的不良贷款率变化">
+                  <span class="capability-icon">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 14h22M7 14l6-6M7 14l6 6M28 34H7M28 34l-6-6M28 34l-6 6"></path><rect x="30" y="19" width="12" height="22" rx="2"></rect><path d="M33 24h6M34 30h1M38 30h1M34 35h1M38 35h1"></path></svg>
+                  </span>
+                  <strong>对比计算</strong>
+                  <span>完成跨期变化与多指标比较</span>
+                </button>
+                <button class="capability-card" type="button" data-suggestion="说明资本充足率要求并给出原文证据">
+                  <span class="capability-icon">
+                    <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5 39 11v11c0 10-6 17-15 21C15 39 9 32 9 22V11l15-6Z"></path><path d="m17 24 5 5 10-11"></path></svg>
+                  </span>
+                  <strong>证据回答</strong>
+                  <span>每个结论均可追溯原文</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="conversation" data-conversation hidden>
+              <div class="message-row message-row-user">
+                <div class="user-message">商业银行不良贷款分类的标准是什么？</div>
+              </div>
+              <article class="assistant-message">
+                <div class="assistant-mark">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6.4v5.9c0 5.3-3.2 9-8 10.7-4.8-1.7-8-5.4-8-10.7V6.4L12 3Z"></path><path d="m8.4 12.2 2.5 2.5 4.9-5.2"></path></svg>
+                </div>
+                <div class="assistant-content">
+                  <p>根据《商业银行金融资产风险分类办法》，商业银行应当按照风险程度将金融资产分为正常、关注、次级、可疑、损失五类，其中后三类合称不良资产。</p>
+                  <p>分类以债务人履约能力为中心，同时结合逾期天数、担保情况和预计损失等因素综合判断。原则上，逾期超过 90 天的金融资产至少归入次级类。</p>
+                  <button class="evidence-button" type="button" data-action="toggle-evidence">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h9l3 3V16.5H4v-13Z"></path><path d="M13 3.5v3h3M7 10h6M7 13h4"></path></svg>
+                    查看 2 条原文证据
+                    <svg class="chevron" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"></path></svg>
+                  </button>
+                  <div class="evidence-list" data-evidence-list hidden>
+                    <blockquote>
+                      <strong>《商业银行金融资产风险分类办法》第五条</strong>
+                      <p>金融资产按照风险程度分为五类：正常类、关注类、次级类、可疑类、损失类。后三类合称不良资产。</p>
+                    </blockquote>
+                    <blockquote>
+                      <strong>《商业银行金融资产风险分类办法》第十一条</strong>
+                      <p>商业银行应将逾期超过九十天的金融资产至少归为次级类。</p>
+                    </blockquote>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="composer-wrap">
+            <form class="composer" data-chat-form>
+              <textarea rows="1" placeholder="输入监管制度问题" data-chat-input></textarea>
+              <button type="submit" aria-label="发送问题">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 15V5M6 9l4-4 4 4"></path></svg>
+              </button>
+            </form>
+            <p>回答由企业知识库生成，请结合原文证据核验重要结论。</p>
+          </div>
+        </section>
+
+        <section class="workspace-view knowledge-view" data-view="knowledge" hidden>
+          <div class="knowledge-page">
+            <div class="page-heading">
+              <div>
+                <span class="eyebrow">企业共享知识库</span>
+                <h1>知识文档</h1>
+              </div>
+              <button class="primary-button upload-button" type="button" data-action="open-upload">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V3M6 7l4-4 4 4"></path><path d="M4 12v4h12v-4"></path></svg>
+                上传知识文档
+              </button>
+            </div>
+
+            <div class="knowledge-summary" aria-label="知识库摘要">
+              <div class="summary-item"><span class="summary-dot summary-dot-ready"></span><div><strong>481</strong><span>成功</span></div></div>
+              <div class="summary-item"><span class="summary-dot summary-dot-running"></span><div><strong>2</strong><span>进行中</span></div></div>
+              <div class="summary-item"><span class="summary-dot summary-dot-failed"></span><div><strong>1</strong><span>失败</span></div></div>
+              <p>最近更新：今天 10:32</p>
+            </div>
+
+            <div class="library-toolbar">
+              <label class="search-field">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"></circle><path d="m13.2 13.2 3.3 3.3"></path></svg>
+                <input type="search" placeholder="搜索文档名称" data-document-search>
+              </label>
+              <div class="filter-group" aria-label="状态筛选">
+                <button class="filter-chip is-active" type="button" data-status-filter="all">全部</button>
+                <button class="filter-chip" type="button" data-status-filter="ready">成功</button>
+                <button class="filter-chip" type="button" data-status-filter="running">进行中</button>
+                <button class="filter-chip" type="button" data-status-filter="failed">失败</button>
+              </div>
+            </div>
+
+            <div class="document-panel">
+              <div class="document-head document-grid" aria-hidden="true">
+                <span>序号</span><span>文件名</span><span>大小</span><span>入库状态</span><span>更新时间</span><span>操作</span>
+              </div>
+              <div class="document-list" data-document-list>
+                <article class="document-row document-grid" data-document-row data-status="ready" data-search="商业银行金融资产风险分类办法 pdf">
+                  <span class="serial-number">1</span>
+                  <div class="document-primary">
+                    <div><strong>《商业银行金融资产风险分类办法.pdf》</strong></div>
+                  </div>
+                  <span class="file-size-text">1.8 MB</span>
+                  <span class="status-pill status-ready">成功</span>
+                  <span class="updated-text">今天 10:20<small>王芳</small></span>
+                  <div class="row-actions">
+                    <button class="row-action" type="button" data-action="show-detail">详情</button>
+                    <button class="row-action row-action-delete" type="button" data-action="delete-document">删除</button>
+                  </div>
+                </article>
+
+                <article class="document-row document-grid" data-document-row data-status="running" data-search="商业银行资本管理办法 docx">
+                  <span class="serial-number">2</span>
+                  <div class="document-primary">
+                    <div><strong>《商业银行资本管理办法.docx》</strong></div>
+                  </div>
+                  <span class="file-size-text">3.2 MB</span>
+                  <span class="status-pill status-running">进行中</span>
+                  <span class="updated-text">今天 09:35<small>王芳</small></span>
+                  <div class="row-actions">
+                    <button class="row-action" type="button" data-action="show-detail">详情</button>
+                    <button class="row-action row-action-delete" type="button" data-action="delete-document">删除</button>
+                  </div>
+                </article>
+
+                <article class="document-row document-grid" data-document-row data-status="failed" data-search="银行业监管统计制度汇编 xlsx">
+                  <span class="serial-number">3</span>
+                  <div class="document-primary">
+                    <div><strong>《银行业监管统计制度汇编.xlsx》</strong></div>
+                  </div>
+                  <span class="file-size-text">786 KB</span>
+                  <span class="status-pill status-failed">失败</span>
+                  <span class="updated-text">昨天 16:40<small>陈思</small></span>
+                  <div class="row-actions">
+                    <button class="row-action" type="button" data-action="show-detail">详情</button>
+                    <button class="row-action row-action-delete" type="button" data-action="delete-document">删除</button>
+                  </div>
+                </article>
+
+                <article class="document-row document-grid" data-document-row data-status="ready" data-search="商业银行流动性风险管理办法 pdf">
+                  <span class="serial-number">4</span>
+                  <div class="document-primary">
+                    <div><strong>《商业银行流动性风险管理办法.pdf》</strong></div>
+                  </div>
+                  <span class="file-size-text">2.4 MB</span>
+                  <span class="status-pill status-ready">成功</span>
+                  <span class="updated-text">8 月 26 日<small>李敏</small></span>
+                  <div class="row-actions">
+                    <button class="row-action" type="button" data-action="show-detail">详情</button>
+                    <button class="row-action row-action-delete" type="button" data-action="delete-document">删除</button>
+                  </div>
+                </article>
+              </div>
+              <div class="document-empty" data-document-empty hidden>
+                <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h20v20H6zM10 12h12M10 17h8"></path></svg>
+                <strong>没有找到匹配的文档</strong>
+                <span>请修改搜索词或状态筛选。</span>
+              </div>
+            </div>
+          </div>
+        </section>
+          </main>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" data-upload-modal hidden>
+    <section class="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+      <div class="modal-header">
+        <div><span class="eyebrow">企业共享知识库</span><h2 id="upload-title">上传知识文档</h2></div>
+        <button class="icon-button" type="button" data-action="close-upload" aria-label="关闭">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"></path></svg>
+        </button>
+      </div>
+
+      <div class="upload-step" data-upload-step="select">
+        <button class="drop-zone" type="button" data-action="choose-file">
+          <span class="upload-illustration">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 4h13l7 7v17H6V4Z"></path><path d="M19 4v7h7M16 23V13M12 17l4-4 4 4"></path></svg>
+          </span>
+          <strong>拖放文件到这里，或点击选择</strong>
+        </button>
+        <input type="file" data-file-input hidden>
+
+        <div class="selected-file" data-selected-file hidden>
+          <span class="file-icon file-icon-pdf" data-selected-extension>PDF</span>
+          <div><strong data-selected-name>监管数据质量管理办法.pdf</strong><span data-selected-size>2.4 MB</span></div>
+          <button type="button" data-action="clear-file" aria-label="移除文件">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15"></path></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="upload-step progress-step" data-upload-step="progress" hidden>
+        <div class="progress-file">
+          <span class="file-icon file-icon-pdf">PDF</span>
+          <div><strong data-progress-name>监管数据质量管理办法.pdf</strong><span>正在安全写入企业共享知识库</span></div>
+          <strong data-progress-percent>46%</strong>
+        </div>
+        <div class="progress-track"><span data-progress-bar style="width: 46%"></span></div>
+        <ol class="ingestion-steps">
+          <li class="is-complete"><i><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"></path></svg></i><div><strong>保存原始文件</strong><span>文件已安全保存至对象存储</span></div></li>
+          <li class="is-active" data-progress-stage><i></i><div><strong>解析与切块</strong><span>正在提取文档结构与可检索内容</span></div></li>
+          <li><i></i><div><strong>建立检索索引</strong><span>生成向量与关键词索引</span></div></li>
+          <li><i></i><div><strong>启用新版本</strong><span>全部成功后才参与企业问答</span></div></li>
+        </ol>
+      </div>
+
+      <div class="modal-footer" data-upload-footer>
+        <button class="secondary-button" type="button" data-action="close-upload">取消</button>
+        <button class="primary-button upload-start-button" type="button" data-action="start-upload" disabled>开始入库</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" data-confirm-modal hidden>
+    <section class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-delete-title">
+      <div class="confirm-copy">
+        <h2 id="confirm-delete-title" data-confirm-title>删除对话？</h2>
+        <p data-confirm-message>这会删除当前对话。</p>
+      </div>
+      <div class="confirm-actions">
+        <button class="secondary-button" type="button" data-action="cancel-delete">取消</button>
+        <button class="danger-button" type="button" data-action="confirm-delete">删除</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" data-toast hidden>
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 16 5v4.4c0 4-2.4 6.8-6 8.1-3.6-1.3-6-4.1-6-8.1V5l6-2.5Z"></path><path d="m7 9.8 2 2 4-4"></path></svg>
+    <span data-toast-text>入库任务已创建</span>
+  </div>
+
+  <aside class="prototype-dock" aria-label="原型场景控制">
+    <div class="dock-heading"><span>原型场景</span><small>仅用于设计检查</small></div>
+    <button class="is-active" type="button" data-scene="login"><i></i>登录入口</button>
+    <button type="button" data-scene="member"><i></i>普通成员问答</button>
+    <button type="button" data-scene="maintainer"><i></i>维护者问答</button>
+    <button type="button" data-scene="knowledge"><i></i>知识库管理</button>
+    <button type="button" data-scene="upload"><i></i>上传与入库</button>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,209 +1,74 @@
-﻿# AGENTS.md
+# AGENTS.md
 
-本文件为 Codex (Codex.ai/code) 在此代码仓库中工作时提供指导。
+本文件只记录进入本仓库后必须遵守的协作规则。产品决策看 `CONTEXT.md`，运行说明看 `README.md`，架构与评测细节看 `docs/技术文档.md`。
 
-## 行为准则
+## 开始工作前
 
-偏向「谨慎」而不是「快」。琐碎的小任务可以灵活处理。
+- 本仓库是唯一允许维护的公开展示项目。未经用户重新授权，不读取、不复制、不修改同级比赛交付包、归档目录或其内容，包括 `trusted-rag-banking-delivery-without-models`。
+- 设计、拆票或开发前完整读取 `CONTEXT.md`；存在相关 `docs/adr/` 时一并读取。已确认决策是边界，尚未确认事项不得自行定案。
+- 功能工作先读取对应 GitHub Issue 的正文、标签和依赖关系；需求入口与操作约定见 `docs/agents/issue-tracker.md`，领域文档约定见 `docs/agents/domain.md`。
+- 缺少必要材料时直接说明并询问用户，不去范围外目录补找。
 
-### 1. 想清楚再写
+## 当前实现边界
 
-- 把假设明确说出来，不确定就问。
-- 有多种理解时，都摆出来，不要自己悄悄选一个。
-- 有更简单的做法就直说，该反对的时候反对。
-- 哪里不清楚就停下来，说清楚卡在哪，然后问。
+- 正式代码已包含 Manifest/命令行建库、FastAPI/React 问答、PostgreSQL 与 Alembic 基线，以及 Keycloak OIDC 登录、业务角色读取和问答访问控制。
+- `prototype/` 是正式 React 后续页面的视觉与交互基准。登录和账户区已接入正式前端；角色工作区、历史对话、知识库管理、上传与入库状态仍主要是静态原型。
+- 用户、对话、消息、知识文档、版本、任务和审计业务表尚未实现；Redis、MinIO、在线异步入库、持久化会话和服务端上下文预算也尚未实现。
+- 文档和代码说明必须区分“已实现”“静态原型”“已确认但尚未实现”，不得把发布评测快照描述成干净克隆可实时复核的运行结果。
 
-### 2. 简单优先
+## 不可破坏的产品与技术约束
 
-- 不加没要求的功能。
-- 不给一次性的任务搭通用框架。
-- 不加没要求的「灵活性」或「可配置」。
-- 不为不可能发生的情况提前操心。
-- 交付明显比需要的多时，砍到刚好够用再交。
-- 自检：一个资深的人会不会觉得这过度复杂了？会的话就简化。
+- 系统只服务一个企业和一套企业共享知识库，不扩展为多租户或个人知识库。
+- 业务角色只有 `member` 和 `knowledge_maintainer`；Keycloak 系统管理员不等于知识库维护者。授权只相信后端验证后的令牌身份，请求正文自报角色和前端隐藏按钮都不能代替后端鉴权。
+- PostgreSQL 保存业务事实，MinIO 保存原始文件及版本，Redis 负责异步任务协调，Qdrant 保存向量索引，BM25 保存关键词索引；不要让其中一个组件越权承担其他组件职责。
+- 正式问答 API 不返回 `confidence`。`choice` 只属于选择题评测适配层，不进入开放问答接口；无法确定选项时标记 `unparseable`，不使用 LLM Judge 代替正式判分。
+- 原型已经确认的页面按原型实现；确有技术冲突时先说明，不静默重新设计。
+- 不提交 `.env`、真实密码、令牌、客户端密钥、模型缓存、原始资料、Chunk、BM25 文件或 Qdrant 数据。`keycloak/realm-export.json` 中明确标注的本地公开演示凭证是唯一例外，不得复用到真实环境。
 
-### 3. 外科手术式改动
+## 修改与验证规则
 
-- 不去「改进」没让你碰的内容或格式。
-- 不翻新没坏的东西，跟着原本的风格走。
-- 看到无关的原有多余内容，提一句就行，不要删。
-- 只收拾这次改动产生的多余东西，原有内容不让删就不删。
-- 每一处改动都要能直接追溯到需求。
+- 开始改动前明确目标、范围和可验证的完成标准；会实质影响结果的歧义必须先说明或询问。
+- 只做当前 Issue 直接要求的改动，不顺手重构、格式化或清理无关内容。
+- working tree 可能包含用户或其他任务的未提交改动。修改前先检查差异，保留来源不明的内容；提交时只选择性暂存本工单文件。
+- 优先通过公开接口验证行为。后端主要测试缝隙是 FastAPI HTTP API + TestClient；身份、Keycloak、Redis、MinIO、Qdrant 和模型通过可控依赖或适配器隔离。
+- 数据库集成测试使用真实 PostgreSQL，并只允许连接名称以 `_test` 结尾的可丢弃数据库；不得把开发库或展示数据当测试库。
+- 前端至少运行自动化测试和生产构建；涉及已确认页面时，再按 `prototype/` 人工核对关键视觉与交互。
+- 明确区分单元/模拟测试、真实依赖集成、浏览器验证和外部业务验收。健康检查成功不等于端到端问答可用。
+- 改变当前能力边界时，同步更新 `CONTEXT.md`、`README.md` 和 `docs/技术文档.md` 中直接受影响的状态说明。
 
-### 4. 目标驱动执行
+## 常用入口
 
-- 先定清楚「做到什么算成功」，再对着标准执行到达标。
-- 多步任务先给一个简短计划，每步对应一个验证点。
-- 成功标准要足够具体，能自己对答案；标准太虚（比如「弄好就行」）就停下来问。
-
-## 项目概述
-
-面向银行业监管制度与统计报表的可信 RAG（检索增强生成）问答系统。参赛项目：第五届中国研究生金融科技创新大赛·南京银行赛题。系统解析 Word/PDF/Excel 监管文件，将其索引至 Qdrant 向量集合，执行混合检索，并生成强制附带证据引用的有据答案。
-
-## 常用命令
-
-### 环境初始化（首次·本地开发）
+完整命令和数据准备步骤以 `README.md` 为准。日常开发常用：
 
 ```bash
 uv sync --frozen
-cp .env.example .env           # 填入 OPENAI_API_KEY 等
-docker compose up qdrant -d   # 仅启动 Qdrant，监听 localhost:6333
+test -f .env || cp .env.example .env
+docker compose up -d postgres keycloak qdrant
+uv run --frozen alembic upgrade head
+
+uv run --frozen python -m uvicorn src.api.main:app --reload
+uv run --frozen python -m pytest tests/ -v
+
+cd src/frontend
+npm ci
+npm test
+npm run build
 ```
 
-### 构建知识库
+真实 PostgreSQL 集成测试：
 
 ```bash
-# 1. 自动分类 manifest（首次或有新文件时）
-uv run --frozen python scripts/classify_manifest.py        # 写入 parse_profile 字段
-uv run --frozen python scripts/classify_manifest.py --dry-run  # 只打印统计，不写入
-
-# 2. 解析原始文件 → JSONL chunks（需要 data/raw/ 下有原始文件）
-uv run --frozen python scripts/ingest.py
-
-# 3. 向量入库 + 构建 BM25（需要 Qdrant 已启动）
-uv run --frozen python scripts/build_index.py
+docker compose --profile test up -d --wait postgres-test
+TRUSTED_RAG_TEST_DATABASE_URL=postgresql+psycopg://trusted_rag_test:trusted_rag_test@localhost:5433/trusted_rag_test \
+  uv run --frozen python -m pytest tests/ -v
+docker compose --profile test stop postgres-test
+docker compose --profile test rm -f postgres-test
 ```
 
-`build_index.py` 支持断点续传：自动检测 Qdrant `points_count`，从已有进度继续索引。中断后重新运行即可。若 chunk 内容有变更（重新切块后），需先清空集合再重建：
+单文档数据修复必须使用 `scripts/update_documents.py`：默认先预览，确认后再传 `--apply`。不得用会重建全量 Chunk 的 `scripts/ingest.py` 代替单文档更新。
 
-```bash
-uv run --frozen python -c "from qdrant_client import QdrantClient; c=QdrantClient('localhost',port=6333); c.delete_collection('regulations'); c.delete_collection('tables')"
-uv run --frozen python scripts/build_index.py
-```
+## Git 约定
 
-### 启动服务（本地开发）
-
-```bash
-uv run --frozen python -m uvicorn src.api.main:app --reload   # 后端 http://localhost:8000
-cd src/frontend && npm run dev      # 前端开发服务器 http://localhost:5173
-cd src/frontend && npm run build    # 构建前端产物至 src/frontend/dist/
-```
-
-### Docker 全栈部署
-
-```bash
-docker compose up -d                # 启动 qdrant + backend + frontend
-# 前端：http://localhost  后端：http://localhost:8000  Qdrant：localhost:6333
-```
-
-`backend` 容器启动时会先运行 `scripts/build_index.py`，再启动 API 服务。容器通过 volume 挂载 `HF_HOME` 指定的宿主机 HuggingFace 模型缓存，避免重复下载模型。
-
-### 测试与评测
-
-```bash
-uv run --frozen python -m pytest tests/ -v                                  # 全部测试
-uv run --frozen python -m pytest tests/test_parser.py -v                    # 单个测试文件
-uv run --frozen python -m pytest tests/test_api.py::test_health -v          # 单个测试用例
-uv run --frozen python scripts/run_eval.py                                  # 端到端评测 → data/eval/eval_report.json
-uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke # 指定题号 → data/eval/runs/smoke/
-```
-
-`run_eval.py` 支持断点续传：使用 `--run-name` 时，每题结果与报告隔离写入 `data/eval/runs/<run-name>/`（已 gitignore）；不指定时继续使用原有路径。评测模式要求模型返回结构化 `choice`，按“结构化选项 → 回答中的明确选项 → 规范化选项文本”确定性判分；仍无法判断时标记 `unparseable`，不调用 LLM Judge。单题异常不会中断整轮。脚本内置 `HF_HUB_OFFLINE=1`，本地模型离线加载，不受代理影响。
-
-### 真实数据解析检查
-
-```bash
-uv run --frozen python scripts/check_chunk_quality.py --suffix .xls --limit-files 2 --sample-chunks 2
-uv run --frozen python scripts/check_chunk_quality.py --suffix .doc --limit-files 2 --sample-chunks 2
-uv run --frozen python scripts/check_chunk_quality.py --suffix .pdf --limit-files 2 --sample-chunks 2
-```
-
-### `.doc` 转 `.docx`
-
-```bash
-uv run --frozen python scripts/convert_doc_with_libreoffice.py --soffice "C:\Program Files\LibreOffice\program\soffice.exe" --force --timeout-seconds 60
-```
-
-转换产物写入 `data/converted/docx/`，该目录不提交到 Git。
-
-## 系统架构
-
-五层流水线，数据严格单向流动：
-
-```text
-Parser → Indexer → Retriever → Generator → API/Frontend
-```
-
-## 各层说明
-
-- **`src/parser/`**：将原始文档转换为 `Chunk` 对象（见 `base.py`）。四个解析器：`WordParser`（`.doc/.docx`，含表格提取和合并单元格去重）、`PdfParser`（按字号判断标题切分段落）、`ExcelParser`（双轮提取：数值单元格 + 非数值文本单元格如脚注/指标定义，支持 `.xls/.xlsx`）、`PdfTableParser`（用 pdfplumber 提取 PDF 表格）。`chunk_processor.py` 提供按 profile 的后处理管道（子条款切分、超长切分、上下文增强）。输出写入 `data/chunks/`（JSONL 格式）。
-- **`src/indexer/`**：两个并行子系统：`QdrantIndex` 对两个命名集合（`regulations` 存条款 chunk，`tables` 存表格行 chunk）执行向量检索；`BM25Index` 对全量 chunk 做关键词检索，持久化至 `data/bm25_index.pkl`。`Embedder` 使用本地 `BAAI/bge-large-zh-v1.5`（1024 维，sentence-transformers 推理）。
-- **`src/retriever/`**：`QueryRouter` 在调用方未提供 `query_type` 时调用 LLM，将查询分类为 `regulation | table | hybrid | out_of_scope`；正常 `AnswerBuilder` 流程由前置问题分析直接提供类型。主入口 `HybridRetriever.retrieve()`：明确来源且不超过 20 个 chunk 时可按页序返回全量；否则文件标题精确命中时限定来源，近似命中时保留全库候选并追加标题候选，再经 BM25、向量检索、RRF 和 `CrossEncoder` 精排。制度类结果会补充同章节或同父块上下文，并记录候选数量与阶段耗时。
-- **`src/generator/`**：`QueryDecomposer` 先用确定性规则判断类型并拆分表格双指标、选项比较、多事实陈述，以及选项中明确引用的其他文件；只有无法明确判断时才调用 LLM，失败回退 `hybrid`。`AnswerBuilder.answer()` 对表格使用行指标/列口径过滤，对制度使用标题/章节上下文；覆盖状态分为 `supported | not_supported | missing`，相邻同父块或同章节 chunk 可合并判断，且仅对 `missing` 补搜一次。正式 LLM 输出包含 `answer`、`evidence[]`、`refuse_reason`。`LLMClient.chat()` 接受 `history` 参数，响应为空或调用异常时自动重试 3 次（指数退避）。
-- **`src/api/`**：FastAPI 应用。主要路由为 `POST /api/ask`（支持 `history` 字段实现多轮对话）、`POST /api/ingest`、`GET /api/health`。存在前端构建产物时，后端也可在 `/` 提供页面；Docker 部署时由 nginx 反向代理 `/api/` 到 backend 容器。
-- **`src/frontend/`**：React 18 + Vite，无 UI 框架（纯 CSS）。开发时 Vite 将 `/api/*` 代理至 `localhost:8000`。组件包括 `ChatInput`、`MessageList`（含空状态）、`AnswerCard`（用户消息气泡 + 助手回答卡片）、`EvidencePanel`（可折叠证据引用）。前端维护 messages 数组，每次请求携带 history 实现多轮上下文。
-
-## Parse Profile 路由
-
-`data/manifest.json` 每条记录可包含 `parse_profile` 字段，由 `scripts/classify_manifest.py` 自动分类：
-
-| profile | 适用场景 | 解析策略 |
-|---|---|---|
-| `regulation` | 监管制度文件（Word/PDF） | 子条款切分 + 600 字上限 |
-| `report` | 年报/报告类 PDF | 不切子条款 + 800 字上限 + 英文标点 |
-| `data` | 统计数据 Excel | ExcelParser 单元格级 |
-| `pdf_table` | 统计 PDF | PdfTableParser（pdfplumber） |
-| `skip` | 计算模板/签章页等无用文件 | 跳过不解析 |
-
-`scripts/ingest.py` 根据 profile 路由到对应解析器和后处理策略。`scripts/classify_manifest.py` 不会覆盖已有 `parse_profile` 的条目。个别文件有硬编码特例（NFRA-010 → data，NFRA-361 → regulation，NFRA-449 → skip）。
-
-## 核心数据契约
-
-**Chunk 结构**（定义于 `src/parser/base.py`）：所有解析器均输出 `Chunk` dataclass 实例。表格证据可包含 `table_name`、`indicator`、`period`、`unit`、`row_index`、`cell_ref`、`row_label`、`column_header`、`raw_value`；PDF/段落证据可包含 `page_no` 与 `section_path`；`parent_chunk_id` 用于子条款追溯父块。`to_dict()` 会自动忽略值为 `None` 的字段。
-
-**`retrieve()` 签名**（`src/retriever/hybrid_retriever.py`）：
-
-```python
-def retrieve(query: str, query_type: str = None, filters: dict = None,
-             top_k: int = 5, title_hint: str = None,
-             full_source: bool = False) -> list[dict]
-```
-
-**`/api/ask` 请求**：`question`（必填）、`filters`（可选）、`history`（可选，`[{role, content}]` 数组）。
-
-**`/api/ask` 响应**：固定返回 `answer`、`evidence[]`（含 `source_title`、`section`、`text`、`source_url`）、`refuse_reason`（null 或字符串）、`latency_ms`。
-
-## 接口与评测决策
-
-- 正式问答接口不返回 `confidence`，也不使用新的主观置信度字段替代它。
-- `choice` 只属于选择题评测适配层，不进入正式前端的开放问答接口。评测模式可要求模型结构化返回 `choice`（`A/B/C/D`）和 `answer`，正式 `/api/ask` 仍返回自然语言答案与证据。
-- 正式选择题判分使用确定性规则（结构化选项、回答中的明确选项、规范化选项文本）；无法确定时标记 `unparseable` 并人工复核，不调用 LLM Judge。
-
-## 环境变量（`.env`）
-
-| 变量 | 用途 |
-|---|---|
-| `OPENAI_API_KEY` | 回答生成及选择题评测必填 |
-| `OPENAI_BASE_URL` | API 基础地址，可替换为兼容代理 |
-| `EMBED_MODEL` | 本地向量模型，默认 `BAAI/bge-large-zh-v1.5` |
-| `LLM_MODEL` | 对话模型，默认 `gpt-4o-mini` |
-| `QDRANT_HOST/PORT` | Qdrant 连接地址，默认 `localhost:6333` |
-| `RERANKER_MODEL` | HuggingFace 交叉编码器，默认 `BAAI/bge-reranker-base` |
-| `HF_HOME` | HuggingFace 模型缓存目录；开发者需自行设置，Docker Compose 将该目录挂载到 backend 容器 |
-| `HF_HUB_OFFLINE` | 设为 `1` 时只使用本地模型缓存，避免启动时联网检查 |
-
-## 分支策略
-
-`main` 是唯一最新基线、默认开发分支和当前可演示版本，不再使用 `dev` 作为集成分支。日常修改直接在最新 `main` 上开发和提交；提交前必须选择性暂存并完成相应验证。只有用户或维护者明确要求隔离开发或代码评审时，才临时创建功能分支并使用 PR。
-
-## 当前知识库规模
-
-- 总 chunk 数：38,494（clause 8,945 + table 29,549）
-- 覆盖文档：481 / 500（19 个 `skip`）
-- 平均 chunk 长度：约 130 字
-- 评测基线：首轮 300 题准确率 41%（拒答率 50% 为主要失分），报告见 `data/eval/eval_report.json`；生成层健壮性优化（重试/拒答校准/top_k=8）后的复测待跑
-- 当前无 `<20` 字碎片；两套 chunk JSONL 的 `chunk_id` 均全局唯一
-
-## 已完成的单文档数据修复与剩余题库待办
-
-- `ExcelParser` 已支持多层行头、多层季度列头和重复表格区块；`PdfParser` 已保留标题正文、编号列表项并修正“大字号正文被误判为标题”。
-- `NFRA-128`、`NFRA-130`、`NFRA-132`、`NFRA-467` 已完成正式 chunk 替换、单文档 Qdrant 向量更新和统一 BM25 重建。更新后数量分别为 165、266、30、25；Qdrant 集合总数为 regulations 8,945、tables 29,549。
-- `NFRA-467` 的编号公司条目已继承“保险控股型集团”父级 `section_path`，并完成单文档重新解析、Qdrant 更新和 BM25 重建；Q214、Q220、Q226、Q232 复测为 4/4。
-- `WordParser` 的正文 chunk ID 已加入文档内顺序号，22 个受影响 Word 文档已完成定向重切、Qdrant 更新和 BM25 重建；`clause_chunks.jsonl` 从 96 个重复 ID 修复为 8,945 行、8,945 个唯一 ID。Qdrant 大文档更新按 64 个 point 分批上传，避免单请求超过服务端 32 MB 限制。
-- `scripts/update_documents.py` 提供按 `doc_id` 的安全更新入口；默认只预览，传入 `--apply` 才会写入。它会备份两套 chunk、BM25 和目标文档旧向量，验证非目标 chunk 未变化，并在失败时回滚。不得用会清空全量 chunk 的 `scripts/ingest.py` 代替该入口做单文档修复。
-- 受影响且题意明确的 16 题已复测通过。Q074 已明确限定“1. 银行业金融机构”区块，分解器会把显式区块带入两个表格取数目标；首轮报告见 `data/eval/runs/rechunk-four-docs-v1/`，Q074 修正复测见 `data/eval/runs/rechunk-q074-section-v1/`。
-- Q075 同时跨越“银行业金融机构”和“商业银行合计”两个区块，当前题干不能唯一表达两个取数位置；题库保留原题并标记 `eval_status=excluded_ambiguous`，默认评测跳过，显式 `--ids Q075` 仍可用于诊断。
-
-## 入库 Manifest
-
-`data/manifest.json` 驱动 `scripts/ingest.py`，当前包含 500 条文件记录，覆盖 `.doc`、`.docx`、`.pdf`、`.xls`、`.xlsx`。每条记录包含 `doc_id`、`title`、`issuer`、`doc_no`、`publish_date`、`source_url`、`local_path`、`parse_profile`。脚本按 `parse_profile`（优先）和后缀名路由解析器。`data/raw/` 与 `data/converted/` 目录不提交到 Git。
+- `main` 是唯一最新基线和默认开发分支；只有用户明确要求隔离开发或评审时才创建功能分支。
+- 提交前检查 staged diff、验证结果和 Author/Committer；不要把无关 dirty work 混入提交。
+- 推送、创建 PR、关闭 Issue 或发布外部结果必须符合用户当前授权和对应流程，不能从“实现完成”自行推断。
