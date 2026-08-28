@@ -11,13 +11,13 @@ from src.auth import Identity, get_current_identity
 from src.database import Database, get_database
 
 
-def _identity(subject: str) -> Identity:
+def _identity(subject: str, role: str = "member") -> Identity:
     return Identity(
         subject=subject,
         username=subject,
         display_name=f"用户 {subject}",
         email=None,
-        roles=frozenset({"member"}),
+        roles=frozenset({role}),
     )
 
 
@@ -51,7 +51,10 @@ def test_member_creates_and_reads_only_their_conversation(conversation_client):
     assert restored.status_code == 200
     assert restored.json() == conversation
 
-    app.dependency_overrides[get_current_identity] = lambda: _identity("member-2")
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "maintainer-2",
+        "knowledge_maintainer",
+    )
     hidden = conversation_client.get(
         f"/api/conversations/{conversation['id']}"
     )
@@ -265,3 +268,88 @@ def test_conversation_request_rejects_an_oversized_request_id(
     )
 
     assert response.status_code == 422
+
+
+def _complete_question(client, conversation_id, request_id, question):
+    answer = {
+        "answer": f"{question}的回答",
+        "evidence": [],
+        "refuse_reason": None,
+        "latency_ms": 1,
+    }
+    with patch("src.api.routes.builder.answer", return_value=answer):
+        response = client.post("/api/ask/stream", json={
+            "conversation_id": conversation_id,
+            "request_id": request_id,
+            "question": question,
+        })
+    assert response.status_code == 200
+
+
+def test_member_lists_searches_and_pages_only_their_titled_conversations(
+    conversation_client,
+):
+    first_id = conversation_client.post("/api/conversations").json()["id"]
+    _complete_question(conversation_client, first_id, "first", "资本充足率要求")
+    second_id = conversation_client.post("/api/conversations").json()["id"]
+    _complete_question(conversation_client, second_id, "second", "不良贷款分类标准")
+
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "maintainer-2",
+        "knowledge_maintainer",
+    )
+    other_id = conversation_client.post("/api/conversations").json()["id"]
+    _complete_question(conversation_client, other_id, "other", "不应看见的对话")
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member-1")
+
+    first_page = conversation_client.get("/api/conversations", params={"limit": 1})
+    assert first_page.status_code == 200
+    assert [(item["id"], item["title"]) for item in first_page.json()["items"]] == [
+        (second_id, "不良贷款分类标准"),
+    ]
+    assert first_page.json()["next_cursor"]
+
+    second_page = conversation_client.get("/api/conversations", params={
+        "limit": 1,
+        "cursor": first_page.json()["next_cursor"],
+    })
+    assert [(item["id"], item["title"]) for item in second_page.json()["items"]] == [
+        (first_id, "资本充足率要求"),
+    ]
+    assert second_page.json()["next_cursor"] is None
+
+    searched = conversation_client.get("/api/conversations", params={
+        "search": "贷款",
+    })
+    assert [item["id"] for item in searched.json()["items"]] == [second_id]
+
+
+def test_member_renames_and_logically_deletes_only_their_conversation(
+    conversation_client,
+):
+    conversation_id = conversation_client.post("/api/conversations").json()["id"]
+    _complete_question(conversation_client, conversation_id, "owned", "原始标题")
+
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member-2")
+    assert conversation_client.patch(
+        f"/api/conversations/{conversation_id}",
+        json={"title": "越权修改"},
+    ).status_code == 404
+    assert conversation_client.delete(
+        f"/api/conversations/{conversation_id}"
+    ).status_code == 404
+
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member-1")
+    renamed = conversation_client.patch(
+        f"/api/conversations/{conversation_id}",
+        json={"title": "资本管理重点"},
+    )
+    assert renamed.status_code == 200
+    assert renamed.json()["title"] == "资本管理重点"
+
+    deleted = conversation_client.delete(f"/api/conversations/{conversation_id}")
+    assert deleted.status_code == 204
+    assert conversation_client.get(
+        f"/api/conversations/{conversation_id}"
+    ).status_code == 404
+    assert conversation_client.get("/api/conversations").json()["items"] == []

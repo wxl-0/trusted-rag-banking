@@ -4,24 +4,35 @@ export default function EvidencePanel({ evidence }) {
   const [open, setOpen] = useState(false)
   if (!evidence || evidence.length === 0) return null
   return (
-    <div className="evidence-section">
-      <button className="evidence-toggle" onClick={() => setOpen(!open)}>
-        {open ? '▲' : '▼'} 证据来源 ({evidence.length})
+    <>
+      <button
+        className={`evidence-button ${open ? 'is-open' : ''}`}
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M4 3.5h9l3 3V16.5H4v-13Z" />
+          <path d="M13 3.5v3h3M7 10h6M7 13h4" />
+        </svg>
+        查看 {evidence.length} 条原文证据
+        <svg className="evidence-chevron" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="m6 8 4 4 4-4" />
+        </svg>
       </button>
       {open && (
         <div className="evidence-list">
           {evidence.map((e, i) => (
-            <div key={i} className="evidence-item">
-              <span className="ev-title">《{e.source_title}》</span>
-              {e.section && <span className="ev-section"> · {e.section}</span>}
-              <div className="ev-text">"{e.text}"</div>
+            <blockquote key={i}>
+              <strong>《{e.source_title}》{e.section}</strong>
+              <p>{e.text}</p>
               {e.source_url && (
-                <a href={e.source_url} target="_blank" rel="noreferrer" className="ev-link">查看原文</a>
+                <a href={e.source_url} target="_blank" rel="noreferrer">查看原文</a>
               )}
-            </div>
+            </blockquote>
           ))}
         </div>
       )}
-    </div>
+    </>
   )
 }

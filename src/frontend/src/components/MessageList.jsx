@@ -3,7 +3,7 @@ import EmptyState from './EmptyState'
 
 export default function MessageList({ messages }) {
   return (
-    <div className="message-list">
+    <div className={`message-list ${messages.length ? 'has-messages' : ''}`}>
       {messages.length === 0 && (
         <EmptyState />
       )}

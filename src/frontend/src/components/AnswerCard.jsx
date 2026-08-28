@@ -25,8 +25,14 @@ export default function AnswerCard({ message }) {
   }
   const { answer, evidence, refuse_reason, latency_ms } = message.content
   return (
-    <div className="msg-assistant">
-      <div className="answer-card">
+    <article className="assistant-message">
+      <div className="assistant-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3 20 6.4v5.9c0 5.3-3.2 9-8 10.7-4.8-1.7-8-5.4-8-10.7V6.4L12 3Z" />
+          <path d="m8.4 12.2 2.5 2.5 4.9-5.2" />
+        </svg>
+      </div>
+      <div className="assistant-content">
         {refuse_reason ? (
           <div className="refuse">{refuse_reason}</div>
         ) : (
@@ -41,6 +47,6 @@ export default function AnswerCard({ message }) {
           </>
         )}
       </div>
-    </div>
+    </article>
   )
 }

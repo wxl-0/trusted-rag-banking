@@ -1,7 +1,9 @@
 import asyncio
+import base64
 import json
 import subprocess
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from uuid import UUID
 
@@ -9,8 +11,11 @@ from src.api.models import (
     AskRequest,
     AskResponse,
     ConversationResponse,
+    ConversationListResponse,
+    ConversationSummaryResponse,
     IdentityResponse,
     IngestRequest,
+    RenameConversationRequest,
 )
 from src.auth import Identity, get_current_identity
 from src.conversations import Conversation, ConversationMessage, ConversationStore
@@ -63,6 +68,7 @@ def _conversation_response(
     return ConversationResponse(
         id=conversation.id,
         owner_subject=conversation.owner_subject,
+        title=conversation.title,
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
         messages=[_message_response(message) for message in (messages or [])],
@@ -86,6 +92,80 @@ def create_conversation(
 ):
     conversation = ConversationStore(database).create(identity.subject)
     return _conversation_response(conversation)
+
+
+def _encode_cursor(conversation: Conversation) -> str:
+    value = f"{conversation.updated_at.isoformat()}|{conversation.id}"
+    return base64.urlsafe_b64encode(value.encode()).decode()
+
+
+def _decode_cursor(cursor: str | None) -> tuple[datetime, UUID] | None:
+    if not cursor:
+        return None
+    try:
+        timestamp, conversation_id = base64.urlsafe_b64decode(
+            cursor.encode()
+        ).decode().rsplit("|", 1)
+        return datetime.fromisoformat(timestamp), UUID(conversation_id)
+    except (ValueError, UnicodeDecodeError):
+        raise HTTPException(status_code=400, detail="cursor 无效")
+
+
+@router.get("/conversations", response_model=ConversationListResponse)
+def list_conversations(
+    search: str | None = None,
+    cursor: str | None = None,
+    limit: int = Query(default=20, ge=1, le=100),
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
+):
+    conversations = ConversationStore(database).list_owned(
+        identity.subject,
+        search=search.strip() if search and search.strip() else None,
+        before=_decode_cursor(cursor),
+        limit=limit + 1,
+    )
+    has_more = len(conversations) > limit
+    items = conversations[:limit]
+    return {
+        "items": items,
+        "next_cursor": _encode_cursor(items[-1]) if has_more else None,
+    }
+
+
+@router.patch(
+    "/conversations/{conversation_id}",
+    response_model=ConversationSummaryResponse,
+)
+def rename_conversation(
+    conversation_id: UUID,
+    request: RenameConversationRequest,
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
+):
+    conversation = ConversationStore(database).rename_owned(
+        conversation_id,
+        identity.subject,
+        request.title,
+    )
+    if conversation is None:
+        raise _conversation_not_found()
+    return conversation
+
+
+@router.delete("/conversations/{conversation_id}", status_code=204)
+def delete_conversation(
+    conversation_id: UUID,
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
+):
+    deleted = ConversationStore(database).delete_owned(
+        conversation_id,
+        identity.subject,
+    )
+    if not deleted:
+        raise _conversation_not_found()
+    return Response(status_code=204)
 
 
 @router.get("/conversations/{conversation_id}", response_model=ConversationResponse)

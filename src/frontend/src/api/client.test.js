@@ -4,7 +4,10 @@ import test from 'node:test'
 import {
   askQuestionStream,
   createConversation,
+  deleteConversation,
   fetchConversation,
+  listConversations,
+  renameConversation,
   toDisplayMessages,
 } from './client.js'
 
@@ -126,4 +129,32 @@ test('fetchConversation returns null for an unavailable active conversation', as
   } finally {
     globalThis.fetch = originalFetch
   }
+})
+
+test('history client lists renames and deletes conversations', async () => {
+  const originalFetch = globalThis.fetch
+  const calls = []
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push([url, options])
+    if (options.method === 'DELETE') return new Response(null, { status: 204 })
+    return new Response(JSON.stringify(
+      options.method === 'PATCH'
+        ? { id: 'c1', title: '新标题' }
+        : { items: [{ id: 'c1', title: '旧标题' }], next_cursor: null },
+    ), { status: 200 })
+  }
+
+  try {
+    await listConversations('贷款', null, 'token')
+    await renameConversation('c1', '新标题', 'token')
+    await deleteConversation('c1', 'token')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
+  assert.equal(calls[0][0], '/api/conversations?search=%E8%B4%B7%E6%AC%BE')
+  assert.equal(calls[0][1].headers.Authorization, 'Bearer token')
+  assert.deepEqual(JSON.parse(calls[1][1].body), { title: '新标题' })
+  assert.equal(calls[1][1].method, 'PATCH')
+  assert.equal(calls[2][1].method, 'DELETE')
 })

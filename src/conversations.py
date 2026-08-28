@@ -12,6 +12,7 @@ from src.database import Database
 class Conversation:
     id: UUID
     owner_subject: str
+    title: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -43,7 +44,7 @@ class ConversationStore:
                     """
                     INSERT INTO conversations (id, owner_subject, created_at, updated_at)
                     VALUES (:id, :owner_subject, :created_at, :updated_at)
-                    RETURNING id, owner_subject, created_at, updated_at
+                    RETURNING id, owner_subject, title, created_at, updated_at
                     """
                 ),
                 {
@@ -60,14 +61,100 @@ class ConversationStore:
             row = session.execute(
                 text(
                     """
-                    SELECT id, owner_subject, created_at, updated_at
+                    SELECT id, owner_subject, title, created_at, updated_at
                     FROM conversations
                     WHERE id = :id AND owner_subject = :owner_subject
+                      AND deleted_at IS NULL
                     """
                 ),
                 {"id": conversation_id, "owner_subject": owner_subject},
             ).mappings().one_or_none()
         return Conversation(**row) if row else None
+
+    def list_owned(
+        self,
+        owner_subject: str,
+        *,
+        search: str | None,
+        before: tuple[datetime, UUID] | None,
+        limit: int,
+    ) -> list[Conversation]:
+        conditions = [
+            "owner_subject = :owner_subject",
+            "deleted_at IS NULL",
+            "title IS NOT NULL",
+        ]
+        params: dict = {"owner_subject": owner_subject, "limit": limit}
+        if search:
+            conditions.append("title ILIKE :search")
+            params["search"] = f"%{search}%"
+        if before:
+            conditions.append("(updated_at, id) < (:before_updated_at, :before_id)")
+            params["before_updated_at"], params["before_id"] = before
+
+        with self.database.session() as session:
+            rows = session.execute(
+                text(
+                    f"""
+                    SELECT id, owner_subject, title, created_at, updated_at
+                    FROM conversations
+                    WHERE {' AND '.join(conditions)}
+                    ORDER BY updated_at DESC, id DESC
+                    LIMIT :limit
+                    """
+                ),
+                params,
+            ).mappings().all()
+        return [Conversation(**row) for row in rows]
+
+    def rename_owned(
+        self,
+        conversation_id: UUID,
+        owner_subject: str,
+        title: str,
+    ) -> Conversation | None:
+        now = datetime.now(timezone.utc)
+        with self.database.session() as session, session.begin():
+            row = session.execute(
+                text(
+                    """
+                    UPDATE conversations
+                    SET title = :title, updated_at = :updated_at
+                    WHERE id = :id AND owner_subject = :owner_subject
+                      AND deleted_at IS NULL
+                    RETURNING id, owner_subject, title, created_at, updated_at
+                    """
+                ),
+                {
+                    "id": conversation_id,
+                    "owner_subject": owner_subject,
+                    "title": title,
+                    "updated_at": now,
+                },
+            ).mappings().one_or_none()
+        return Conversation(**row) if row else None
+
+    def delete_owned(self, conversation_id: UUID, owner_subject: str) -> bool:
+        now = datetime.now(timezone.utc)
+        with self.database.session() as session, session.begin():
+            deleted_id = session.execute(
+                text(
+                    """
+                    UPDATE conversations
+                    SET deleted_at = :deleted_at, updated_at = :updated_at
+                    WHERE id = :id AND owner_subject = :owner_subject
+                      AND deleted_at IS NULL
+                    RETURNING id
+                    """
+                ),
+                {
+                    "id": conversation_id,
+                    "owner_subject": owner_subject,
+                    "deleted_at": now,
+                    "updated_at": now,
+                },
+            ).scalar_one_or_none()
+        return deleted_id is not None
 
     def list_messages(self, conversation_id: UUID) -> list[ConversationMessage]:
         with self.database.session() as session:
@@ -245,11 +332,25 @@ class ConversationStore:
                 text(
                     """
                     UPDATE conversations
-                    SET updated_at = :updated_at
+                    SET updated_at = :updated_at,
+                        title = COALESCE(
+                            title,
+                            (
+                                SELECT content
+                                FROM conversation_messages
+                                WHERE conversation_id = :conversation_id
+                                  AND request_id = :request_id
+                                  AND role = 'user'
+                            )
+                        )
                     WHERE id = :conversation_id
                     """
                 ),
-                {"conversation_id": conversation_id, "updated_at": now},
+                {
+                    "conversation_id": conversation_id,
+                    "request_id": request_id,
+                    "updated_at": now,
+                },
             )
             row = session.execute(
                 text(

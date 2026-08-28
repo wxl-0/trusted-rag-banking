@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional, List
 
 
@@ -54,6 +54,7 @@ class IdentityResponse(BaseModel):
 class ConversationResponse(BaseModel):
     id: UUID
     owner_subject: str
+    title: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     messages: List["ConversationMessageResponse"]
@@ -69,3 +70,27 @@ class ConversationMessageResponse(BaseModel):
     latency_ms: Optional[int] = None
     created_at: datetime
     completed_at: datetime
+
+
+class ConversationSummaryResponse(BaseModel):
+    id: UUID
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class ConversationListResponse(BaseModel):
+    items: List[ConversationSummaryResponse]
+    next_cursor: Optional[str] = None
+
+
+class RenameConversationRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+
+    @field_validator("title")
+    @classmethod
+    def normalize_title(cls, value: str) -> str:
+        title = value.strip()
+        if not title:
+            raise ValueError("title cannot be blank")
+        return title

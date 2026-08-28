@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import MessageList from './components/MessageList'
 import ChatInput from './components/ChatInput'
+import ConversationSidebar from './components/ConversationSidebar'
 import {
   askQuestionStream,
   createConversation,
+  deleteConversation,
   fetchConversation,
   fetchIdentity,
+  listConversations,
+  renameConversation,
   toDisplayMessages,
 } from './api/client'
 import { getUserManager, initializeAuthentication } from './auth/client'
@@ -101,6 +105,8 @@ export default function App() {
   const [identity, setIdentity] = useState(null)
   const [conversationId, setConversationId] = useState(null)
   const [messages, setMessages] = useState([])
+  const [conversations, setConversations] = useState([])
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -125,6 +131,8 @@ export default function App() {
         if (!cancelled) {
           setUser(authenticatedUser)
           setIdentity(authenticatedIdentity)
+          const history = await listConversations('', null, authenticatedUser.access_token)
+          setConversations(history.items)
           if (restoredConversation) {
             setConversationId(restoredConversation.id)
             setMessages(toDisplayMessages(restoredConversation.messages))
@@ -154,6 +162,36 @@ export default function App() {
     setMessages([])
     setConversationId(null)
     await getUserManager()?.signoutRedirect()
+  }
+
+  const refreshHistory = async (search = '') => {
+    const history = await listConversations(search, null, user.access_token)
+    setConversations(history.items)
+  }
+
+  const newConversation = () => {
+    setConversationId(null)
+    setMessages([])
+    window.localStorage.removeItem(ACTIVE_CONVERSATION_KEY)
+  }
+
+  const selectConversation = async id => {
+    const conversation = await fetchConversation(id, user.access_token)
+    if (!conversation) return refreshHistory()
+    setConversationId(id)
+    setMessages(toDisplayMessages(conversation.messages))
+    window.localStorage.setItem(ACTIVE_CONVERSATION_KEY, id)
+  }
+
+  const handleRename = async (id, title) => {
+    await renameConversation(id, title, user.access_token)
+    await refreshHistory()
+  }
+
+  const handleDelete = async id => {
+    await deleteConversation(id, user.access_token)
+    if (id === conversationId) newConversation()
+    await refreshHistory()
   }
 
   const handleSend = async (question) => {
@@ -207,6 +245,7 @@ export default function App() {
         user.access_token,
       )
       if (restored) setMessages(toDisplayMessages(restored.messages))
+      await refreshHistory()
     } catch (err) {
       setMessages(prev => prev.map(message => (
         message.requestId === requestId
@@ -225,17 +264,49 @@ export default function App() {
     return <LoginScreen loading={authLoading} error={authError} onLogin={login} />
   }
 
+  const currentConversationTitle = conversations.find(
+    conversation => conversation.id === conversationId,
+  )?.title || '新对话'
+
   return (
-    <div className="app-container">
-      <header className="app-header">
-        <div className="header-brand">
-          <img src="/logo.png" alt="南京银行" />
-          <span className="header-title">监管制度智能问答</span>
-        </div>
-        <AccountMenu identity={identity} onLogout={logout} />
-      </header>
-      <MessageList messages={messages} />
-      <ChatInput onSend={handleSend} loading={loading} />
+    <div className="workspace-layout">
+      <ConversationSidebar
+        conversations={conversations}
+        currentId={conversationId}
+        collapsed={sidebarCollapsed}
+        onNew={newConversation}
+        onSelect={selectConversation}
+        onSearch={refreshHistory}
+        onRename={handleRename}
+        onDelete={handleDelete}
+      />
+      <div className="workspace-content">
+        <header className="topbar">
+          <div className="topbar-inner">
+            <div className="main-header-left">
+              <button
+                className="sidebar-toggle"
+                type="button"
+                aria-label={sidebarCollapsed ? '展开对话侧栏' : '收起对话侧栏'}
+                aria-expanded={!sidebarCollapsed}
+                onClick={() => setSidebarCollapsed(value => !value)}
+              >
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <rect x="3" y="3.5" width="14" height="13" rx="2" />
+                  <path d="M7.5 3.5v13" />
+                </svg>
+              </button>
+              <div className="view-context">
+                <strong>问答</strong>
+                <span>{currentConversationTitle}</span>
+              </div>
+            </div>
+            <AccountMenu identity={identity} onLogout={logout} />
+          </div>
+        </header>
+        <MessageList messages={messages} />
+        <ChatInput onSend={handleSend} loading={loading} />
+      </div>
     </div>
   )
 }

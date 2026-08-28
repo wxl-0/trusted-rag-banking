@@ -58,6 +58,42 @@ export function toDisplayMessages(messages) {
   ))
 }
 
+export async function listConversations(search = '', cursor = null, accessToken = null) {
+  const params = new URLSearchParams()
+  if (search) params.set('search', search)
+  if (cursor) params.set('cursor', cursor)
+  const suffix = params.size ? `?${params}` : ''
+  const response = await fetch(`/api/conversations${suffix}`, {
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '读取对话历史失败'))
+  }
+  return response.json()
+}
+
+export async function renameConversation(conversationId, title, accessToken) {
+  const response = await fetch(`/api/conversations/${conversationId}`, {
+    method: 'PATCH',
+    headers: requestHeaders(accessToken),
+    body: JSON.stringify({ title }),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '重命名失败'))
+  }
+  return response.json()
+}
+
+export async function deleteConversation(conversationId, accessToken) {
+  const response = await fetch(`/api/conversations/${conversationId}`, {
+    method: 'DELETE',
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '删除失败'))
+  }
+}
+
 export async function askQuestion(
   question, filters = null, history = null, accessToken = null,
 ) {
