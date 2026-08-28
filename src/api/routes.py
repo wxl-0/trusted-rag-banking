@@ -1,9 +1,10 @@
 import asyncio
 import json
 import subprocess
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse, StreamingResponse
 from src.api.models import AskRequest, AskResponse, IngestRequest
+from src.database import Database, get_database
 from src.generator.answer_builder import AnswerBuilder
 
 router = APIRouter()
@@ -94,3 +95,22 @@ async def ingest(req: IngestRequest):
 @router.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@router.get("/ready")
+def ready(database: Database = Depends(get_database)):
+    try:
+        database.ping()
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "checks": {"postgresql": "unavailable"},
+            },
+        )
+
+    return {
+        "status": "ready",
+        "checks": {"postgresql": "available"},
+    }

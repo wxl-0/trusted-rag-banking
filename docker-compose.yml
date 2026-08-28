@@ -1,4 +1,37 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-trusted_rag}
+      POSTGRES_USER: ${POSTGRES_USER:-trusted_rag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres-test:
+    image: postgres:16-alpine
+    profiles: ["test"]
+    environment:
+      POSTGRES_DB: trusted_rag_test
+      POSTGRES_USER: trusted_rag_test
+      POSTGRES_PASSWORD: trusted_rag_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
   qdrant:
     image: qdrant/qdrant:v1.9.4
     ports:
@@ -13,8 +46,10 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
+      - path: .env
+        required: false
     environment:
+      - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-trusted_rag}:${POSTGRES_PASSWORD:-CHANGE_ME}@postgres:5432/${POSTGRES_DB:-trusted_rag}
       - QDRANT_HOST=qdrant
       - HF_HOME=/models
       - HF_HUB_OFFLINE=${HF_HUB_OFFLINE:-0}
@@ -22,7 +57,10 @@ services:
       - ${HF_HOME:-./models}:/models
       - ./data:/app/data
     depends_on:
-      - qdrant
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
 
   frontend:
     build:
@@ -34,4 +72,5 @@ services:
       - backend
 
 volumes:
+  postgres_data:
   qdrant_data:
