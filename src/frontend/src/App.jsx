@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
 import MessageList from './components/MessageList'
 import ChatInput from './components/ChatInput'
-import { askQuestionStream, buildHistory, fetchIdentity } from './api/client'
+import {
+  askQuestionStream,
+  createConversation,
+  fetchConversation,
+  fetchIdentity,
+  toDisplayMessages,
+} from './api/client'
 import { getUserManager, initializeAuthentication } from './auth/client'
 import { businessRoleLabel, identityInitial } from './auth/config'
 
+
+const ACTIVE_CONVERSATION_KEY = 'trusted-rag.active-conversation-id'
 
 function LoginScreen({ loading, error, onLogin }) {
   return (
@@ -91,6 +99,7 @@ export default function App() {
   const [authError, setAuthError] = useState('')
   const [user, setUser] = useState(null)
   const [identity, setIdentity] = useState(null)
+  const [conversationId, setConversationId] = useState(null)
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
 
@@ -100,9 +109,26 @@ export default function App() {
       .then(async ({ user: authenticatedUser }) => {
         if (cancelled || !authenticatedUser) return
         const authenticatedIdentity = await fetchIdentity(authenticatedUser.access_token)
+        const activeConversationId = window.localStorage.getItem(
+          ACTIVE_CONVERSATION_KEY,
+        )
+        let restoredConversation = null
+        if (activeConversationId) {
+          restoredConversation = await fetchConversation(
+            activeConversationId,
+            authenticatedUser.access_token,
+          )
+          if (!restoredConversation) {
+            window.localStorage.removeItem(ACTIVE_CONVERSATION_KEY)
+          }
+        }
         if (!cancelled) {
           setUser(authenticatedUser)
           setIdentity(authenticatedIdentity)
+          if (restoredConversation) {
+            setConversationId(restoredConversation.id)
+            setMessages(toDisplayMessages(restoredConversation.messages))
+          }
         }
       })
       .catch(() => {
@@ -126,12 +152,13 @@ export default function App() {
 
   const logout = async () => {
     setMessages([])
+    setConversationId(null)
     await getUserManager()?.signoutRedirect()
   }
 
   const handleSend = async (question) => {
     const newMessages = [...messages, { role: 'user', content: question }]
-    const requestId = `${Date.now()}-${Math.random()}`
+    const requestId = window.crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`
     setMessages([...newMessages, {
       role: 'assistant',
       requestId,
@@ -145,11 +172,22 @@ export default function App() {
     setLoading(true)
 
     try {
-      const result = await askQuestionStream(
+      let activeConversationId = conversationId
+      if (!activeConversationId) {
+        const conversation = await createConversation(user.access_token)
+        activeConversationId = conversation.id
+        setConversationId(activeConversationId)
+        window.localStorage.setItem(
+          ACTIVE_CONVERSATION_KEY,
+          activeConversationId,
+        )
+      }
+
+      const result = await askQuestionStream({
         question,
-        null,
-        buildHistory(messages),
-        (event, data) => {
+        conversationId: activeConversationId,
+        requestId,
+        onEvent: (event, data) => {
           if (event !== 'progress') return
           setMessages(prev => prev.map(message => (
             message.requestId === requestId
@@ -157,13 +195,18 @@ export default function App() {
               : message
           )))
         },
-        user.access_token,
-      )
+        accessToken: user.access_token,
+      })
       setMessages(prev => prev.map(message => (
         message.requestId === requestId
           ? { role: 'assistant', content: result }
           : message
       )))
+      const restored = await fetchConversation(
+        activeConversationId,
+        user.access_token,
+      )
+      if (restored) setMessages(toDisplayMessages(restored.messages))
     } catch (err) {
       setMessages(prev => prev.map(message => (
         message.requestId === requestId

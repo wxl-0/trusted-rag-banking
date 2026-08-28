@@ -3,8 +3,17 @@ import json
 import subprocess
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
-from src.api.models import AskRequest, AskResponse, IdentityResponse, IngestRequest
+from uuid import UUID
+
+from src.api.models import (
+    AskRequest,
+    AskResponse,
+    ConversationResponse,
+    IdentityResponse,
+    IngestRequest,
+)
 from src.auth import Identity, get_current_identity
+from src.conversations import Conversation, ConversationMessage, ConversationStore
 from src.database import Database, get_database
 from src.generator.answer_builder import AnswerBuilder
 
@@ -24,6 +33,77 @@ def _sse_event(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {data}\n\n"
 
 
+def _message_response(message: ConversationMessage) -> dict:
+    return {
+        "id": message.id,
+        "request_id": message.request_id,
+        "role": message.role,
+        "content": message.content,
+        "evidence": message.evidence,
+        "refuse_reason": message.refuse_reason,
+        "latency_ms": message.latency_ms,
+        "created_at": message.created_at,
+        "completed_at": message.completed_at,
+    }
+
+
+def _answer_payload(message: ConversationMessage) -> dict:
+    return {
+        "answer": message.content,
+        "evidence": message.evidence,
+        "refuse_reason": message.refuse_reason,
+        "latency_ms": message.latency_ms,
+    }
+
+
+def _conversation_response(
+    conversation: Conversation,
+    messages: list[ConversationMessage] | None = None,
+) -> ConversationResponse:
+    return ConversationResponse(
+        id=conversation.id,
+        owner_subject=conversation.owner_subject,
+        created_at=conversation.created_at,
+        updated_at=conversation.updated_at,
+        messages=[_message_response(message) for message in (messages or [])],
+    )
+
+
+def _conversation_not_found() -> HTTPException:
+    return HTTPException(
+        status_code=404,
+        detail={
+            "code": "CONVERSATION_NOT_FOUND",
+            "message": "对话不存在",
+        },
+    )
+
+
+@router.post("/conversations", response_model=ConversationResponse, status_code=201)
+def create_conversation(
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
+):
+    conversation = ConversationStore(database).create(identity.subject)
+    return _conversation_response(conversation)
+
+
+@router.get("/conversations/{conversation_id}", response_model=ConversationResponse)
+def get_conversation(
+    conversation_id: UUID,
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
+):
+    conversation = ConversationStore(database).get_owned(
+        conversation_id,
+        identity.subject,
+    )
+    if conversation is None:
+        raise _conversation_not_found()
+    messages = ConversationStore(database).list_messages(conversation.id)
+    return _conversation_response(conversation, messages)
+
+
 @router.post("/ask", response_model=AskResponse)
 async def ask(req: AskRequest, _identity: Identity = Depends(get_current_identity)):
     if not req.question.strip():
@@ -36,11 +116,49 @@ async def ask(req: AskRequest, _identity: Identity = Depends(get_current_identit
 @router.post("/ask/stream")
 async def ask_stream(
     req: AskRequest,
-    _identity: Identity = Depends(get_current_identity),
+    identity: Identity = Depends(get_current_identity),
+    database: Database = Depends(get_database),
 ):
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="question 不能为空")
-    history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
+    if req.conversation_id is not None:
+        store = ConversationStore(database)
+        conversation = store.get_owned(req.conversation_id, identity.subject)
+        if conversation is None:
+            raise _conversation_not_found()
+        stored_question = store.start_turn(
+            req.conversation_id,
+            req.request_id,
+            req.question,
+        )
+        if stored_question != req.question:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "REQUEST_ID_CONFLICT",
+                    "message": "该请求标识已用于其他问题",
+                },
+            )
+        completed_answer = store.completed_answer(
+            req.conversation_id,
+            req.request_id,
+        )
+        if completed_answer is not None:
+            async def completed_stream():
+                yield _sse_event("answer", _answer_payload(completed_answer))
+
+            return StreamingResponse(
+                completed_stream(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+        history = store.history_for_turn(req.conversation_id, req.request_id)
+    else:
+        store = None
+        history = [{"role": m.role, "content": m.content} for m in (req.history or [])]
 
     async def event_stream():
         loop = asyncio.get_running_loop()
@@ -63,6 +181,13 @@ async def ask_stream(
                     progress_callback=report_progress,
                 )
                 answer = AskResponse(**result).model_dump(mode="json")
+                if store is not None:
+                    persisted = store.complete_turn(
+                        req.conversation_id,
+                        req.request_id,
+                        answer,
+                    )
+                    answer = _answer_payload(persisted)
                 enqueue("answer", answer)
             except Exception:
                 enqueue("error", {"message": "处理失败，请稍后重试"})

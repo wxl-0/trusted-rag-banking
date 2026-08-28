@@ -1,4 +1,7 @@
-from pydantic import BaseModel
+from datetime import datetime
+from uuid import UUID
+
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List
 
 
@@ -11,6 +14,14 @@ class AskRequest(BaseModel):
     question: str
     filters: Optional[dict] = None
     history: Optional[List[ChatMessage]] = None
+    conversation_id: Optional[UUID] = None
+    request_id: Optional[str] = Field(default=None, min_length=1, max_length=128)
+
+    @model_validator(mode="after")
+    def require_request_id_for_conversation(self):
+        if self.conversation_id is not None and not self.request_id:
+            raise ValueError("request_id is required with conversation_id")
+        return self
 
 
 class EvidenceItem(BaseModel):
@@ -38,3 +49,23 @@ class IdentityResponse(BaseModel):
     email: Optional[str] = None
     business_role: str
     roles: List[str]
+
+
+class ConversationResponse(BaseModel):
+    id: UUID
+    owner_subject: str
+    created_at: datetime
+    updated_at: datetime
+    messages: List["ConversationMessageResponse"]
+
+
+class ConversationMessageResponse(BaseModel):
+    id: UUID
+    request_id: str
+    role: str
+    content: str
+    evidence: List[EvidenceItem]
+    refuse_reason: Optional[str] = None
+    latency_ms: Optional[int] = None
+    created_at: datetime
+    completed_at: datetime

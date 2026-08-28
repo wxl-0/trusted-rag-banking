@@ -15,7 +15,11 @@ from src.database import Database, get_database
 def test_alembic_upgrades_an_empty_postgresql_database(migrated_postgres_url):
     engine = create_engine(migrated_postgres_url)
     try:
-        assert inspect(engine).get_table_names() == ["alembic_version"]
+        assert set(inspect(engine).get_table_names()) == {
+            "alembic_version",
+            "conversation_messages",
+            "conversations",
+        }
     finally:
         engine.dispose()
 

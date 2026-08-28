@@ -7,7 +7,9 @@ export default function MessageList({ messages }) {
       {messages.length === 0 && (
         <EmptyState />
       )}
-      {messages.map((msg, i) => <AnswerCard key={i} message={msg} />)}
+      {messages.map((msg, i) => (
+        <AnswerCard key={msg.id || msg.requestId || i} message={msg} />
+      ))}
     </div>
   )
 }

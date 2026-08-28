@@ -1,15 +1,3 @@
-export function buildHistory(messages) {
-  return messages
-    .filter(message => (
-      message.role === 'user'
-      || (message.role === 'assistant' && message.content.answer)
-    ))
-    .map(message => ({
-      role: message.role,
-      content: message.role === 'user' ? message.content : message.content.answer,
-    }))
-}
-
 function requestHeaders(accessToken) {
   return {
     'Content-Type': 'application/json',
@@ -29,6 +17,45 @@ export async function fetchIdentity(accessToken) {
   })
   if (!response.ok) throw new Error(await responseError(response, '身份读取失败'))
   return response.json()
+}
+
+export async function createConversation(accessToken) {
+  const response = await fetch('/api/conversations', {
+    method: 'POST',
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '创建对话失败'))
+  }
+  return response.json()
+}
+
+export async function fetchConversation(conversationId, accessToken) {
+  const response = await fetch(`/api/conversations/${conversationId}`, {
+    headers: requestHeaders(accessToken),
+  })
+  if (response.status === 404) return null
+  if (!response.ok) {
+    throw new Error(await responseError(response, '读取对话失败'))
+  }
+  return response.json()
+}
+
+export function toDisplayMessages(messages) {
+  return messages.map(message => (
+    message.role === 'user'
+      ? { id: message.id, role: 'user', content: message.content }
+      : {
+          id: message.id,
+          role: 'assistant',
+          content: {
+            answer: message.content,
+            evidence: message.evidence,
+            refuse_reason: message.refuse_reason,
+            latency_ms: message.latency_ms,
+          },
+        }
+  ))
 }
 
 export async function askQuestion(
@@ -55,17 +82,23 @@ function parseEvent(block) {
   return { event, data: JSON.parse(data.join('\n')) }
 }
 
-export async function askQuestionStream(
+export async function askQuestionStream({
   question,
+  conversationId,
+  requestId,
   filters = null,
-  history = null,
   onEvent = () => {},
   accessToken = null,
-) {
+}) {
   const response = await fetch('/api/ask/stream', {
     method: 'POST',
     headers: requestHeaders(accessToken),
-    body: JSON.stringify({ question, filters, history }),
+    body: JSON.stringify({
+      question,
+      filters,
+      conversation_id: conversationId,
+      request_id: requestId,
+    }),
   })
   if (!response.ok) {
     throw new Error(await responseError(response, '请求失败'))
