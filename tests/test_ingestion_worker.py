@@ -205,6 +205,42 @@ def _seed_queued_upload(database: Database):
     }
 
 
+def _seed_unrecoverable_legacy_job(database: Database):
+    document_id = uuid4()
+    version_id = uuid4()
+    task_id = uuid4()
+    with database.session() as session, session.begin():
+        session.execute(text("""
+            INSERT INTO knowledge_documents (id) VALUES (:document_id)
+        """), {"document_id": document_id})
+        session.execute(text("""
+            INSERT INTO document_versions (
+                id, document_id, version_number, original_filename, size_bytes,
+                uploaded_by_subject, uploaded_by_name
+            ) VALUES (
+                :version_id, :document_id, 1, '历史制度.docx', 10,
+                'maintainer', '知识库维护者'
+            )
+        """), {"version_id": version_id, "document_id": document_id})
+        session.execute(text("""
+            INSERT INTO ingestion_tasks (
+                id, document_version_id, idempotency_key, state
+            ) VALUES (
+                :task_id, :version_id, :idempotency_key, 'queued'
+            )
+        """), {
+            "task_id": task_id,
+            "version_id": version_id,
+            "idempotency_key": str(task_id),
+        })
+    return {
+        "document_id": str(document_id),
+        "version_id": str(version_id),
+        "task_id": str(task_id),
+        "idempotency_key": str(task_id),
+    }
+
+
 def _seed_queued_update(database: Database):
     document_id = uuid4()
     old_version_id = uuid4()
@@ -600,6 +636,96 @@ def test_worker_restart_recovers_queued_and_expired_jobs(ingestion_database):
         worker.recoverable_jobs(),
         key=lambda job: job["task_id"],
     ) == sorted([queued_job, expired_job], key=lambda job: job["task_id"])
+
+
+def test_worker_restart_fails_legacy_job_without_source_object(
+    ingestion_database,
+):
+    job = _seed_unrecoverable_legacy_job(ingestion_database)
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+
+    assert worker.recoverable_jobs() == []
+
+    with ingestion_database.session() as session:
+        task = session.execute(text("""
+            SELECT state, result_code, result_message, completed_at,
+                   lease_token, lease_expires_at
+            FROM ingestion_tasks WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).mappings().one()
+
+    assert task["state"] == "failed"
+    assert task["result_code"] == "INGESTION_SOURCE_MISSING"
+    assert task["result_message"] == "原始文件不可用，无法恢复入库"
+    assert task["completed_at"] is not None
+    assert task["lease_token"] is None
+    assert task["lease_expires_at"] is None
+
+
+def test_worker_restart_reclassifies_legacy_missing_source_failure(
+    ingestion_database,
+):
+    job = _seed_unrecoverable_legacy_job(ingestion_database)
+    with ingestion_database.session() as session, session.begin():
+        session.execute(text("""
+            UPDATE ingestion_tasks
+            SET state = 'failed',
+                result_code = 'INGESTION_PARSE_FAILED',
+                result_message = '文档解析失败',
+                completed_at = now()
+            WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])})
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+
+    assert worker.recoverable_jobs() == []
+
+    with ingestion_database.session() as session:
+        task = session.execute(text("""
+            SELECT result_code, result_message
+            FROM ingestion_tasks WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).mappings().one()
+
+    assert task == {
+        "result_code": "INGESTION_SOURCE_MISSING",
+        "result_message": "原始文件不可用，无法恢复入库",
+    }
+
+
+def test_worker_restart_keeps_job_recoverable_when_only_optional_metadata_missing(
+    ingestion_database,
+):
+    job = _seed_queued_upload(ingestion_database)
+    with ingestion_database.session() as session, session.begin():
+        session.execute(text("""
+            UPDATE document_versions
+            SET object_bucket = NULL,
+                checksum_sha256 = NULL,
+                content_type = NULL
+            WHERE id = :version_id
+        """), {"version_id": UUID(job["version_id"])})
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+
+    assert worker.recoverable_jobs() == [job]
 
 
 @pytest.mark.parametrize(

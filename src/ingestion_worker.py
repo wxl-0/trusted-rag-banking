@@ -65,7 +65,32 @@ class IngestionWorker:
         )
 
     def recoverable_jobs(self) -> list[dict]:
-        with self.database.session() as session:
+        with self.database.session() as session, session.begin():
+            session.execute(text("""
+                UPDATE ingestion_tasks AS task
+                SET state = 'failed',
+                    result_code = 'INGESTION_SOURCE_MISSING',
+                    result_message = '原始文件不可用，无法恢复入库',
+                    updated_at = now(),
+                    completed_at = now(),
+                    lease_token = NULL,
+                    lease_expires_at = NULL
+                FROM document_versions AS version
+                WHERE version.id = task.document_version_id
+                  AND (
+                      task.state = 'queued'
+                      OR (
+                          task.state IN ('parsing', 'indexing')
+                          AND COALESCE(task.lease_expires_at, task.updated_at)
+                              <= now()
+                      )
+                      OR (
+                          task.state = 'failed'
+                          AND task.result_code = 'INGESTION_PARSE_FAILED'
+                      )
+                  )
+                  AND NULLIF(btrim(version.object_key), '') IS NULL
+            """))
             rows = session.execute(text("""
                 SELECT version.document_id,
                        version.id AS version_id,
@@ -74,12 +99,15 @@ class IngestionWorker:
                 FROM ingestion_tasks AS task
                 JOIN document_versions AS version
                   ON version.id = task.document_version_id
-                WHERE task.state = 'queued'
-                   OR (
-                       task.state IN ('parsing', 'indexing')
-                       AND COALESCE(task.lease_expires_at, task.updated_at)
-                           <= now()
-                   )
+                WHERE (
+                    task.state = 'queued'
+                    OR (
+                        task.state IN ('parsing', 'indexing')
+                        AND COALESCE(task.lease_expires_at, task.updated_at)
+                            <= now()
+                    )
+                )
+                  AND NULLIF(btrim(version.object_key), '') IS NOT NULL
                 ORDER BY task.created_at, task.id
             """)).mappings().all()
         return [
