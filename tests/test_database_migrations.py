@@ -17,6 +17,7 @@ def test_alembic_upgrades_an_empty_postgresql_database(migrated_postgres_url):
     try:
         assert set(inspect(engine).get_table_names()) == {
             "alembic_version",
+            "audit_events",
             "conversation_messages",
             "conversations",
             "document_versions",

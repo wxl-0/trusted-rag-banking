@@ -12,9 +12,9 @@
 
 | 状态 | 当前范围 |
 |---|---|
-| 已实现并可运行 | 文档解析、混合检索、证据回答、FastAPI REST/SSE、React 问答、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要，以及维护者只读知识库概览、搜索、筛选、分页和详情 |
-| 静态原型已完成 | 普通成员/知识库维护者角色视图、知识库管理、上传与异步入库状态；登录、账户区、问答、个人历史侧栏和维护者只读知识库页已接入正式 React，完整原型位于 [`prototype/`](prototype/) |
-| 已确认但尚未开发 | Redis 队列、MinIO 原始文件版本、网页上传、后台异步解析/索引、重试、删除与审计 |
+| 已实现并可运行 | 文档解析、混合检索、证据回答、FastAPI REST/SSE、React 问答、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要、维护者知识库管理，以及在线上传受理、MinIO 私有原件、Redis 任务排队和上传接受审计 |
+| 静态原型已完成 | 普通成员/知识库维护者角色视图、知识库管理、上传与异步入库状态；登录、账户区、问答、个人历史侧栏、维护者知识库页和上传弹窗已接入正式 React，完整原型位于 [`prototype/`](prototype/) |
+| 已确认但尚未开发 | 后台异步解析/索引、状态推进、重试、下载和删除 |
 
 生成层使用 OpenAI 兼容接口，通过 `OPENAI_BASE_URL` 和 `LLM_MODEL` 配置供应商与模型，默认目标为 `deepseek-v4-flash`。服务端保留完整对话原文，模型调用则按 64K/128K/200K 分层预算选取证据、滚动摘要和最新消息，并预留 8K–16K 输出空间。
 
@@ -28,7 +28,7 @@
 - **有据回答与拒答**：答案附带原文证据；资料不足、超出知识库范围或缺少必要操作数时拒答或说明缺失信息。
 - **个人对话历史**：服务端保存问题、完成回答、证据和时间，并按登录身份隔离；正式 React 可在原型侧栏中新建、搜索、恢复、原位重命名和逻辑删除自己的对话。
 - **受控长对话**：旧消息超过近期历史预算时在 PostgreSQL 更新滚动摘要；每次只把当前对话的摘要和最新消息交给模型，原始消息仍完整保留。
-- **维护者只读知识库**：知识库维护者可以查看成功/进行中/失败摘要，按文件名搜索、按状态筛选并稳定分页，查看当前版本、上传人与最新任务结果；普通成员调用对应接口会被后端拒绝。
+- **维护者知识库**：知识库维护者可以查看成功/进行中/失败摘要，按文件名搜索、按状态筛选，以每页 10 篇的完整页码翻页，并查看当前版本、上传人与最新任务结果；也可上传单个 DOC、DOCX、PDF、XLS 或 XLSX 文件，原件私有保存后立即进入排队状态。普通成员调用对应接口会被后端拒绝。
 - **处理进度展示**：通过 SSE 展示“分析问题、检索资料、整理证据、生成答案”等阶段和已处理时间。
 - **企业登录与问答保护**：React 使用 OIDC Authorization Code Flow with PKCE 跳转 Keycloak；FastAPI 校验令牌签名、issuer、audience、有效期与 `member` / `knowledge_maintainer` 业务角色后才允许问答。
 - **可复现评测**：选择题使用确定性规则判分，记录检索目标、候选数量、阶段耗时、覆盖状态和补搜次数，不使用 LLM Judge 代替正式判分。
@@ -63,7 +63,7 @@ flowchart LR
 
 ## 使用自己的资料
 
-本项目可以复用为相似的制度、合规和统计资料问答系统。当前版本采用“文件目录 + Manifest + 命令行建库”的方式，不是网页上传后自动入库。
+本项目可以复用为相似的制度、合规和统计资料问答系统。网页已能接受文件并创建排队任务，但后台解析与索引尚未实现；当前真正可检索的资料仍通过“文件目录 + Manifest + 命令行建库”产生。
 
 ### 1. 放置资料
 
@@ -149,6 +149,8 @@ OPENAI_BASE_URL=填写对应的OpenAI兼容接口地址
 LLM_MODEL=填写接口实际支持的模型名称
 HF_HOME=填写HuggingFace模型缓存目录
 DATABASE_URL=填写本地PostgreSQL连接地址
+MINIO_ACCESS_KEY=填写本地MinIO访问账号
+MINIO_SECRET_KEY=替换本地MinIO占位密码
 KEYCLOAK_ADMIN_PASSWORD=替换本地Keycloak管理员占位密码
 KEYCLOAK_ISSUER=http://localhost:8080/realms/trusted-rag
 KEYCLOAK_AUDIENCE=trusted-rag-api
@@ -158,10 +160,10 @@ VITE_KEYCLOAK_CLIENT_ID=trusted-rag-web
 
 首次下载 BGE 模型时设置 `HF_HUB_OFFLINE=0`；模型下载完成且缓存完整后可以设置为 `1`。不要提交填写后的 `.env`。
 
-### 3. 启动 PostgreSQL、Keycloak 与 Qdrant
+### 3. 启动 PostgreSQL、Keycloak、Qdrant、Redis 与 MinIO
 
 ```bash
-docker compose up -d postgres keycloak qdrant
+docker compose up -d postgres keycloak qdrant redis minio
 uv run --frozen alembic upgrade head
 ```
 

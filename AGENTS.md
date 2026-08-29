@@ -12,8 +12,8 @@
 ## 当前实现边界
 
 - 正式代码已包含 Manifest/命令行建库、FastAPI/React 问答、Keycloak OIDC 登录与访问控制、PostgreSQL 个人对话/消息持久化、滚动摘要与分层上下文预算。
-- `prototype/` 是正式 React 后续页面的视觉与交互基准。登录、账户区、问答、个人历史侧栏，以及维护者只读知识库页面已接入正式前端；上传与异步入库仍是静态原型。
-- 对话历史管理，以及知识文档/版本/任务表和维护者只读概览、搜索、筛选、分页、详情已实现；审计表、Redis、MinIO、在线上传、后台入库、重试和删除尚未实现。
+- `prototype/` 是正式 React 后续页面的视觉与交互基准。登录、账户区、问答、个人历史侧栏、维护者知识库页面和上传弹窗已接入正式前端；后台入库进度仍只在原型中完整演示。
+- 对话历史管理、知识库只读管理、维护者在线上传、MinIO 私有原件、Redis 任务排队和上传接受审计已实现；后台解析/索引、重试、下载和删除尚未实现。
 - 文档和代码说明必须区分“已实现”“静态原型”“已确认但尚未实现”，不得把发布评测快照描述成干净克隆可实时复核的运行结果。
 
 ## 不可破坏的产品与技术约束
@@ -43,7 +43,7 @@
 ```bash
 uv sync --frozen
 test -f .env || cp .env.example .env
-docker compose up -d postgres keycloak qdrant
+docker compose up -d postgres keycloak qdrant redis minio
 uv run --frozen alembic upgrade head
 
 uv run --frozen python -m uvicorn src.api.main:app --reload

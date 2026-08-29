@@ -94,9 +94,10 @@ class KnowledgeDocumentStore:
         status: str | None,
         before: tuple | None,
         limit: int,
+        offset: int = 0,
     ) -> list[dict]:
         conditions = []
-        params: dict = {"limit": limit}
+        params: dict = {"limit": limit, "offset": offset}
         if search:
             conditions.append("filename ILIKE :search")
             params["search"] = f"%{search}%"
@@ -119,8 +120,28 @@ class KnowledgeDocumentStore:
                 {where}
                 ORDER BY updated_at DESC, id DESC
                 LIMIT :limit
+                OFFSET :offset
             """), params).mappings().all()
         return [dict(row) for row in rows]
+
+    def count(self, *, search: str | None, status: str | None) -> int:
+        conditions = []
+        params = {}
+        if search:
+            conditions.append("filename ILIKE :search")
+            params["search"] = f"%{search}%"
+        if status:
+            conditions.append("status = :status")
+            params["status"] = status
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+
+        with self.database.session() as session:
+            return session.execute(text(f"""
+                {_DOCUMENT_ROWS}
+                SELECT COUNT(*)
+                FROM document_rows
+                {where}
+            """), params).scalar_one()
 
     def get(self, document_id: UUID) -> dict | None:
         with self.database.session() as session:

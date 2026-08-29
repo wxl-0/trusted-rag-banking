@@ -15,6 +15,7 @@ import {
   listKnowledgeDocuments,
   renameConversation,
   toDisplayMessages,
+  uploadKnowledgeDocument,
 } from './api/client'
 import { getUserManager, initializeAuthentication } from './auth/client'
 import { businessRoleLabel, identityInitial } from './auth/config'
@@ -115,12 +116,17 @@ export default function App() {
   const [activeView, setActiveView] = useState('chat')
   const [knowledgeSummary, setKnowledgeSummary] = useState(null)
   const [knowledgeDocuments, setKnowledgeDocuments] = useState([])
-  const [knowledgeCursor, setKnowledgeCursor] = useState(null)
+  const [knowledgePage, setKnowledgePage] = useState(1)
+  const [knowledgeTotal, setKnowledgeTotal] = useState(0)
   const [knowledgeSearch, setKnowledgeSearch] = useState('')
   const [knowledgeStatus, setKnowledgeStatus] = useState('')
   const [knowledgeDetail, setKnowledgeDetail] = useState(null)
   const [knowledgeLoading, setKnowledgeLoading] = useState(false)
   const [knowledgeError, setKnowledgeError] = useState('')
+  const [uploadOpen, setUploadOpen] = useState(false)
+  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadLoading, setUploadLoading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -212,8 +218,7 @@ export default function App() {
   const loadKnowledgeDocuments = async ({
     search = knowledgeSearch,
     status = knowledgeStatus,
-    cursor = null,
-    append = false,
+    page = knowledgePage,
   } = {}) => {
     setKnowledgeLoading(true)
     setKnowledgeError('')
@@ -221,11 +226,13 @@ export default function App() {
       const result = await listKnowledgeDocuments({
         search,
         status,
-        cursor,
+        page,
+        limit: 10,
         accessToken: user.access_token,
       })
-      setKnowledgeDocuments(current => append ? [...current, ...result.items] : result.items)
-      setKnowledgeCursor(result.next_cursor)
+      setKnowledgeDocuments(result.items)
+      setKnowledgePage(result.page)
+      setKnowledgeTotal(result.total)
     } catch (error) {
       setKnowledgeError(error.message)
     } finally {
@@ -242,11 +249,12 @@ export default function App() {
     try {
       const [summary, result] = await Promise.all([
         fetchKnowledgeSummary(user.access_token),
-        listKnowledgeDocuments({ accessToken: user.access_token }),
+        listKnowledgeDocuments({ page: 1, limit: 10, accessToken: user.access_token }),
       ])
       setKnowledgeSummary(summary)
       setKnowledgeDocuments(result.items)
-      setKnowledgeCursor(result.next_cursor)
+      setKnowledgePage(result.page)
+      setKnowledgeTotal(result.total)
     } catch (error) {
       setKnowledgeError(error.message)
     } finally {
@@ -256,12 +264,12 @@ export default function App() {
 
   const searchKnowledgeDocuments = value => {
     setKnowledgeSearch(value)
-    loadKnowledgeDocuments({ search: value, cursor: null })
+    loadKnowledgeDocuments({ search: value, page: 1 })
   }
 
   const filterKnowledgeDocuments = value => {
     setKnowledgeStatus(value)
-    loadKnowledgeDocuments({ status: value, cursor: null })
+    loadKnowledgeDocuments({ status: value, page: 1 })
   }
 
   const showKnowledgeDocument = async documentId => {
@@ -270,6 +278,44 @@ export default function App() {
       setKnowledgeDetail(await fetchKnowledgeDocument(documentId, user.access_token))
     } catch (error) {
       setKnowledgeError(error.message)
+    }
+  }
+
+  const openUpload = () => {
+    setUploadFile(null)
+    setUploadError('')
+    setUploadOpen(true)
+  }
+
+  const closeUpload = () => {
+    if (uploadLoading) return
+    setUploadOpen(false)
+    setUploadFile(null)
+    setUploadError('')
+  }
+
+  const submitUpload = async () => {
+    if (!uploadFile || uploadLoading) return
+    setUploadLoading(true)
+    setUploadError('')
+    try {
+      await uploadKnowledgeDocument(uploadFile, user.access_token)
+      const [summary, result] = await Promise.all([
+        fetchKnowledgeSummary(user.access_token),
+        listKnowledgeDocuments({ page: 1, limit: 10, accessToken: user.access_token }),
+      ])
+      setKnowledgeSummary(summary)
+      setKnowledgeDocuments(result.items)
+      setKnowledgePage(result.page)
+      setKnowledgeTotal(result.total)
+      setKnowledgeSearch('')
+      setKnowledgeStatus('')
+      setUploadOpen(false)
+      setUploadFile(null)
+    } catch (error) {
+      setUploadError(error.message)
+    } finally {
+      setUploadLoading(false)
     }
   }
 
@@ -395,12 +441,22 @@ export default function App() {
             error={knowledgeError}
             search={knowledgeSearch}
             status={knowledgeStatus}
-            nextCursor={knowledgeCursor}
+            page={knowledgePage}
+            pageSize={10}
+            total={knowledgeTotal}
+            uploadOpen={uploadOpen}
+            uploadFile={uploadFile}
+            uploadLoading={uploadLoading}
+            uploadError={uploadError}
             onSearch={searchKnowledgeDocuments}
             onStatusChange={filterKnowledgeDocuments}
             onShowDetail={showKnowledgeDocument}
             onCloseDetail={() => setKnowledgeDetail(null)}
-            onNextPage={() => loadKnowledgeDocuments({ cursor: knowledgeCursor, append: true })}
+            onPageChange={page => loadKnowledgeDocuments({ page })}
+            onOpenUpload={openUpload}
+            onCloseUpload={closeUpload}
+            onSelectUploadFile={setUploadFile}
+            onSubmitUpload={submitUpload}
           />
         ) : (
           <>

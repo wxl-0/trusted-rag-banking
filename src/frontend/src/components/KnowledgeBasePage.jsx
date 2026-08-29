@@ -1,3 +1,6 @@
+import UploadDocumentModal from './UploadDocumentModal'
+
+
 const STATUS_LABELS = {
   succeeded: '成功',
   in_progress: '进行中',
@@ -39,6 +42,21 @@ function DetailItem({ label, children }) {
   )
 }
 
+function paginationItems(currentPage, totalPages) {
+  if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1)
+  let start = Math.max(2, currentPage - 1)
+  let end = Math.min(totalPages - 1, currentPage + 1)
+  if (currentPage <= 4) end = 5
+  if (currentPage >= totalPages - 3) start = totalPages - 4
+  return [
+    1,
+    ...(start > 2 ? ['start-ellipsis'] : []),
+    ...Array.from({ length: end - start + 1 }, (_, index) => start + index),
+    ...(end < totalPages - 1 ? ['end-ellipsis'] : []),
+    totalPages,
+  ]
+}
+
 
 export default function KnowledgeBasePage({
   summary,
@@ -48,12 +66,22 @@ export default function KnowledgeBasePage({
   error,
   search,
   status,
-  nextCursor,
+  page = 1,
+  pageSize = 10,
+  total = 0,
+  uploadOpen = false,
+  uploadFile = null,
+  uploadLoading = false,
+  uploadError = '',
   onSearch,
   onStatusChange,
   onShowDetail,
   onCloseDetail,
-  onNextPage,
+  onPageChange,
+  onOpenUpload,
+  onCloseUpload,
+  onSelectUploadFile,
+  onSubmitUpload,
 }) {
   const totals = summary || { succeeded: 0, in_progress: 0, failed: 0, updated_at: null }
   const filters = [
@@ -62,6 +90,7 @@ export default function KnowledgeBasePage({
     ['in_progress', '进行中'],
     ['failed', '失败'],
   ]
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   return (
     <main className="knowledge-view">
@@ -71,6 +100,10 @@ export default function KnowledgeBasePage({
             <span className="eyebrow">企业共享知识库</span>
             <h1>知识文档</h1>
           </div>
+          <button className="primary-button upload-button" type="button" onClick={onOpenUpload}>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V3M6 7l4-4 4 4" /><path d="M4 12v4h12v-4" /></svg>
+            上传知识文档
+          </button>
         </div>
 
         <div className="knowledge-summary" aria-label="知识库摘要">
@@ -130,8 +163,26 @@ export default function KnowledgeBasePage({
           {loading && <div className="document-feedback">正在读取知识文档…</div>}
           {error && <div className="document-feedback document-error" role="alert">{error}</div>}
         </div>
-        {nextCursor && !loading && (
-          <button className="next-page-button" type="button" onClick={onNextPage}>加载更多</button>
+        {total > 0 && !loading && (
+          <nav className="document-pagination" aria-label="知识文档分页">
+            <span className="pagination-total">共 {total} 篇</span>
+            <div>
+              <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>上一页</button>
+              {paginationItems(page, totalPages).map(item => (
+                typeof item === 'number' ? (
+                  <button
+                    className={item === page ? 'is-active' : ''}
+                    type="button"
+                    key={item}
+                    aria-label={`第 ${item} 页`}
+                    aria-current={item === page ? 'page' : undefined}
+                    onClick={() => onPageChange(item)}
+                  >{item}</button>
+                ) : <span className="pagination-ellipsis" key={item}>…</span>
+              ))}
+              <button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>下一页</button>
+            </div>
+          </nav>
         )}
       </div>
 
@@ -152,6 +203,16 @@ export default function KnowledgeBasePage({
             </div>
           </section>
         </div>
+      )}
+      {uploadOpen && (
+        <UploadDocumentModal
+          file={uploadFile}
+          loading={uploadLoading}
+          error={uploadError}
+          onClose={onCloseUpload}
+          onSelectFile={onSelectUploadFile}
+          onSubmit={onSubmitUpload}
+        />
       )}
     </main>
   )

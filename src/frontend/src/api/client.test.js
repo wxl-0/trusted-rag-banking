@@ -12,6 +12,7 @@ import {
   listKnowledgeDocuments,
   renameConversation,
   toDisplayMessages,
+  uploadKnowledgeDocument,
 } from './client.js'
 
 test('askQuestionStream parses SSE events split across network chunks', async () => {
@@ -181,7 +182,7 @@ test('knowledge document client reads summary filtered list and detail', async (
     await listKnowledgeDocuments({
       search: '资本',
       status: 'in_progress',
-      cursor: 'next-page',
+      page: 2,
       limit: 10,
       accessToken: 'access-token',
     })
@@ -194,8 +195,52 @@ test('knowledge document client reads summary filtered list and detail', async (
   assert.equal(calls[0][1].headers.Authorization, 'Bearer access-token')
   assert.equal(
     calls[1][0],
-    '/api/knowledge-documents?search=%E8%B5%84%E6%9C%AC&status=in_progress&cursor=next-page&limit=10',
+    '/api/knowledge-documents?search=%E8%B5%84%E6%9C%AC&status=in_progress&page=2&limit=10',
   )
   assert.equal(calls[2][0], '/api/knowledge-documents/document-1')
   assert.equal(calls[2][1].headers.Authorization, 'Bearer access-token')
+})
+
+test('knowledge document client uploads one file as multipart data', async () => {
+  const originalFetch = globalThis.fetch
+  let request
+  globalThis.fetch = async (url, options) => {
+    request = [url, options]
+    return new Response(JSON.stringify({
+      document_id: 'document-1',
+      version_id: 'version-1',
+      task_id: 'task-1',
+      status: 'in_progress',
+    }), { status: 202 })
+  }
+  const file = new File(['document'], '监管办法.pdf', { type: 'application/pdf' })
+
+  try {
+    const result = await uploadKnowledgeDocument(file, 'access-token')
+    assert.equal(result.status, 'in_progress')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
+  assert.equal(request[0], '/api/knowledge-documents')
+  assert.equal(request[1].method, 'POST')
+  assert.equal(request[1].headers.Authorization, 'Bearer access-token')
+  assert.equal(request[1].headers['Content-Type'], undefined)
+  assert.equal(request[1].body.get('file'), file)
+})
+
+test('knowledge upload client exposes the safe server validation message', async () => {
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    detail: { code: 'UPLOAD_INVALID_CONTENT', message: '文件内容与扩展名不匹配或文件已损坏' },
+  }), { status: 422 })
+
+  try {
+    await assert.rejects(
+      uploadKnowledgeDocument(new File(['bad'], '伪装文件.pdf'), 'access-token'),
+      /文件内容与扩展名不匹配或文件已损坏/,
+    )
+  } finally {
+    globalThis.fetch = originalFetch
+  }
 })

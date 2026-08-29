@@ -3,7 +3,7 @@ import base64
 import json
 import subprocess
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from uuid import UUID
 
@@ -18,12 +18,20 @@ from src.api.models import (
     KnowledgeDocumentDetailResponse,
     KnowledgeDocumentListResponse,
     KnowledgeDocumentSummaryResponse,
+    KnowledgeDocumentUploadResponse,
     RenameConversationRequest,
 )
 from src.auth import Identity, get_current_identity, require_knowledge_maintainer
 from src.conversations import Conversation, ConversationMessage, ConversationStore
 from src.context_control import prepare_conversation_history
 from src.database import Database, get_database
+from src.document_uploads import (
+    DocumentUploadService,
+    UploadRejected,
+    UploadUnavailable,
+    get_ingestion_queue,
+    get_object_store,
+)
 from src.generator.answer_builder import AnswerBuilder
 from src.knowledge_documents import KnowledgeDocumentStore
 
@@ -128,23 +136,35 @@ def list_knowledge_documents(
     search: str | None = None,
     status: str | None = Query(default=None, pattern="^(succeeded|in_progress|failed)$"),
     cursor: str | None = None,
+    page: int | None = Query(default=None, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
     _identity: Identity = Depends(require_knowledge_maintainer),
     database: Database = Depends(get_database),
 ):
-    before, offset = _decode_document_cursor(cursor)
-    documents = KnowledgeDocumentStore(database).list(
+    if page is not None and cursor is not None:
+        raise HTTPException(status_code=400, detail="page 与 cursor 不能同时使用")
+    before, cursor_offset = _decode_document_cursor(cursor)
+    offset = (page - 1) * limit if page is not None else cursor_offset
+    store = KnowledgeDocumentStore(database)
+    documents = store.list(
         search=search.strip() if search and search.strip() else None,
         status=status,
         before=before,
-        limit=limit + 1,
+        limit=limit if page is not None else limit + 1,
+        offset=offset if page is not None else 0,
     )
-    has_more = len(documents) > limit
+    has_more = page is None and len(documents) > limit
     items = documents[:limit]
     for index, item in enumerate(items, offset + 1):
         item["sequence"] = index
     return {
         "items": items,
+        "total": store.count(
+            search=search.strip() if search and search.strip() else None,
+            status=status,
+        ),
+        "page": page or (offset // limit + 1),
+        "page_size": limit,
         "next_cursor": (
             _encode_document_cursor(items[-1], offset + len(items))
             if has_more else None
@@ -171,6 +191,44 @@ def get_knowledge_document(
             "message": "知识文档不存在",
         },
     )
+
+
+@router.post(
+    "/knowledge-documents",
+    response_model=KnowledgeDocumentUploadResponse,
+    status_code=202,
+)
+async def upload_knowledge_document(
+    file: list[UploadFile] = File(...),
+    identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+    object_store=Depends(get_object_store),
+    ingestion_queue=Depends(get_ingestion_queue),
+):
+    if len(file) != 1:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "code": "UPLOAD_FILE_COUNT",
+                "message": "每次只能上传一个知识文档",
+            },
+        )
+    try:
+        return await DocumentUploadService(
+            database,
+            object_store,
+            ingestion_queue,
+        ).accept(file[0], identity)
+    except UploadRejected as exc:
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail={"code": exc.code, "message": exc.message},
+        )
+    except UploadUnavailable as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "UPLOAD_UNAVAILABLE", "message": str(exc)},
+        )
 
 
 @router.post("/conversations", response_model=ConversationResponse, status_code=201)

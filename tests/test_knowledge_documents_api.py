@@ -198,6 +198,35 @@ def test_maintainer_pages_documents_by_latest_update(knowledge_client):
     assert second.json()["next_cursor"] is None
 
 
+def test_maintainer_can_open_a_numbered_document_page(knowledge_client):
+    client, database = knowledge_client
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "knowledge_maintainer"
+    )
+    for hour in range(5):
+        _seed_document(
+            database,
+            filename=f"监管制度-{hour}.pdf",
+            state="succeeded",
+            updated_at=datetime(2026, 8, 28, hour, 0, tzinfo=timezone.utc),
+        )
+
+    response = client.get(
+        "/api/knowledge-documents",
+        params={"page": 2, "limit": 2},
+    )
+
+    assert response.status_code == 200
+    assert [item["filename"] for item in response.json()["items"]] == [
+        "监管制度-2.pdf",
+        "监管制度-1.pdf",
+    ]
+    assert [item["sequence"] for item in response.json()["items"]] == [3, 4]
+    assert response.json()["total"] == 5
+    assert response.json()["page"] == 2
+    assert response.json()["page_size"] == 2
+
+
 def test_maintainer_filters_documents_by_filename_and_status(knowledge_client):
     client, database = knowledge_client
     app.dependency_overrides[get_current_identity] = lambda: _identity(

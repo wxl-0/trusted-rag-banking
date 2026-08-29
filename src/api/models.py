@@ -69,7 +69,17 @@ class KnowledgeDocumentListItemResponse(BaseModel):
 
 class KnowledgeDocumentListResponse(BaseModel):
     items: List[KnowledgeDocumentListItemResponse]
+    total: int
+    page: int
+    page_size: int
     next_cursor: Optional[str] = None
+
+
+class KnowledgeDocumentUploadResponse(BaseModel):
+    document_id: UUID
+    version_id: UUID
+    task_id: UUID
+    status: Literal["in_progress"]
 
 
 class KnowledgeDocumentUploaderResponse(BaseModel):
