@@ -59,7 +59,7 @@ flowchart LR
 - 证据引用命中率 99.00%；
 - 100 道开放式专项评测答对 90 题，关键实体错误率 4.92%，库外处理正确率 93.33%。
 
-评测口径、错题分析与运行边界见[技术文档](docs/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。
+评测口径、错题分析与运行边界见[技术文档](docs/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。历史错误、修复证据和待修复案例另见独立的 [Bad Case 回归集](data/eval/regression/README.md)，它不修改上述正式评测资产。
 
 ## 使用自己的资料
 
