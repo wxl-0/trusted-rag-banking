@@ -1,5 +1,8 @@
 import os
+import json
+import threading
 import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from unittest.mock import Mock, patch
 
 import httpx
@@ -98,6 +101,72 @@ def test_verifier_supports_private_backchannel_jwks_url():
     assert requested_hosts == ["identity.example", "keycloak"]
 
 
+def test_verifier_bypasses_terminal_proxy_for_keycloak_requests():
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_jwk = jwt.algorithms.RSAAlgorithm.to_jwk(
+        private_key.public_key(), as_dict=True
+    )
+    public_jwk["kid"] = KEY_ID
+
+    class KeycloakHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path.endswith("openid-configuration"):
+                payload = {
+                    "issuer": issuer,
+                    "jwks_uri": f"{issuer}/protocol/openid-connect/certs",
+                }
+            else:
+                payload = {"keys": [public_jwk]}
+            body = json.dumps(payload).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, format, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), KeycloakHandler)
+    issuer = f"http://127.0.0.1:{server.server_port}/realms/trusted-rag"
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            "sub": "user-1",
+            "preferred_username": "member.demo",
+            "iss": issuer,
+            "aud": AUDIENCE,
+            "iat": now,
+            "exp": now + 300,
+            "realm_access": {"roles": ["member"]},
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": KEY_ID},
+    )
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    proxy_environment = {
+        "HTTP_PROXY": "http://127.0.0.1:1",
+        "HTTPS_PROXY": "http://127.0.0.1:1",
+        "ALL_PROXY": "http://127.0.0.1:1",
+        "NO_PROXY": "",
+        "http_proxy": "http://127.0.0.1:1",
+        "https_proxy": "http://127.0.0.1:1",
+        "all_proxy": "http://127.0.0.1:1",
+        "no_proxy": "",
+    }
+    try:
+        with patch.dict(os.environ, proxy_environment):
+            identity = OidcTokenVerifier(issuer, AUDIENCE).verify(token)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+
+    assert identity.business_role == "member"
+
+
 def test_verifier_rejects_expired_wrong_issuer_and_wrong_audience():
     cases = (
         {"exp": int(time.time()) - 1},
@@ -139,6 +208,31 @@ def test_protected_api_rejects_invalid_token_safely():
         "message": "登录已失效，请重新登录",
     }
     assert "raw verifier detail" not in response.text
+
+
+def test_identity_api_reports_keycloak_connection_failure_as_unavailable():
+    verifier, token = _verifier_and_token()
+
+    def fail_to_connect(request):
+        raise httpx.ConnectError("proxy returned 502", request=request)
+
+    verifier.http_client = httpx.Client(
+        transport=httpx.MockTransport(fail_to_connect)
+    )
+
+    with patch("src.auth.get_token_verifier", return_value=verifier):
+        with TestClient(app) as client:
+            response = client.get(
+                "/api/auth/me",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == {
+        "code": "AUTH_UNAVAILABLE",
+        "message": "身份服务暂不可用",
+    }
+    assert "proxy returned 502" not in response.text
 
 
 def test_protected_api_rejects_identity_without_business_role():

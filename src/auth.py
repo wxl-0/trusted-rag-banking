@@ -20,6 +20,10 @@ class AuthenticationConfigurationError(RuntimeError):
     pass
 
 
+class IdentityProviderUnavailableError(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class Identity:
     subject: str
@@ -52,7 +56,10 @@ class OidcTokenVerifier:
             f"{self.issuer}/.well-known/openid-configuration"
         )
         self.jwks_url = jwks_url
-        self.http_client = http_client or httpx.Client(timeout=5.0)
+        self.http_client = http_client or httpx.Client(
+            timeout=5.0,
+            trust_env=False,
+        )
         self._jwks_uri: str | None = None
         self._jwks: dict | None = None
 
@@ -102,7 +109,11 @@ class OidcTokenVerifier:
             )
         except AuthenticationError:
             raise
-        except (httpx.HTTPError, jwt.PyJWTError, ValueError, KeyError) as exc:
+        except httpx.HTTPError as exc:
+            raise IdentityProviderUnavailableError(
+                "OIDC identity provider unavailable"
+            ) from exc
+        except (jwt.PyJWTError, ValueError, KeyError) as exc:
             raise AuthenticationError("Invalid access token") from exc
 
         realm_roles = claims.get("realm_access", {}).get("roles", [])
@@ -155,6 +166,8 @@ def get_current_identity(
     try:
         identity = get_token_verifier().verify(credentials.credentials)
     except AuthenticationConfigurationError:
+        raise _auth_error(503, "AUTH_UNAVAILABLE", "身份服务暂不可用")
+    except IdentityProviderUnavailableError:
         raise _auth_error(503, "AUTH_UNAVAILABLE", "身份服务暂不可用")
     except AuthenticationError:
         raise _auth_error(401, "AUTH_INVALID", "登录已失效，请重新登录")
