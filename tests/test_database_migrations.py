@@ -18,10 +18,13 @@ def test_alembic_upgrades_an_empty_postgresql_database(migrated_postgres_url):
         assert set(inspect(engine).get_table_names()) == {
             "alembic_version",
             "audit_events",
+            "bm25_generations",
             "conversation_messages",
             "conversations",
+            "document_version_artifacts",
             "document_versions",
             "ingestion_tasks",
+            "knowledge_index_state",
             "knowledge_documents",
         }
     finally:

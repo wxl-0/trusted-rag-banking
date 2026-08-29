@@ -1,7 +1,9 @@
 import time
 
 from src.indexer.qdrant_index import QdrantIndex, COLLECTION_REGULATIONS, COLLECTION_TABLES
-from src.indexer.bm25_index import BM25Index
+from src.database import get_database
+from src.index_visibility import CurrentVersionVisibility
+from src.indexer.bm25_index import PublishedBM25Index
 from src.retriever.router import QueryRouter
 from src.retriever.reranker import Reranker
 
@@ -10,11 +12,13 @@ MAX_RERANK_CANDIDATES = 24
 
 
 class HybridRetriever:
-    def __init__(self, qdrant=None, bm25=None, router=None, reranker=None):
+    def __init__(self, qdrant=None, bm25=None, router=None, reranker=None,
+                 visibility=None):
         self.qdrant = qdrant or QdrantIndex()
-        self.bm25 = bm25 or BM25Index()
+        self.bm25 = bm25 or PublishedBM25Index()
         self.router = router or QueryRouter()
         self.reranker = reranker or Reranker()
+        self.visibility = visibility or CurrentVersionVisibility(get_database())
         self.last_diagnostics = {}
 
     def retrieve(self, query: str, query_type: str = None,
@@ -65,6 +69,7 @@ class HybridRetriever:
                 filters=source_filters or None,
                 max_chunks=20,
             )
+            source_chunks = self.visibility.filter(source_chunks)
             if source_chunks:
                 total_ms = int((time.perf_counter() - total_start) * 1000)
                 self.last_diagnostics = {
@@ -100,6 +105,7 @@ class HybridRetriever:
                 query, col, filters=effective_filters or None,
                 top_k=CANDIDATES_PER_CHANNEL,
             )[:CANDIDATES_PER_CHANNEL]
+        vector_results = self.visibility.filter(vector_results)
         preferred_vector_results = []
         vector_ms = int((time.perf_counter() - vector_start) * 1000)
 
@@ -113,6 +119,7 @@ class HybridRetriever:
             query, top_k=CANDIDATES_PER_CHANNEL,
             filters=bm25_filters or None,
         )[:CANDIDATES_PER_CHANNEL]
+        bm25_results = self.visibility.filter(bm25_results)
         preferred_bm25_results = []
         bm25_ms = int((time.perf_counter() - bm25_start) * 1000)
 
@@ -128,6 +135,7 @@ class HybridRetriever:
         if query_type == "regulation" and ranked and top_k > 1:
             context_limit = min(2, max(1, top_k // 4))
             context_chunks = self.bm25.related_chunks(ranked, max_extra=context_limit)
+            context_chunks = self.visibility.filter(context_chunks)
             if context_chunks:
                 direct_limit = max(1, top_k - len(context_chunks))
                 ranked = ranked[:direct_limit] + context_chunks

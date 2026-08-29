@@ -1,9 +1,15 @@
 import json
+import hashlib
 import pickle
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
+from uuid import uuid4
+
 from rank_bm25 import BM25Okapi
+from sqlalchemy import text
+
+from src.database import Database, DatabaseNotConfigured, get_database
 
 
 class BM25Index:
@@ -13,13 +19,17 @@ class BM25Index:
         self.chunks = []
 
     def build(self, jsonl_paths: list):
-        self.chunks = []
+        chunks = []
         for path in jsonl_paths:
             with open(path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if line:
-                        self.chunks.append(json.loads(line))
+                        chunks.append(json.loads(line))
+        self.build_from_chunks(chunks)
+
+    def build_from_chunks(self, chunks: list[dict]):
+        self.chunks = list(chunks)
         tokenized = [self._tokenize(c["text"]) for c in self.chunks]
         self.bm25 = BM25Okapi(tokenized)
         self._save()
@@ -200,6 +210,135 @@ class BM25Index:
         return tokens
 
     def _save(self):
-        self.index_path.parent.mkdir(exist_ok=True)
+        self.index_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.index_path, "wb") as f:
             pickle.dump({"bm25": self.bm25, "chunks": self.chunks}, f)
+
+
+class BM25GenerationManager:
+    def __init__(
+        self,
+        database: Database,
+        generation_dir: str = "data/bm25_generations",
+        legacy_path: str = "data/bm25_index.pkl",
+        chunk_paths: tuple[str, ...] = (
+            "data/chunks/clause_chunks.jsonl",
+            "data/chunks/table_chunks.jsonl",
+        ),
+    ):
+        self.database = database
+        self.generation_dir = Path(generation_dir)
+        self.legacy_path = Path(legacy_path)
+        self.chunk_paths = tuple(Path(path) for path in chunk_paths)
+
+    def build_candidate(
+        self,
+        document_id,
+        version_id,
+        chunks: list[dict],
+    ) -> dict:
+        generation_id = uuid4()
+        path = self.generation_dir / f"{generation_id}.pkl"
+        baseline = [
+            chunk for chunk in self._active_chunks()
+            if str(chunk.get("knowledge_document_id", "")) != str(document_id)
+        ]
+        index = BM25Index(str(path))
+        index.build_from_chunks(baseline + chunks)
+        return {
+            "id": generation_id,
+            "artifact_path": str(path),
+            "checksum_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "chunk_count": len(index.chunks),
+        }
+
+    def validate_candidate(
+        self,
+        generation: dict,
+        version_id,
+        expected_count: int,
+    ) -> bool:
+        path = Path(generation["artifact_path"])
+        if not path.is_file():
+            return False
+        if hashlib.sha256(path.read_bytes()).hexdigest() != generation["checksum_sha256"]:
+            return False
+        index = BM25Index(str(path))
+        index.load()
+        version_count = sum(
+            str(chunk.get("document_version_id", "")) == str(version_id)
+            for chunk in index.chunks
+        )
+        return (
+            len(index.chunks) == generation["chunk_count"]
+            and version_count == expected_count
+        )
+
+    def _active_chunks(self) -> list[dict]:
+        with self.database.session() as session:
+            active_path = session.execute(text("""
+                SELECT generation.artifact_path
+                FROM knowledge_index_state AS state
+                JOIN bm25_generations AS generation
+                  ON generation.id = state.active_bm25_generation_id
+                WHERE state.id = 1
+            """)).scalar_one_or_none()
+        if active_path and Path(active_path).is_file():
+            index = BM25Index(active_path)
+            index.load()
+            return index.chunks
+        if self.legacy_path.is_file():
+            index = BM25Index(str(self.legacy_path))
+            index.load()
+            return index.chunks
+        chunks = []
+        for path in self.chunk_paths:
+            if not path.is_file():
+                continue
+            with path.open(encoding="utf-8") as source:
+                chunks.extend(
+                    json.loads(line)
+                    for line in source
+                    if line.strip()
+                )
+        return chunks
+
+
+class PublishedBM25Index:
+    """Reload the BM25 generation selected by PostgreSQL when it changes."""
+
+    def __init__(
+        self,
+        database: Database | None = None,
+        legacy_path: str = "data/bm25_index.pkl",
+    ):
+        self.database = database or get_database()
+        self.legacy_path = legacy_path
+        self._generation_key = None
+        self._index = BM25Index(legacy_path)
+
+    def _refresh(self) -> None:
+        try:
+            with self.database.session() as session:
+                row = session.execute(text("""
+                    SELECT generation.id, generation.artifact_path
+                    FROM knowledge_index_state AS state
+                    JOIN bm25_generations AS generation
+                      ON generation.id = state.active_bm25_generation_id
+                    WHERE state.id = 1
+                      AND generation.published_at IS NOT NULL
+                """)).mappings().one_or_none()
+        except DatabaseNotConfigured:
+            row = None
+        key = str(row["id"]) if row else "legacy"
+        path = row["artifact_path"] if row else self.legacy_path
+        if key == self._generation_key:
+            return
+        self._index = BM25Index(path)
+        self._generation_key = key
+
+    def __getattr__(self, name):
+        if name.startswith("_"):
+            raise AttributeError(name)
+        self._refresh()
+        return getattr(self._index, name)

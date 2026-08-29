@@ -10,9 +10,9 @@
 
 | 层级 | 当前状态 |
 | --- | --- |
-| 正式代码 | 已实现解析、切块、混合检索、证据约束生成、FastAPI REST/SSE、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要、维护者知识库只读管理，以及在线上传受理、MinIO 私有原件、Redis 任务排队和上传接受审计；资料入索引仍通过 Manifest 与命令行脚本完成 |
+| 正式代码 | 已实现解析、切块、混合检索、证据约束生成、FastAPI REST/SSE、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要、维护者知识库管理，以及在线上传受理、MinIO 版本对象、Redis 单文档 Worker、Qdrant 候选写入、不可变 BM25 代际和成功后发布 |
 | 静态原型 | 已实现成员/维护者场景、知识库管理、上传与入库状态的视觉和前端演示；登录、账户区、问答、个人历史侧栏、维护者知识库页面和上传弹窗已接入正式 React |
-| 下一阶段 | 已确认后台异步解析/索引、状态推进、重试和删除方案，尚未开发 |
+| 下一阶段 | 已确认版本更新并发切换、任务重试、下载和逻辑删除方案，尚未开发 |
 
 文档和开发不得把静态原型或下一阶段方案描述为当前正式代码已经具备的能力。
 
@@ -53,7 +53,7 @@
 | Qdrant | 文档切块的向量索引 | 不保存原始文件和业务主数据 |
 | BM25 索引 | 关键词检索索引 | 不作为业务主数据 |
 
-当前正式代码已完成 PostgreSQL 连接、Alembic 迁移、可注入会话依赖和就绪检查，以及 Keycloak OIDC 登录与业务角色读取；`conversations` 与 `conversation_messages` 保存个人对话与完整消息，`knowledge_documents`、`document_versions` 与 `ingestion_tasks` 保存知识文档、版本和任务事实，`audit_events` 记录已接受的上传操作。MinIO 保存私有原件，Redis 只传递入库任务标识。
+当前正式代码已完成 PostgreSQL 连接、Alembic 迁移、可注入会话依赖和就绪检查，以及 Keycloak OIDC 登录与业务角色读取；`conversations` 与 `conversation_messages` 保存个人对话与完整消息，知识库相关表保存文档、版本、任务、版本 Chunk 工件、BM25 代际和当前发布指针，`audit_events` 记录已接受的上传操作。MinIO 保存私有原件与不可变版本 Chunk，Redis 只传递入库任务标识。
 
 ### 模型与上下文管理
 

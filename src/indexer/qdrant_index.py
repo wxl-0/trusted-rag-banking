@@ -1,5 +1,7 @@
 import os
 import json
+from uuid import NAMESPACE_URL, uuid5
+
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance, VectorParams, PointStruct, Filter,
@@ -80,3 +82,55 @@ class QdrantIndex:
                 else:
                     conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
         return Filter(must=conditions) if conditions else None
+
+
+class DocumentVectorIndex:
+    """Write and validate one immutable document version in Qdrant."""
+
+    def __init__(self, index: QdrantIndex | None = None, batch_size: int = 50):
+        self.index = index or QdrantIndex()
+        self.batch_size = batch_size
+
+    def index_version(self, collection: str, chunks: list[dict]) -> list[str]:
+        self.index.create_collections()
+        point_ids = []
+        for start in range(0, len(chunks), self.batch_size):
+            batch = chunks[start:start + self.batch_size]
+            vectors = self.index.embedder.embed_batch(
+                [chunk["text"] for chunk in batch]
+            )
+            points = []
+            for vector, chunk in zip(vectors, batch):
+                point_id = str(uuid5(
+                    NAMESPACE_URL,
+                    "trusted-rag:"
+                    f"{collection}:{chunk['document_version_id']}:{chunk['chunk_id']}",
+                ))
+                point_ids.append(point_id)
+                points.append(PointStruct(
+                    id=point_id,
+                    vector=vector,
+                    payload=chunk,
+                ))
+            self.index.client.upsert(
+                collection_name=collection,
+                points=points,
+                wait=True,
+            )
+        return point_ids
+
+    def validate_version(
+        self,
+        collection: str,
+        version_id,
+        expected_count: int,
+    ) -> bool:
+        result = self.index.client.count(
+            collection_name=collection,
+            count_filter=Filter(must=[FieldCondition(
+                key="document_version_id",
+                match=MatchValue(value=str(version_id)),
+            )]),
+            exact=True,
+        )
+        return result.count == expected_count

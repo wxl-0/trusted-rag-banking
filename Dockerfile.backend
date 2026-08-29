@@ -18,7 +18,9 @@ COPY data/manifest.json data/manifest.json
 COPY data/chunks/ data/chunks/
 
 COPY entrypoint.sh .
-RUN sed -i 's/\r$//' entrypoint.sh && chmod +x entrypoint.sh
+COPY entrypoint.worker.sh .
+RUN sed -i 's/\r$//' entrypoint.sh entrypoint.worker.sh \
+    && chmod +x entrypoint.sh entrypoint.worker.sh
 
 EXPOSE 8000
 

@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+from io import BytesIO
 from functools import lru_cache
 from pathlib import Path
 from uuid import uuid4
@@ -62,6 +63,24 @@ class MinioObjectStore:
     def delete(self, object_key):
         self.client.remove_object(self.bucket_name, object_key)
 
+    def download(self, object_key, destination):
+        self.client.fget_object(
+            self.bucket_name,
+            object_key,
+            str(destination),
+        )
+
+    def put_bytes(self, object_key, content, content_type):
+        if not self.client.bucket_exists(self.bucket_name):
+            self.client.make_bucket(self.bucket_name)
+        self.client.put_object(
+            self.bucket_name,
+            object_key,
+            BytesIO(content),
+            len(content),
+            content_type=content_type,
+        )
+
 
 class RedisIngestionQueue:
     def __init__(self):
@@ -79,6 +98,13 @@ class RedisIngestionQueue:
             self.queue_name,
             json.dumps(job, ensure_ascii=False, separators=(",", ":")),
         )
+
+    def dequeue(self, timeout: int = 5):
+        result = self.client.blpop(self.queue_name, timeout=timeout)
+        if result is None:
+            return None
+        _queue_name, payload = result
+        return json.loads(payload)
 
 
 @lru_cache(maxsize=1)
