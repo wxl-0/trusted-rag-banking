@@ -1,3 +1,6 @@
+import { keepFocusInDialog, useDialogFocus } from './dialogFocus'
+
+
 export default function DeleteConfirmDialog({
   title,
   name,
@@ -7,14 +10,26 @@ export default function DeleteConfirmDialog({
   onCancel,
   onConfirm,
 }) {
+  const dialogRef = useDialogFocus()
+
   return (
     <div className="confirm-overlay" role="presentation">
       <section
+        ref={dialogRef}
         className="confirm-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-confirm-title"
         aria-describedby="delete-confirm-message"
+        tabIndex="-1"
+        onKeyDown={event => {
+          if (event.key === 'Escape' && !loading) {
+            event.preventDefault()
+            onCancel()
+            return
+          }
+          keepFocusInDialog(event, dialogRef.current)
+        }}
       >
         <h2 id="delete-confirm-title">{title}</h2>
         <p className="confirm-message" id="delete-confirm-message">

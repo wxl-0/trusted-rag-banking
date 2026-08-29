@@ -58,6 +58,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid rgba(45, 116, 186, .38);
+  outline-offset: 2px;
+}
+
 .login-screen {
   position: relative;
   display: flex;
@@ -581,7 +586,17 @@ body {
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 }
 .drop-zone:hover { border-color: var(--blue-500); background: #f1f7fc; transform: translateY(-1px); }
-.drop-zone input { display: none; }
+.drop-zone { position: relative; }
+.drop-zone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.drop-zone:focus-within { border-color: var(--blue-500); box-shadow: 0 0 0 3px rgba(45,116,186,.09); }
 .drop-zone.is-disabled { cursor: default; opacity: .68; }
 .drop-zone.is-disabled:hover { border-color: #b9cfe4; background: #f7fafd; transform: none; }
 .drop-zone-copy { display: flex; flex-direction: column; align-items: center; }

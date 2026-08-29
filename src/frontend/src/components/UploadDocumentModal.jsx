@@ -2,6 +2,7 @@ import {
   MAX_UPLOAD_BATCH_BYTES,
   MAX_UPLOAD_FILES,
 } from '../uploadBatch'
+import { keepFocusInDialog, useDialogFocus } from './dialogFocus'
 
 
 const STATUS_LABELS = {
@@ -29,6 +30,7 @@ export default function UploadDocumentModal({
   onRemoveFile,
   onSubmit,
 }) {
+  const dialogRef = useDialogFocus()
   const totalBytes = items.reduce((sum, item) => sum + item.file.size, 0)
   const readyCount = items.filter(item => item.status === 'ready').length
   const completedCount = items.filter(item => (
@@ -48,7 +50,24 @@ export default function UploadDocumentModal({
 
   return (
     <div className="upload-backdrop" role="presentation" onMouseDown={loading ? undefined : onClose}>
-      <section className="upload-modal" role="dialog" aria-modal="true" aria-labelledby="upload-title" onMouseDown={event => event.stopPropagation()}>
+      <section
+        ref={dialogRef}
+        className="upload-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upload-title"
+        aria-describedby="upload-help"
+        tabIndex="-1"
+        onMouseDown={event => event.stopPropagation()}
+        onKeyDown={event => {
+          if (event.key === 'Escape' && !loading) {
+            event.preventDefault()
+            onClose()
+            return
+          }
+          keepFocusInDialog(event, dialogRef.current)
+        }}
+      >
         <div className="upload-modal-header">
           <div><span className="eyebrow">企业共享知识库</span><h2 id="upload-title">上传知识文档</h2></div>
           <button type="button" onClick={onClose} disabled={loading} aria-label="关闭上传弹窗">×</button>
@@ -65,13 +84,14 @@ export default function UploadDocumentModal({
             </span>
             <span className="drop-zone-copy">
               <strong>{items.length ? '继续添加文件' : '拖放文件到这里，或点击选择'}</strong>
-              <span>{items.length ? `最多 ${MAX_UPLOAD_FILES} 个文件，总计不超过 200 MiB` : '支持 DOC、DOCX、PDF、XLS、XLSX，单个文件不超过 50 MiB'}</span>
+              <span id="upload-help">{items.length ? `最多 ${MAX_UPLOAD_FILES} 个文件，总计不超过 200 MiB` : '支持 DOC、DOCX、PDF、XLS、XLSX，单个文件不超过 50 MiB'}</span>
             </span>
             <input
               type="file"
               multiple
               accept=".doc,.docx,.pdf,.xls,.xlsx"
               disabled={started}
+              aria-label="选择知识文档"
               onChange={selectFiles}
             />
           </label>

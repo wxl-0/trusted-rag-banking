@@ -48,8 +48,8 @@ services:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-CHANGE_ME}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-CHANGE_ME}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -96,6 +96,17 @@ services:
     depends_on:
       keycloak-db-init:
         condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000;
+          printf "GET /health/ready HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3;
+          grep -q "200 OK" <&3'
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
 
   qdrant:
     image: qdrant/qdrant:v1.9.4
@@ -103,6 +114,16 @@ services:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333;
+          printf "GET /readyz HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3;
+          grep -q "200 OK" <&3'
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   backend:
     build:
@@ -121,8 +142,8 @@ services:
       - KEYCLOAK_JWKS_URL=http://keycloak:8080/realms/trusted-rag/protocol/openid-connect/certs
       - REDIS_URL=redis://redis:6379/0
       - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-CHANGE_ME}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-CHANGE_ME}
       - MINIO_BUCKET=${MINIO_BUCKET:-knowledge-documents}
       - KNOWLEDGE_UPLOAD_MAX_BYTES=${KNOWLEDGE_UPLOAD_MAX_BYTES:-52428800}
       - INGESTION_WORKER_HEARTBEAT_TTL_SECONDS=${INGESTION_WORKER_HEARTBEAT_TTL_SECONDS:-15}
@@ -140,7 +161,19 @@ services:
       minio:
         condition: service_healthy
       qdrant:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - /app/.venv/bin/python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8000/api/ready', timeout=5)
+      interval: 10s
+      timeout: 6s
+      retries: 60
+      start_period: 30s
 
   ingestion-worker:
     build:
@@ -154,8 +187,8 @@ services:
       - DATABASE_URL=postgresql+psycopg://${POSTGRES_USER:-trusted_rag}:${POSTGRES_PASSWORD:-CHANGE_ME}@postgres:5432/${POSTGRES_DB:-trusted_rag}
       - REDIS_URL=redis://redis:6379/0
       - MINIO_ENDPOINT=minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-CHANGE_ME}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-CHANGE_ME}
       - MINIO_BUCKET=${MINIO_BUCKET:-knowledge-documents}
       - INGESTION_TASK_LEASE_SECONDS=${INGESTION_TASK_LEASE_SECONDS:-900}
       - INGESTION_WORKER_HEARTBEAT_TTL_SECONDS=${INGESTION_WORKER_HEARTBEAT_TTL_SECONDS:-15}
@@ -173,7 +206,19 @@ services:
       minio:
         condition: service_healthy
       qdrant:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - /app/.venv/bin/python
+        - -c
+        - >-
+          from src.document_uploads import get_ingestion_queue;
+          assert get_ingestion_queue().worker_alive()
+      interval: 10s
+      timeout: 6s
+      retries: 30
+      start_period: 20s
 
   frontend:
     build:
@@ -185,8 +230,15 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
-      - keycloak
+      backend:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

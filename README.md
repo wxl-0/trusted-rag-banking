@@ -125,7 +125,7 @@ uv run --frozen python scripts/build_index.py
 
 因此，公开仓库用于审查源码、评测方法和汇总结果，并可使用自有资料重新建库；它不是克隆后无需数据即可直接问答的在线 Demo。
 
-## 本地开发启动
+## 本地运行
 
 ### 1. 安装依赖
 
@@ -163,7 +163,28 @@ VITE_KEYCLOAK_CLIENT_ID=trusted-rag-web
 
 首次下载 BGE 模型时设置 `HF_HUB_OFFLINE=0`；模型下载完成且缓存完整后可以设置为 `1`。不要提交填写后的 `.env`。
 
-### 3. 启动 PostgreSQL、Keycloak、Qdrant、Redis 与 MinIO
+### 3. 完整 Docker 演示（推荐）
+
+一次启动 PostgreSQL、Keycloak、Redis、MinIO、Qdrant、API、入库 Worker 和正式前端：
+
+```bash
+docker compose up -d --build --wait
+curl http://localhost:8000/api/ready
+```
+
+Compose 会等待 PostgreSQL、Keycloak、Redis、MinIO、Qdrant、Worker 和 API 就绪后再启动正式前端。PostgreSQL、Redis、MinIO 和 Qdrant 使用命名卷；Keycloak 业务数据保存在 PostgreSQL 的独立 schema，在线 BM25 代际与命令行数据使用本地 `data/` 挂载。浏览器访问 <http://localhost>。
+
+容器后端启动只执行数据库迁移，不会隐式重建整套索引。首次可直接由知识库维护者在网页上传合法资料；已有“目录 + Manifest”的资料库则继续按“使用自己的资料”运行命令行分类、解析与建索引流程。
+
+停止服务但保留上述持久数据：
+
+```bash
+docker compose stop
+```
+
+### 4. 可选：分层本地开发
+
+先启动 PostgreSQL、Keycloak、Qdrant、Redis 与 MinIO：
 
 ```bash
 docker compose up -d postgres keycloak qdrant redis minio
@@ -179,7 +200,7 @@ Keycloak 首次启动会导入 `keycloak/realm-export.json`。管理员密码仍
 
 不要把这些公开演示密码复用到任何真实环境。首次使用还需要按照“使用自己的资料”完成解析和索引。
 
-### 4. 启动后端
+然后启动后端：
 
 ```bash
 uv run --frozen python -m uvicorn src.api.main:app --reload
@@ -193,7 +214,7 @@ uv run --frozen python -m uvicorn src.api.main:app --reload
 uv run --frozen python -m scripts.run_ingestion_worker
 ```
 
-### 5. 启动前端
+最后启动前端。`npm run dev` 已封装根目录 `.env` 的读取，不需要在前端目录复制配置文件：
 
 ```bash
 cd src/frontend

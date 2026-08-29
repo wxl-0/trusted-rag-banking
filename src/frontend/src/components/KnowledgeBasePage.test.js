@@ -106,6 +106,7 @@ test('knowledge page renders the document name in the shared deletion confirmati
   }))
 
   assert.match(html, /role="dialog"/)
+  assert.match(html, /tabindex="-1"/)
   assert.match(html, /删除知识文档？/)
   assert.match(html, /这会删除《<strong>商业银行资本管理办法\.docx<\/strong>》/)
   assert.match(html, />取消</)
@@ -157,6 +158,8 @@ test('knowledge page renders an empty multi-file drop zone', async () => {
   }))
 
   assert.match(html, /上传知识文档/)
+  assert.match(html, /aria-describedby="upload-help"/)
+  assert.match(html, /aria-label="选择知识文档"/)
   assert.match(html, /拖放文件到这里，或点击选择/)
   assert.match(html, /multiple=""/)
   assert.match(html, /单个文件不超过 50 MiB/)

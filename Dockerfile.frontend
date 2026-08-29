@@ -6,7 +6,7 @@ ARG VITE_KEYCLOAK_CLIENT_ID
 ENV VITE_KEYCLOAK_AUTHORITY=$VITE_KEYCLOAK_AUTHORITY \
     VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
 COPY src/frontend/package.json src/frontend/package-lock.json* ./
-RUN npm install
+RUN npm ci
 
 COPY src/frontend/ .
 RUN npm run build

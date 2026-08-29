@@ -44,7 +44,7 @@
   `.env`。如果点击登录出现“尚未配置 Keycloak 登录地址”，先检查是否是启动
   命令没有传入根目录的 `VITE_KEYCLOAK_AUTHORITY` 与
   `VITE_KEYCLOAK_CLIENT_ID`，不要先误判为 Keycloak 服务或生产部署故障。
-- Codex 在本地启动正式前端时使用
+- `src/frontend/package.json` 的 `npm run dev` 已封装
   `node --env-file=../../.env ./node_modules/vite/bin/vite.js`；修改 `.env` 后必须
   完整重启 Vite。不得复制 `.env` 到前端目录，也不得输出其中的密钥。
 - Docker/Compose 前端通过构建参数注入 `VITE_KEYCLOAK_*`，与上述本地开发启动
