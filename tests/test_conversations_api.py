@@ -1,5 +1,6 @@
 import json
 from unittest.mock import patch
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -9,6 +10,7 @@ with patch("src.generator.answer_builder.AnswerBuilder.__init__", lambda self: N
 
 from src.auth import Identity, get_current_identity
 from src.database import Database, get_database
+from src.conversations import ConversationStore
 
 
 def _identity(subject: str, role: str = "member") -> Identity:
@@ -182,6 +184,97 @@ def test_next_question_uses_only_persisted_conversation_history(
         {"role": "user", "content": "第一条问题"},
         {"role": "assistant", "content": "第一条回答"},
     ]
+
+
+def test_long_history_is_summarized_while_original_messages_remain(
+    conversation_client,
+    monkeypatch,
+):
+    monkeypatch.setenv("CONTEXT_RECENT_HISTORY_TOKENS", "80")
+    conversation_id = conversation_client.post("/api/conversations").json()["id"]
+    for index in range(1, 4):
+        _complete_question(
+            conversation_client,
+            conversation_id,
+            f"request-{index}",
+            f"第{index}轮问题-" + "监管制度" * 12,
+        )
+
+    answer = {
+        "answer": "第四轮回答",
+        "evidence": [],
+        "refuse_reason": None,
+        "latency_ms": 1,
+    }
+    with patch("src.api.routes.builder.answer", return_value=answer) as mock_answer:
+        response = conversation_client.post("/api/ask/stream", json={
+            "conversation_id": conversation_id,
+            "request_id": "request-4",
+            "question": "第四轮问题",
+        })
+
+    assert response.status_code == 200
+    model_history = mock_answer.call_args.kwargs["history"]
+    assert model_history[0]["role"] == "system"
+    assert model_history[0]["content"].startswith("【历史对话摘要】")
+    recent_history = model_history[1:]
+    assert any("第3轮问题" in item["content"] for item in recent_history)
+    assert all("第1轮问题" not in item["content"] for item in recent_history)
+
+    restored = conversation_client.get(
+        f"/api/conversations/{conversation_id}"
+    ).json()
+    assert len(restored["messages"]) == 8
+    assert any("第1轮问题" in item["content"] for item in restored["messages"])
+    database = app.dependency_overrides[get_database]()
+    summary, summarized_count = ConversationStore(database).context_state(
+        UUID(conversation_id)
+    )
+    assert summary.startswith("【历史对话摘要】")
+    assert summarized_count > 0
+
+
+def test_context_never_includes_another_conversation(
+    conversation_client,
+    monkeypatch,
+):
+    monkeypatch.setenv("CONTEXT_RECENT_HISTORY_TOKENS", "80")
+    owned_id = conversation_client.post("/api/conversations").json()["id"]
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member-2")
+    other_id = conversation_client.post("/api/conversations").json()["id"]
+    for index in range(3):
+        _complete_question(
+            conversation_client,
+            other_id,
+            f"other-{index}",
+            f"OTHER-{index}-" + "机密" * 16,
+        )
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member-1")
+    for index in range(3):
+        _complete_question(
+            conversation_client,
+            owned_id,
+            f"owned-{index}",
+            f"OWNED-{index}-" + "监管" * 16,
+        )
+
+    answer = {
+        "answer": "回答",
+        "evidence": [],
+        "refuse_reason": None,
+        "latency_ms": 1,
+    }
+    with patch("src.api.routes.builder.answer", return_value=answer) as mock_answer:
+        response = conversation_client.post("/api/ask/stream", json={
+            "conversation_id": owned_id,
+            "request_id": "owned-final",
+            "question": "继续问",
+        })
+
+    assert response.status_code == 200
+    model_history = mock_answer.call_args.kwargs["history"]
+    assert "OWNED-" in json.dumps(model_history, ensure_ascii=False)
+    assert "OTHER-" not in json.dumps(model_history, ensure_ascii=False)
 
 
 def test_retry_returns_completed_turn_without_duplicate_messages(

@@ -26,7 +26,7 @@ class QueryRouter:
             api_key=os.environ["OPENAI_API_KEY"],
             base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         )
-        self.model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        self.model = os.environ.get("LLM_MODEL", "deepseek-v4-flash")
 
     def route(self, question: str) -> str:
         try:

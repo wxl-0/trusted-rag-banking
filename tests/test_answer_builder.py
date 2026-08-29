@@ -76,6 +76,28 @@ class FakeLLM:
         }, ensure_ascii=False)
 
 
+class StaticRetriever:
+    def __init__(self, chunks):
+        self.chunks = chunks
+        self.last_diagnostics = {}
+
+    def retrieve(self, **kwargs):
+        return self.chunks
+
+
+class RecordingContextAssembler:
+    def __init__(self):
+        self.complex_query = None
+
+    def assemble(self, *, system, user, history, complex_query):
+        self.complex_query = complex_query
+        return type("Context", (), {
+            "system": system,
+            "user": user,
+            "history": history,
+        })()
+
+
 def _matches_filters(chunk, filters):
     for key, expected in filters.items():
         actual = chunk.get(key)
@@ -828,3 +850,27 @@ def test_answer_uses_distinct_structural_query_for_partial_classification_fact()
     assert "申请材料目录" not in reranker.queries[0]
     assert "申请材料目录" in reranker.queries[1]
     assert evidence_text in llm.last_user_message
+
+
+def test_answer_treats_single_hybrid_target_as_complex_context():
+    assembler = RecordingContextAssembler()
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=StaticRetriever([{
+            "doc_id": "hybrid-1",
+            "chunk_id": "chunk-1",
+            "chunk_type": "clause",
+            "source_title": "监管资料",
+            "text": "监管规定与统计数据。",
+        }]),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "question": "根据监管规定和统计数据判断。",
+            "type": "hybrid",
+        }]),
+        context_assembler=assembler,
+    )
+
+    builder.answer("根据监管规定和统计数据判断。")
+
+    assert assembler.complex_query is True

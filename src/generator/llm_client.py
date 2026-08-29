@@ -3,6 +3,8 @@ import time
 from openai import OpenAI
 from dotenv import load_dotenv
 
+from src.context_control import ContextSettings
+
 load_dotenv()
 
 _MAX_ATTEMPTS = 3
@@ -14,13 +16,13 @@ class LLMClient:
             api_key=os.environ["OPENAI_API_KEY"],
             base_url=os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1"),
         )
-        self.model = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+        self.model = os.environ.get("LLM_MODEL", "deepseek-v4-flash")
         self.last_call_metrics = {}
 
     def chat(self, system: str, user: str, temperature: float = 0, history: list = None) -> str:
         messages = [{"role": "system", "content": system}]
         if history:
-            messages.extend(history[-6:])
+            messages.extend(history)
         messages.append({"role": "user", "content": user})
 
         started_at = time.perf_counter()
@@ -41,6 +43,7 @@ class LLMClient:
                     model=self.model,
                     messages=messages,
                     temperature=temperature,
+                    max_tokens=ContextSettings.from_env().output_reserve_tokens,
                 )
                 usage = getattr(response, "usage", None)
                 if usage is not None:

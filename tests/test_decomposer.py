@@ -157,6 +157,45 @@ def test_decomposer_rewrites_context_dependent_follow_up_for_retrieval():
     assert "那发送和收回应该怎么管理" in prompt
 
 
+def test_decomposer_uses_rolling_summary_from_controlled_history():
+    history = [
+        {
+            "role": "system",
+            "content": "【历史对话摘要】\n用户正在询问《银行函证工作操作指引》。",
+        },
+        *[
+            {"role": "user", "content": f"近期问题 {index}"}
+            for index in range(6)
+        ],
+    ]
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(return_value=(
+        '{"question": "根据《银行函证工作操作指引》，该规定具体是什么？"}'
+    ))
+
+    decomposer.decompose("那该规定具体是什么？", history=history)
+
+    prompt = decomposer.llm.chat.call_args.kwargs["user"]
+    assert "历史对话摘要" in prompt
+    assert "银行函证工作操作指引" in prompt
+
+
+def test_decomposer_token_limits_untrusted_legacy_history(monkeypatch):
+    monkeypatch.setenv("CONTEXT_RECENT_HISTORY_TOKENS", "35")
+    history = [
+        {"role": "user", "content": "OLD-" + "旧历史" * 20},
+        {"role": "assistant", "content": "NEW-" + "最新事实" * 6},
+    ]
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(return_value='{"question": "根据监管规定，改写问题"}')
+
+    decomposer.decompose("那具体呢？", history=history)
+
+    prompt = decomposer.llm.chat.call_args.kwargs["user"]
+    assert "NEW-" in prompt
+    assert "OLD-" not in prompt
+
+
 def test_decomposer_falls_back_when_follow_up_rewrite_fails():
     history = [{
         "role": "user",

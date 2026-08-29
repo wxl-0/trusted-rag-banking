@@ -205,6 +205,49 @@ class ConversationStore:
             for row in rows
         ]
 
+    def context_state(self, conversation_id: UUID) -> tuple[str | None, int]:
+        with self.database.session() as session:
+            row = session.execute(
+                text(
+                    """
+                    SELECT context_summary, summarized_message_count
+                    FROM conversations
+                    WHERE id = :conversation_id
+                    """
+                ),
+                {"conversation_id": conversation_id},
+            ).one()
+        return row.context_summary, row.summarized_message_count
+
+    def update_context_summary(
+        self,
+        conversation_id: UUID,
+        *,
+        expected_message_count: int,
+        summary: str,
+        message_count: int,
+    ) -> bool:
+        with self.database.session() as session, session.begin():
+            updated_id = session.execute(
+                text(
+                    """
+                    UPDATE conversations
+                    SET context_summary = :summary,
+                        summarized_message_count = :message_count
+                    WHERE id = :conversation_id
+                      AND summarized_message_count = :expected_message_count
+                    RETURNING id
+                    """
+                ),
+                {
+                    "conversation_id": conversation_id,
+                    "expected_message_count": expected_message_count,
+                    "summary": summary,
+                    "message_count": message_count,
+                },
+            ).scalar_one_or_none()
+        return updated_id is not None
+
     def completed_answer(
         self,
         conversation_id: UUID,

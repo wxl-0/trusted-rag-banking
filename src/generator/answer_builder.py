@@ -3,6 +3,7 @@ import json
 import re
 import time
 from decimal import Decimal, InvalidOperation
+from src.context_control import ContextAssembler
 from src.generator.llm_client import LLMClient
 from src.generator.prompt_builder import SYSTEM_PROMPT, build_user_prompt
 from src.generator.decomposer import QueryDecomposer
@@ -10,10 +11,11 @@ from src.retriever.hybrid_retriever import HybridRetriever
 
 
 class AnswerBuilder:
-    def __init__(self, llm=None, retriever=None, decomposer=None):
+    def __init__(self, llm=None, retriever=None, decomposer=None, context_assembler=None):
         self.llm = llm or LLMClient()
         self.retriever = retriever or HybridRetriever()
         self.decomposer = decomposer or QueryDecomposer()
+        self.context_assembler = context_assembler or ContextAssembler()
 
     def answer(self, question: str, filters: dict = None, history: list = None,
                system_prompt: str = None, include_diagnostics: bool = False,
@@ -233,10 +235,22 @@ class AnswerBuilder:
                 result["diagnostics"]["routing"] = self._routing_diagnostics()
             return result
 
-        user_msg = build_user_prompt(question, unique_chunks)
+        context = self.context_assembler.assemble(
+            system=system_prompt or SYSTEM_PROMPT,
+            user=build_user_prompt(question, unique_chunks),
+            history=history,
+            complex_query=(
+                len(sub_questions) > 1
+                or any(item.get("type") == "hybrid" for item in sub_questions)
+            ),
+        )
         report("generating")
         generation_start = time.perf_counter()
-        raw = self.llm.chat(system_prompt or SYSTEM_PROMPT, user_msg, history=history)
+        raw = self.llm.chat(
+            context.system,
+            context.user,
+            history=context.history,
+        )
         generation_ms = int((time.perf_counter() - generation_start) * 1000)
 
         try:

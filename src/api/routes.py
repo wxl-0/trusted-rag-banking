@@ -19,6 +19,7 @@ from src.api.models import (
 )
 from src.auth import Identity, get_current_identity
 from src.conversations import Conversation, ConversationMessage, ConversationStore
+from src.context_control import prepare_conversation_history
 from src.database import Database, get_database
 from src.generator.answer_builder import AnswerBuilder
 
@@ -235,7 +236,11 @@ async def ask_stream(
                     "X-Accel-Buffering": "no",
                 },
             )
-        history = store.history_for_turn(req.conversation_id, req.request_id)
+        history = prepare_conversation_history(
+            store,
+            req.conversation_id,
+            req.request_id,
+        )
     else:
         store = None
         history = [{"role": m.role, "content": m.content} for m in (req.history or [])]

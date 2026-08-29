@@ -1,5 +1,6 @@
 import json
 import re
+from src.context_control import select_controlled_history
 from src.generator.llm_client import LLMClient
 
 
@@ -121,11 +122,12 @@ class QueryDecomposer:
         ))
 
     def _contextualize(self, question: str, history: list) -> str:
+        history = select_controlled_history(history)
         messages = [
             message for message in history
-            if message.get("role") in {"user", "assistant"}
+            if message.get("role") in {"system", "user", "assistant"}
             and str(message.get("content", "")).strip()
-        ][-6:]
+        ]
         if not messages:
             return question
         history_text = "\n".join(
