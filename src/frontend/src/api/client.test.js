@@ -5,6 +5,7 @@ import {
   askQuestionStream,
   createConversation,
   deleteConversation,
+  deleteKnowledgeDocument,
   fetchConversation,
   fetchKnowledgeDocument,
   fetchKnowledgeSummary,
@@ -243,4 +244,24 @@ test('knowledge upload client exposes the safe server validation message', async
   } finally {
     globalThis.fetch = originalFetch
   }
+})
+
+test('knowledge document client withdraws one document with request correlation', async () => {
+  const originalFetch = globalThis.fetch
+  let request
+  globalThis.fetch = async (url, options) => {
+    request = [url, options]
+    return new Response(null, { status: 204 })
+  }
+
+  try {
+    await deleteKnowledgeDocument('document-1', 'access-token', 'withdraw-request-1')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
+  assert.equal(request[0], '/api/knowledge-documents/document-1')
+  assert.equal(request[1].method, 'DELETE')
+  assert.equal(request[1].headers.Authorization, 'Bearer access-token')
+  assert.equal(request[1].headers['X-Request-ID'], 'withdraw-request-1')
 })

@@ -38,6 +38,7 @@ test('knowledge page keeps the approved document list format', async () => {
     onSearch: () => {},
     onStatusChange: () => {},
     onShowDetail: () => {},
+    onRequestDelete: () => {},
     onCloseDetail: () => {},
     onNextPage: () => {},
   }))
@@ -47,7 +48,38 @@ test('knowledge page keeps the approved document list format', async () => {
   }
   assert.match(html, /《商业银行资本管理办法\.docx》/)
   assert.match(html, /进行中/)
-  assert.doesNotMatch(html, /删除|文件类型|发布机构/)
+  assert.match(html, /删除/)
+  assert.doesNotMatch(html, /文件类型|发布机构/)
+})
+
+test('knowledge page renders the approved deletion confirmation without extra copy', async () => {
+  const KnowledgeBasePage = await loadComponent('/src/components/KnowledgeBasePage.jsx')
+  const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
+    summary: null,
+    documents: [],
+    detail: null,
+    deleteTarget: { id: 'document-1' },
+    deleteLoading: false,
+    loading: false,
+    error: '',
+    search: '',
+    status: '',
+    onSearch: () => {},
+    onStatusChange: () => {},
+    onShowDetail: () => {},
+    onRequestDelete: () => {},
+    onCancelDelete: () => {},
+    onConfirmDelete: () => {},
+    onCloseDetail: () => {},
+    onPageChange: () => {},
+  }))
+
+  assert.match(html, /role="dialog"/)
+  assert.match(html, /删除知识文档？/)
+  assert.match(html, />取消</)
+  assert.match(html, />删除</)
+  const dialog = html.match(/<section class="confirm-dialog knowledge-delete-dialog"[\s\S]*?<\/section>/)?.[0] || ''
+  assert.doesNotMatch(dialog, /这会删除|删除后|无法恢复|文档名称/)
 })
 
 test('knowledge page renders the approved upload modal and server error', async () => {

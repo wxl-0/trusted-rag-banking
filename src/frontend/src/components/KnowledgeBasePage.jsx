@@ -73,9 +73,14 @@ export default function KnowledgeBasePage({
   uploadFile = null,
   uploadLoading = false,
   uploadError = '',
+  deleteTarget = null,
+  deleteLoading = false,
   onSearch,
   onStatusChange,
   onShowDetail,
+  onRequestDelete,
+  onCancelDelete,
+  onConfirmDelete,
   onCloseDetail,
   onPageChange,
   onOpenUpload,
@@ -149,6 +154,7 @@ export default function KnowledgeBasePage({
                 <span className="updated-text">{formatTime(document.updated_at)}</span>
                 <div className="row-actions">
                   <button className="row-action" type="button" onClick={() => onShowDetail(document.id)}>详情</button>
+                  <button className="row-action row-action-delete" type="button" onClick={() => onRequestDelete(document)}>删除</button>
                 </div>
               </article>
             ))}
@@ -213,6 +219,22 @@ export default function KnowledgeBasePage({
           onSelectFile={onSelectUploadFile}
           onSubmit={onSubmitUpload}
         />
+      )}
+      {deleteTarget && (
+        <div className="confirm-overlay knowledge-delete-overlay" role="presentation">
+          <section
+            className="confirm-dialog knowledge-delete-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="knowledge-delete-title"
+          >
+            <strong id="knowledge-delete-title">删除知识文档？</strong>
+            <div>
+              <button type="button" disabled={deleteLoading} onClick={onCancelDelete}>取消</button>
+              <button className="danger" type="button" disabled={deleteLoading} onClick={onConfirmDelete}>删除</button>
+            </div>
+          </section>
+        </div>
       )}
     </main>
   )

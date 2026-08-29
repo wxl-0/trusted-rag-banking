@@ -1,5 +1,5 @@
 from sqlalchemy import text
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from src.database import Database
 
@@ -225,3 +225,49 @@ class KnowledgeDocumentStore:
                 if row["latest_task_id"] else None
             ),
         }
+
+    def withdraw(
+        self,
+        document_id: UUID,
+        *,
+        actor_subject: str,
+        request_id: str,
+    ) -> str:
+        with self.database.session() as session, session.begin():
+            document = session.execute(text("""
+                SELECT deleted_at
+                FROM knowledge_documents
+                WHERE id = :document_id
+                FOR UPDATE
+            """), {"document_id": document_id}).mappings().one_or_none()
+            if document is None:
+                result = "not_found"
+            elif document["deleted_at"] is not None:
+                result = "already_withdrawn"
+            else:
+                session.execute(text("""
+                    UPDATE knowledge_documents
+                    SET current_version_id = NULL,
+                        deleted_at = now(),
+                        updated_at = now()
+                    WHERE id = :document_id
+                """), {"document_id": document_id})
+                result = "succeeded"
+
+            session.execute(text("""
+                INSERT INTO audit_events (
+                    id, actor_subject, action, target_type,
+                    target_id, request_id, result
+                ) VALUES (
+                    :event_id, :actor_subject,
+                    'knowledge_document.withdraw', 'knowledge_document',
+                    :document_id, :request_id, :result
+                )
+            """), {
+                "event_id": uuid4(),
+                "actor_subject": actor_subject,
+                "document_id": document_id,
+                "request_id": request_id,
+                "result": result,
+            })
+        return result

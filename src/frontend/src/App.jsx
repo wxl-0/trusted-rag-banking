@@ -7,6 +7,7 @@ import {
   askQuestionStream,
   createConversation,
   deleteConversation,
+  deleteKnowledgeDocument,
   fetchConversation,
   fetchIdentity,
   fetchKnowledgeDocument,
@@ -127,6 +128,8 @@ export default function App() {
   const [uploadFile, setUploadFile] = useState(null)
   const [uploadLoading, setUploadLoading] = useState(false)
   const [uploadError, setUploadError] = useState('')
+  const [knowledgeDeleteTarget, setKnowledgeDeleteTarget] = useState(null)
+  const [knowledgeDeleteLoading, setKnowledgeDeleteLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -319,6 +322,43 @@ export default function App() {
     }
   }
 
+  const confirmKnowledgeDocumentDelete = async () => {
+    if (!knowledgeDeleteTarget || knowledgeDeleteLoading) return
+    setKnowledgeDeleteLoading(true)
+    setKnowledgeError('')
+    try {
+      const requestId = window.crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`
+      await deleteKnowledgeDocument(
+        knowledgeDeleteTarget.id,
+        user.access_token,
+        requestId,
+      )
+      const targetPage = knowledgeDocuments.length === 1 && knowledgePage > 1
+        ? knowledgePage - 1
+        : knowledgePage
+      const [summary, result] = await Promise.all([
+        fetchKnowledgeSummary(user.access_token),
+        listKnowledgeDocuments({
+          search: knowledgeSearch,
+          status: knowledgeStatus,
+          page: targetPage,
+          limit: 10,
+          accessToken: user.access_token,
+        }),
+      ])
+      setKnowledgeSummary(summary)
+      setKnowledgeDocuments(result.items)
+      setKnowledgePage(result.page)
+      setKnowledgeTotal(result.total)
+      if (knowledgeDetail?.id === knowledgeDeleteTarget.id) setKnowledgeDetail(null)
+    } catch (error) {
+      setKnowledgeError(error.message)
+    } finally {
+      setKnowledgeDeleteTarget(null)
+      setKnowledgeDeleteLoading(false)
+    }
+  }
+
   const handleSend = async (question) => {
     const newMessages = [...messages, { role: 'user', content: question }]
     const requestId = window.crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`
@@ -448,9 +488,14 @@ export default function App() {
             uploadFile={uploadFile}
             uploadLoading={uploadLoading}
             uploadError={uploadError}
+            deleteTarget={knowledgeDeleteTarget}
+            deleteLoading={knowledgeDeleteLoading}
             onSearch={searchKnowledgeDocuments}
             onStatusChange={filterKnowledgeDocuments}
             onShowDetail={showKnowledgeDocument}
+            onRequestDelete={setKnowledgeDeleteTarget}
+            onCancelDelete={() => setKnowledgeDeleteTarget(null)}
+            onConfirmDelete={confirmKnowledgeDocumentDelete}
             onCloseDetail={() => setKnowledgeDetail(null)}
             onPageChange={page => loadKnowledgeDocuments({ page })}
             onOpenUpload={openUpload}

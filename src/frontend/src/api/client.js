@@ -137,6 +137,20 @@ export async function fetchKnowledgeDocument(documentId, accessToken) {
   return response.json()
 }
 
+export async function deleteKnowledgeDocument(
+  documentId, accessToken, requestId = null,
+) {
+  const headers = requestHeaders(accessToken)
+  if (requestId) headers['X-Request-ID'] = requestId
+  const response = await fetch(`/api/knowledge-documents/${documentId}`, {
+    method: 'DELETE',
+    headers,
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '删除知识文档失败'))
+  }
+}
+
 export async function uploadKnowledgeDocument(file, accessToken) {
   const body = new FormData()
   body.append('file', file)

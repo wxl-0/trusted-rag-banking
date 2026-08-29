@@ -3,9 +3,9 @@ import base64
 import json
 import subprocess
 from datetime import datetime
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Response, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from src.api.models import (
     AskRequest,
@@ -191,6 +191,33 @@ def get_knowledge_document(
             "message": "知识文档不存在",
         },
     )
+
+
+@router.delete("/knowledge-documents/{document_id}", status_code=204)
+def withdraw_knowledge_document(
+    document_id: UUID,
+    x_request_id: str | None = Header(
+        default=None,
+        alias="X-Request-ID",
+        max_length=128,
+    ),
+    identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+):
+    result = KnowledgeDocumentStore(database).withdraw(
+        document_id,
+        actor_subject=identity.subject,
+        request_id=x_request_id or str(uuid4()),
+    )
+    if result == "not_found":
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "KNOWLEDGE_DOCUMENT_NOT_FOUND",
+                "message": "知识文档不存在",
+            },
+        )
+    return Response(status_code=204)
 
 
 @router.post(
