@@ -6,8 +6,10 @@ __pycache__/
 data/raw/
 data/converted/
 data/chunks/
-data/eval/eval_progress.jsonl
-data/eval/runs/
+# 比赛资料、评测资产与其派生明细只保留在本地。
+data/manifest.json
+data/eval/*
+!data/eval/.gitkeep
 outputs/
 models/
 src/frontend/node_modules/

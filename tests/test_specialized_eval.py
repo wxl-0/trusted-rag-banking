@@ -17,7 +17,7 @@ DATASET_PATH = "data/eval/银行监管RAG专项评测集_100题.xlsx"
 
 def test_specialized_workbook_is_authoritative_100_question_dataset():
     if not Path(DATASET_PATH).exists():
-        pytest.skip("100 题专项评测集未随公开仓库发布")
+        pytest.skip("私有 100 题专项评测集未包含在仓库中")
     items = load_dataset(DATASET_PATH)
     assert len(items) == 100
     assert sum(item["category"] == "关键实体" for item in items) == 50

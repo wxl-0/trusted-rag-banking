@@ -12,9 +12,9 @@
 
 | 状态 | 当前范围 |
 |---|---|
-| 已实现并可运行 | 文档解析、混合检索、证据回答、FastAPI REST/SSE、React 问答、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要、维护者知识库管理，以及前端批量上传编排、活动文档同名拒绝、在线上传、MinIO 版本工件、Redis 单文档 Worker、Qdrant/BM25 索引、当前版本过滤、并发安全发布、幂等重投递、过期任务恢复、候选清理、五项就绪检查和安全逻辑撤回 |
+| 已实现并可运行 | 文档解析、混合检索、证据回答、FastAPI REST/SSE、React 问答、Keycloak 登录与访问控制、PostgreSQL 对话历史与滚动摘要、维护者知识库管理，以及前端批量上传编排、活动文档同名拒绝、在线上传、受鉴权的原件流式下载、MinIO 版本工件、Redis 单文档 Worker、Qdrant/BM25 索引、当前版本过滤、并发安全发布、幂等重投递、过期任务恢复、候选清理、五项就绪检查和安全逻辑撤回 |
 | 静态原型已完成 | 普通成员/知识库维护者角色视图、知识库管理、上传与异步入库状态；登录、账户区、问答、个人历史侧栏、维护者知识库页和上传弹窗已接入正式 React，完整原型位于 [`prototype/`](prototype/) |
-| 已确认但尚未开发 | 维护者手工重试、原件下载和永久物理清理 |
+| 已确认但尚未开发 | 维护者手工重试和永久物理清理 |
 
 生成层使用 OpenAI 兼容接口，通过 `OPENAI_BASE_URL` 和 `LLM_MODEL` 配置供应商与模型，默认目标为 `deepseek-v4-flash`。服务端保留完整对话原文，模型调用则按 64K/128K/200K 分层预算选取证据、滚动摘要和最新消息，并预留 8K–16K 输出空间。
 
@@ -28,7 +28,7 @@
 - **有据回答与拒答**：答案附带原文证据；资料不足、超出知识库范围或缺少必要操作数时拒答或说明缺失信息。
 - **个人对话历史**：服务端保存问题、完成回答、证据和时间，并按登录身份隔离；正式 React 可在原型侧栏中新建、搜索、恢复、原位重命名和逻辑删除自己的对话。
 - **受控长对话**：旧消息超过近期历史预算时在 PostgreSQL 更新滚动摘要；每次只把当前对话的摘要和最新消息交给模型，原始消息仍完整保留。
-- **维护者知识库**：知识库维护者可以查看成功/进行中/失败摘要，按文件名搜索、按状态筛选，以每页 10 篇的完整页码翻页，并查看当前版本、上传人与最新任务结果；可单批选择最多 10 个 DOC、DOCX、PDF、XLS 或 XLSX 文件（单文件最多 50 MiB、总计最多 200 MiB），前端以固定 3 个并发请求复用单文件接口，并逐文件显示已受理、校验失败或提交失败；单个失败不阻断其他文件。活动知识库中已有同名文件时后端拒绝上传，不覆盖既有文档。后台继续按单文档完成解析、版本 Chunk 保存、Qdrant/BM25 索引和成功发布。任务重复投递只推进同一版本，Worker 重启会恢复排队或租约过期任务，候选清理失败则保留旧活动版本并等待同一任务重试。维护者二次确认后可以逻辑撤回文档，使其立即退出后续检索并留下关联请求的审计记录；普通成员调用管理接口会被后端拒绝。同文档替换上传、版本浏览、维护者手工重试、原件下载和永久物理清理不在本阶段范围内。
+- **维护者知识库**：知识库维护者可以查看成功/进行中/失败摘要，按文件名搜索、按状态筛选，以每页 10 篇的完整页码翻页，并下载列表中最新上传的私有原件；进行中和失败文档同样允许下载，已撤回文档返回 404。维护者可单批选择最多 10 个 DOC、DOCX、PDF、XLS 或 XLSX 文件（单文件最多 50 MiB、总计最多 200 MiB），前端以固定 3 个并发请求复用单文件接口，并逐文件显示已受理、校验失败或提交失败；单个失败不阻断其他文件。活动知识库中已有同名文件时后端拒绝上传，不覆盖既有文档。后台继续按单文档完成解析、版本 Chunk 保存、Qdrant/BM25 索引和成功发布。任务重复投递只推进同一版本，Worker 重启会恢复排队或租约过期任务，候选清理失败则保留旧活动版本并等待同一任务重试。维护者二次确认后可以逻辑撤回文档，使其立即退出后续检索并留下关联请求的审计记录；普通成员调用管理接口会被后端拒绝。同文档替换上传、版本浏览、维护者手工重试和永久物理清理不在本阶段范围内。
 - **处理进度展示**：通过 SSE 展示“分析问题、检索资料、整理证据、生成答案”等阶段和已处理时间。
 - **企业登录与问答保护**：React 使用 OIDC Authorization Code Flow with PKCE 跳转 Keycloak；FastAPI 校验令牌签名、issuer、audience、有效期与 `member` / `knowledge_maintainer` 业务角色后才允许问答。
 - **可复现评测**：选择题使用确定性规则判分，记录检索目标、候选数量、阶段耗时、覆盖状态和补搜次数，不使用 LLM Judge 代替正式判分。
@@ -59,7 +59,7 @@ flowchart LR
 - 证据引用命中率 99.00%；
 - 100 道开放式专项评测答对 90 题，关键实体错误率 4.92%，库外处理正确率 93.33%。
 
-评测口径、错题分析与运行边界见[技术文档](docs/技术文档.md)。专项材料见[100 题评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)和[专项评测报告](data/eval/specialized_eval_report.json)。历史错误、修复证据和待修复案例另见独立的 [Bad Case 回归集](data/eval/regression/README.md)，它不修改上述正式评测资产。
+评测方法、汇总结果与运行边界见[技术文档](docs/技术文档.md)。比赛 Manifest、题集、逐题报告和 Bad Case 回归明细只在本地私有环境保留，不进入 Git。
 
 ## 使用自己的资料
 
@@ -114,15 +114,16 @@ uv run --frozen python scripts/build_index.py
 
 ## GitHub 仓库边界
 
-为控制仓库体积，GitHub 源码不包含以下运行数据：
+为保护比赛与企业数据，GitHub 源码不包含以下数据资产：
 
 - 比赛原始资料 `data/raw/`；
 - `.doc` 转换产物 `data/converted/`；
+- 比赛 Manifest、评测题集、逐题报告与 Bad Case 回归明细；
 - 完整 Chunk JSONL、BM25 索引和 Qdrant 数据；
 - Hugging Face Embedding 与 Reranker 模型缓存；
 - 真实 API Key。
 
-因此，公开仓库用于审查源码、查看评测产物和使用自有资料重新建库，不是克隆后无需数据即可直接问答的在线 Demo。公开仓库已包含 100 题专项评测集和最终专项报告，但不包含运行过程目录 `data/eval/runs/`。
+因此，公开仓库用于审查源码、评测方法和汇总结果，并可使用自有资料重新建库；它不是克隆后无需数据即可直接问答的在线 Demo。
 
 ## 本地开发启动
 
@@ -189,7 +190,7 @@ uv run --frozen python -m uvicorn src.api.main:app --reload
 另开终端启动入库 Worker；未启动或心跳过期时 `/api/ready` 会返回 503：
 
 ```bash
-uv run --frozen python scripts/run_ingestion_worker.py
+uv run --frozen python -m scripts.run_ingestion_worker
 ```
 
 ### 5. 启动前端
@@ -209,7 +210,7 @@ npm run dev
 uv run --frozen python scripts/run_eval.py
 
 # 运行指定题目，并将结果写入独立目录
-uv run --frozen python scripts/run_eval.py --ids Q035,Q068 --run-name smoke
+uv run --frozen python scripts/run_eval.py --ids Q001,Q002 --run-name smoke
 ```
 
 使用 `--run-name` 时，进度和报告写入 `data/eval/runs/<run-name>/`。评测支持断点续传，单题异常不会中断整轮。
@@ -229,7 +230,7 @@ docker compose --profile test rm -f postgres-test
 
 ## 目录结构
 
-公开仓库保留下面这些核心目录和文件，便于快速定位实现、评测材料和说明文档：
+公开仓库保留下面这些核心目录和文件，便于快速定位实现、评测代码和说明文档：
 
 ```text
 trusted-rag-banking/
@@ -237,9 +238,7 @@ trusted-rag-banking/
 ├── scripts/                建库、定向更新、评测与质量检查脚本
 ├── tests/                  单元测试与回归测试
 ├── prototype/              下一阶段企业知识库静态交互原型
-├── data/
-│   ├── manifest.json       资料清单与解析类型配置
-│   └── eval/               可公开的评测集与评测报告
+├── data/                  仅保留空目录占位；真实数据不进入 Git
 ├── docs/
 │   ├── 技术文档.md         架构、实现、评测与项目边界
 │   └── assets/             技术文档和 README 使用的界面截图
@@ -254,5 +253,3 @@ trusted-rag-banking/
 - [技术文档](docs/技术文档.md)
 - [下一阶段静态原型](prototype/index.html)
 - [产品与技术决策记录](CONTEXT.md)
-- [100 题专项评测集](data/eval/银行监管RAG专项评测集_100题.xlsx)
-- [专项评测报告](data/eval/specialized_eval_report.json)

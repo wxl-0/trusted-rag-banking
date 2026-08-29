@@ -4,12 +4,23 @@ import re
 from collections import Counter
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 REGRESSION_DIR = ROOT / "data" / "eval" / "regression"
 DATASET_PATH = REGRESSION_DIR / "bad_cases.jsonl"
 HASH_PATH = REGRESSION_DIR / "source_hashes.json"
 VERIFICATION_PATH = REGRESSION_DIR / "verification_2026-08-29.json"
+
+pytestmark = pytest.mark.skipif(
+    not all(path.is_file() for path in (
+        DATASET_PATH,
+        HASH_PATH,
+        VERIFICATION_PATH,
+    )),
+    reason="私有 Bad Case 回归资产未包含在仓库中",
+)
 
 REQUIRED_FIELDS = {
     "id",
