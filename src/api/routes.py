@@ -34,6 +34,7 @@ from src.document_uploads import (
 )
 from src.generator.answer_builder import AnswerBuilder
 from src.knowledge_documents import KnowledgeDocumentStore
+from src.readiness import ReadinessChecker, get_readiness_checker
 
 router = APIRouter()
 builder = AnswerBuilder()
@@ -484,22 +485,17 @@ async def health():
 
 
 @router.get("/ready")
-def ready(database: Database = Depends(get_database)):
-    try:
-        database.ping()
-    except Exception:
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "not_ready",
-                "checks": {"postgresql": "unavailable"},
-            },
-        )
-
-    return {
-        "status": "ready",
-        "checks": {"postgresql": "available"},
-    }
+def ready(checker: ReadinessChecker = Depends(get_readiness_checker)):
+    checks = checker.check()
+    status = (
+        "ready"
+        if all(value == "available" for value in checks.values())
+        else "not_ready"
+    )
+    content = {"status": status, "checks": checks}
+    if status == "not_ready":
+        return JSONResponse(status_code=503, content=content)
+    return content
 
 
 @router.get("/auth/me", response_model=IdentityResponse)

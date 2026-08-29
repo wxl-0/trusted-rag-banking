@@ -1,4 +1,5 @@
 import json
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from uuid import UUID, uuid4
@@ -30,6 +31,22 @@ class RecordingObjectStore:
             "content_type": content_type,
         }
 
+    def delete(self, object_key):
+        self.artifacts.pop(object_key, None)
+
+
+class CleanupRetryObjectStore(RecordingObjectStore):
+    def __init__(self):
+        super().__init__()
+        self.cleanup_attempts = 0
+
+    def delete(self, object_key):
+        if "/chunks/" in object_key:
+            self.cleanup_attempts += 1
+            if self.cleanup_attempts == 1:
+                raise RuntimeError("minio secret=do-not-leak")
+        super().delete(object_key)
+
 
 class RecordingParser:
     def __init__(self, database):
@@ -56,6 +73,20 @@ class RecordingParser:
         }]
 
 
+class BlockingParser(RecordingParser):
+    def __init__(self, database):
+        super().__init__(database)
+        self.started = threading.Event()
+        self.release = threading.Event()
+        self.call_count = 0
+
+    def parse(self, local_path, version):
+        self.call_count += 1
+        self.started.set()
+        assert self.release.wait(timeout=3)
+        return super().parse(local_path, version)
+
+
 class FailingParser:
     def parse(self, local_path, version):
         raise RuntimeError("parser host password=do-not-leak")
@@ -66,6 +97,7 @@ class RecordingVectorIndex:
         self.database = database
         self.fail = fail
         self.calls = []
+        self.deleted_versions = []
 
     def index_version(self, collection, chunks):
         with self.database.session() as session:
@@ -81,11 +113,15 @@ class RecordingVectorIndex:
     def validate_version(self, collection, version_id, expected_count):
         return not self.fail and expected_count == 1
 
+    def delete_version(self, version_id):
+        self.deleted_versions.append(str(version_id))
+
 
 class RecordingBM25Generations:
     def __init__(self, fail=False):
         self.fail = fail
         self.calls = []
+        self.cleaned_versions = []
 
     def build_candidate(self, document_id, version_id, chunks):
         self.calls.append((document_id, version_id, chunks))
@@ -100,6 +136,9 @@ class RecordingBM25Generations:
 
     def validate_candidate(self, generation, version_id, expected_count):
         return not self.fail and expected_count == 1
+
+    def cleanup_candidate(self, version_id):
+        self.cleaned_versions.append(str(version_id))
 
 
 class EmptyQdrant:
@@ -148,13 +187,21 @@ def _seed_queued_upload(database: Database):
             "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         })
         session.execute(text("""
-            INSERT INTO ingestion_tasks (id, document_version_id, state)
-            VALUES (:task_id, :version_id, 'queued')
-        """), {"task_id": task_id, "version_id": version_id})
+            INSERT INTO ingestion_tasks (
+                id, document_version_id, idempotency_key, state
+            ) VALUES (
+                :task_id, :version_id, :idempotency_key, 'queued'
+            )
+        """), {
+            "task_id": task_id,
+            "version_id": version_id,
+            "idempotency_key": str(task_id),
+        })
     return {
         "document_id": str(document_id),
         "version_id": str(version_id),
         "task_id": str(task_id),
+        "idempotency_key": str(task_id),
     }
 
 
@@ -180,9 +227,17 @@ def _seed_queued_update(database: Database):
         """), {"version_id": old_version_id, "document_id": document_id})
         session.execute(text("""
             INSERT INTO ingestion_tasks (
-                id, document_version_id, state, completed_at
-            ) VALUES (:task_id, :version_id, 'succeeded', now())
-        """), {"task_id": old_task_id, "version_id": old_version_id})
+                id, document_version_id, idempotency_key,
+                state, completed_at
+            ) VALUES (
+                :task_id, :version_id, :idempotency_key,
+                'succeeded', now()
+            )
+        """), {
+            "task_id": old_task_id,
+            "version_id": old_version_id,
+            "idempotency_key": str(old_task_id),
+        })
         session.execute(text("""
             INSERT INTO bm25_generations (
                 id, document_version_id, artifact_path,
@@ -228,17 +283,22 @@ def _seed_queued_update(database: Database):
             "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         })
         session.execute(text("""
-            INSERT INTO ingestion_tasks (id, document_version_id, state)
-            VALUES (:task_id, :version_id, 'queued')
+            INSERT INTO ingestion_tasks (
+                id, document_version_id, idempotency_key, state
+            ) VALUES (
+                :task_id, :version_id, :idempotency_key, 'queued'
+            )
         """), {
             "task_id": candidate_task_id,
             "version_id": candidate_version_id,
+            "idempotency_key": str(candidate_task_id),
         })
     return (
         {
             "document_id": str(document_id),
             "version_id": str(candidate_version_id),
             "task_id": str(candidate_task_id),
+            "idempotency_key": str(candidate_task_id),
         },
         old_version_id,
         old_generation_id,
@@ -318,6 +378,230 @@ def test_worker_persists_artifacts_and_publishes_only_after_validation(
     assert row["chunk_count"] == 1
 
 
+def test_stale_indexing_task_is_safely_redone_to_one_terminal_result(
+    ingestion_database,
+):
+    job = _seed_queued_upload(ingestion_database)
+    with ingestion_database.session() as session, session.begin():
+        session.execute(text("""
+            UPDATE ingestion_tasks
+            SET state = 'indexing',
+                started_at = now() - interval '20 minutes',
+                updated_at = now() - interval '20 minutes'
+            WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])})
+
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+
+    worker.process(job)
+
+    with ingestion_database.session() as session:
+        task = session.execute(text("""
+            SELECT state, count(*) OVER () AS task_count
+            FROM ingestion_tasks
+            WHERE document_version_id = :version_id
+        """), {"version_id": UUID(job["version_id"])}).mappings().one()
+        artifact_count = session.execute(text("""
+            SELECT count(*) FROM document_version_artifacts
+            WHERE document_version_id = :version_id
+        """), {"version_id": UUID(job["version_id"])}).scalar_one()
+        generation_count = session.execute(text("""
+            SELECT count(*) FROM bm25_generations
+            WHERE document_version_id = :version_id
+        """), {"version_id": UUID(job["version_id"])}).scalar_one()
+
+    assert task == {"state": "succeeded", "task_count": 1}
+    assert artifact_count == 1
+    assert generation_count == 1
+
+
+def test_duplicate_delivery_has_one_worker_and_one_terminal_result(
+    ingestion_database,
+):
+    job = _seed_queued_upload(ingestion_database)
+    parser = BlockingParser(ingestion_database)
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        parser,
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+    first_result = []
+    thread = threading.Thread(
+        target=lambda: first_result.append(worker.process(job)),
+    )
+    thread.start()
+    assert parser.started.wait(timeout=3)
+
+    duplicate_result = worker.process(job)
+    parser.release.set()
+    thread.join(timeout=3)
+
+    assert duplicate_result == "ignored"
+    assert first_result == ["succeeded"]
+    assert worker.process(job) == "ignored"
+    assert parser.call_count == 1
+    with ingestion_database.session() as session:
+        counts = session.execute(text("""
+            SELECT
+                (SELECT count(*) FROM ingestion_tasks
+                 WHERE document_version_id = :version_id) AS tasks,
+                (SELECT count(*) FROM document_version_artifacts
+                 WHERE document_version_id = :version_id) AS artifacts,
+                (SELECT count(*) FROM bm25_generations
+                 WHERE document_version_id = :version_id) AS generations
+        """), {"version_id": UUID(job["version_id"])}).mappings().one()
+        state = session.execute(text("""
+            SELECT state FROM ingestion_tasks WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).scalar_one()
+
+    assert counts == {"tasks": 1, "artifacts": 1, "generations": 1}
+    assert state == "succeeded"
+
+
+def test_candidate_cleanup_retries_without_disabling_the_active_version(
+    ingestion_database,
+):
+    job, old_version_id, old_generation_id = _seed_queued_update(
+        ingestion_database
+    )
+    candidate_generation_id = uuid4()
+    artifact_key = (
+        f"documents/{job['document_id']}/versions/{job['version_id']}"
+        "/chunks/regulations.jsonl"
+    )
+    with ingestion_database.session() as session, session.begin():
+        session.execute(text("""
+            UPDATE ingestion_tasks
+            SET state = 'indexing',
+                started_at = now() - interval '20 minutes',
+                updated_at = now() - interval '20 minutes'
+            WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])})
+        session.execute(text("""
+            INSERT INTO document_version_artifacts (
+                id, document_version_id, collection_name, object_bucket,
+                object_key, checksum_sha256, chunk_count
+            ) VALUES (
+                :id, :version_id, 'regulations', 'knowledge-documents',
+                :object_key, :checksum, 1
+            )
+        """), {
+            "id": uuid4(),
+            "version_id": UUID(job["version_id"]),
+            "object_key": artifact_key,
+            "checksum": "e" * 64,
+        })
+        session.execute(text("""
+            INSERT INTO bm25_generations (
+                id, document_version_id, artifact_path,
+                checksum_sha256, chunk_count
+            ) VALUES (
+                :id, :version_id, :artifact_path, :checksum, 1
+            )
+        """), {
+            "id": candidate_generation_id,
+            "version_id": UUID(job["version_id"]),
+            "artifact_path": f"data/bm25_generations/{candidate_generation_id}.pkl",
+            "checksum": "f" * 64,
+        })
+
+    object_store = CleanupRetryObjectStore()
+    object_store.artifacts[artifact_key] = {
+        "content": b"stale",
+        "content_type": "application/x-ndjson",
+    }
+    vector_index = RecordingVectorIndex(ingestion_database)
+    bm25 = RecordingBM25Generations()
+    worker = IngestionWorker(
+        ingestion_database,
+        object_store,
+        RecordingParser(ingestion_database),
+        vector_index,
+        bm25,
+        _publisher(ingestion_database),
+    )
+
+    assert worker.process(job) == "retry"
+    with ingestion_database.session() as session:
+        pending = session.execute(text("""
+            SELECT state, result_code, result_message
+            FROM ingestion_tasks WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).mappings().one()
+        current_version_id = session.execute(text("""
+            SELECT current_version_id FROM knowledge_documents
+            WHERE id = :document_id
+        """), {"document_id": UUID(job["document_id"])}).scalar_one()
+        active_generation_id = session.execute(text("""
+            SELECT active_bm25_generation_id FROM knowledge_index_state
+            WHERE id = 1
+        """)).scalar_one()
+
+    assert pending == {
+        "state": "queued",
+        "result_code": "INGESTION_CLEANUP_PENDING",
+        "result_message": "暂存数据清理中，等待安全重试",
+    }
+    assert current_version_id == old_version_id
+    assert active_generation_id == old_generation_id
+
+    assert worker.process(job) == "succeeded"
+    with ingestion_database.session() as session:
+        final_state = session.execute(text("""
+            SELECT state FROM ingestion_tasks WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).scalar_one()
+        artifact_count = session.execute(text("""
+            SELECT count(*) FROM document_version_artifacts
+            WHERE document_version_id = :version_id
+        """), {"version_id": UUID(job["version_id"])}).scalar_one()
+        generation_count = session.execute(text("""
+            SELECT count(*) FROM bm25_generations
+            WHERE document_version_id = :version_id
+        """), {"version_id": UUID(job["version_id"])}).scalar_one()
+
+    assert final_state == "succeeded"
+    assert artifact_count == 1
+    assert generation_count == 1
+    assert vector_index.deleted_versions == [job["version_id"]]
+    assert bm25.cleaned_versions == [job["version_id"]]
+
+
+def test_worker_restart_recovers_queued_and_expired_jobs(ingestion_database):
+    queued_job = _seed_queued_upload(ingestion_database)
+    expired_job = _seed_queued_upload(ingestion_database)
+    with ingestion_database.session() as session, session.begin():
+        session.execute(text("""
+            UPDATE ingestion_tasks
+            SET state = 'parsing',
+                updated_at = now() - interval '20 minutes',
+                lease_expires_at = now() - interval '5 minutes'
+            WHERE id = :task_id
+        """), {"task_id": UUID(expired_job["task_id"])})
+
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database),
+        RecordingBM25Generations(),
+        _publisher(ingestion_database),
+    )
+
+    assert sorted(
+        worker.recoverable_jobs(),
+        key=lambda job: job["task_id"],
+    ) == sorted([queued_job, expired_job], key=lambda job: job["task_id"])
+
+
 @pytest.mark.parametrize(
     ("parser", "vector_fail", "bm25_fail", "expected_message"),
     [
@@ -348,7 +632,7 @@ def test_worker_failure_is_safe_and_never_publishes(
 
     with ingestion_database.session() as session:
         task = session.execute(text("""
-            SELECT state, result_message, completed_at
+            SELECT state, result_code, result_message, completed_at
             FROM ingestion_tasks WHERE id = :task_id
         """), {"task_id": UUID(job["task_id"])}).mappings().one()
         current_version_id = session.execute(text("""
@@ -361,6 +645,11 @@ def test_worker_failure_is_safe_and_never_publishes(
         """)).scalar_one()
 
     assert task["state"] == "failed"
+    assert task["result_code"] == (
+        "INGESTION_PARSE_FAILED"
+        if expected_message == "文档解析失败"
+        else "INGESTION_INDEX_FAILED"
+    )
     assert task["result_message"] == expected_message
     assert task["completed_at"] is not None
     assert "secret" not in task["result_message"]

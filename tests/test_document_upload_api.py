@@ -128,6 +128,7 @@ def test_maintainer_uploads_one_document_and_receives_queued_task(upload_client)
         "document_id": payload["document_id"],
         "version_id": payload["version_id"],
         "task_id": payload["task_id"],
+        "idempotency_key": payload["task_id"],
     }]
 
     with database.session() as session:
@@ -137,7 +138,7 @@ def test_maintainer_uploads_one_document_and_receives_queued_task(upload_client)
             FROM document_versions
         """)).mappings().one()
         task = session.execute(text("""
-            SELECT state FROM ingestion_tasks
+            SELECT state, idempotency_key FROM ingestion_tasks
         """)).mappings().one()
         audit = session.execute(text("""
             SELECT actor_subject, action, target_type, target_id, result
@@ -151,6 +152,7 @@ def test_maintainer_uploads_one_document_and_receives_queued_task(upload_client)
     assert len(version["checksum_sha256"]) == 64
     assert version["uploaded_by_subject"] == "maintainer-subject"
     assert task["state"] == "queued"
+    assert task["idempotency_key"] == payload["task_id"]
     assert {
         key: audit[key]
         for key in ("actor_subject", "action", "target_type", "result")

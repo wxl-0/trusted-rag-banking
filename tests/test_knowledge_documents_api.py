@@ -68,6 +68,7 @@ def _seed_document(
     state: str,
     updated_at: datetime,
     size_bytes: int = 1024,
+    result_code: str | None = None,
 ) -> str:
     document_id = uuid4()
     version_id = uuid4()
@@ -94,17 +95,27 @@ def _seed_document(
         })
         session.execute(text("""
             INSERT INTO ingestion_tasks (
-                id, document_version_id, state, result_message,
+                id, document_version_id, idempotency_key,
+                state, result_code, result_message,
                 created_at, updated_at, completed_at
             ) VALUES (
-                :id, :version_id, :state, :result_message,
+                :id, :version_id, :idempotency_key,
+                :state, :result_code, :result_message,
                 :updated_at, :updated_at, :completed_at
             )
         """), {
             "id": task_id,
             "version_id": version_id,
+            "idempotency_key": str(task_id),
             "state": state,
-            "result_message": "入库完成" if state == "succeeded" else None,
+            "result_code": result_code,
+            "result_message": (
+                "入库完成"
+                if state == "succeeded"
+                else "文档解析失败"
+                if state == "failed"
+                else None
+            ),
             "updated_at": updated_at,
             "completed_at": updated_at if state in {"succeeded", "failed"} else None,
         })
@@ -308,12 +319,36 @@ def test_maintainer_reads_document_detail_and_latest_task(knowledge_client):
     assert detail["current_version"]["number"] == 1
     assert detail["latest_task"]["state"] == "succeeded"
     assert detail["latest_task"]["status"] == "succeeded"
+    assert detail["latest_task"]["result_code"] is None
     assert detail["latest_task"]["result_message"] == "入库完成"
     assert detail["latest_task"]["completed_at"] == "2026-08-28T10:20:00Z"
 
     missing = client.get(f"/api/knowledge-documents/{uuid4()}")
     assert missing.status_code == 404
     assert missing.json()["detail"]["code"] == "KNOWLEDGE_DOCUMENT_NOT_FOUND"
+
+
+def test_document_detail_exposes_only_stable_ingestion_failure(knowledge_client):
+    client, database = knowledge_client
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "knowledge_maintainer"
+    )
+    document_id = _seed_document(
+        database,
+        filename="损坏制度.docx",
+        state="failed",
+        result_code="INGESTION_PARSE_FAILED",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+
+    response = client.get(f"/api/knowledge-documents/{document_id}")
+
+    assert response.status_code == 200
+    assert response.json()["latest_task"]["result_code"] == (
+        "INGESTION_PARSE_FAILED"
+    )
+    assert response.json()["latest_task"]["result_message"] == "文档解析失败"
+    assert "password" not in response.text
 
 
 def test_maintainer_withdraws_document_idempotently_and_audits_each_request(

@@ -13,12 +13,21 @@ logger = logging.getLogger(__name__)
 def main() -> None:
     queue = get_ingestion_queue()
     worker = IngestionWorker(get_database(), get_object_store())
+    queue.heartbeat()
+    for job in worker.recoverable_jobs():
+        queue.enqueue(job)
     logger.info("ingestion worker started")
     while True:
         try:
+            queue.heartbeat()
             job = queue.dequeue()
             if job is not None:
-                worker.process(job)
+                result = worker.process(job)
+                if result == "retry":
+                    queue.enqueue(job)
+            else:
+                for recoverable_job in worker.recoverable_jobs():
+                    queue.enqueue(recoverable_job)
         except KeyboardInterrupt:
             return
         except Exception:

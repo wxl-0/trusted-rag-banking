@@ -4,7 +4,7 @@ import pickle
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
-from uuid import uuid4
+from uuid import NAMESPACE_URL, uuid5
 
 from rank_bm25 import BM25Okapi
 from sqlalchemy import text
@@ -237,7 +237,10 @@ class BM25GenerationManager:
         version_id,
         chunks: list[dict],
     ) -> dict:
-        generation_id = uuid4()
+        generation_id = uuid5(
+            NAMESPACE_URL,
+            f"trusted-rag:bm25-generation:{version_id}",
+        )
         path = self.generation_dir / f"{generation_id}.pkl"
         baseline = [
             chunk for chunk in self._active_chunks()
@@ -251,6 +254,33 @@ class BM25GenerationManager:
             "checksum_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
             "chunk_count": len(index.chunks),
         }
+
+    def cleanup_candidate(self, version_id) -> None:
+        deterministic_path = self.generation_dir / (
+            f"{uuid5(NAMESPACE_URL, f'trusted-rag:bm25-generation:{version_id}')}.pkl"
+        )
+        with self.database.session() as session:
+            paths = session.execute(text("""
+                SELECT generation.artifact_path
+                FROM bm25_generations AS generation
+                LEFT JOIN knowledge_index_state AS state
+                  ON state.active_bm25_generation_id = generation.id
+                WHERE generation.document_version_id = :version_id
+                  AND generation.published_at IS NULL
+                  AND state.active_bm25_generation_id IS NULL
+            """), {"version_id": version_id}).scalars().all()
+        for path in {deterministic_path, *(Path(item) for item in paths)}:
+            path.unlink(missing_ok=True)
+        with self.database.session() as session, session.begin():
+            session.execute(text("""
+                DELETE FROM bm25_generations AS generation
+                WHERE generation.document_version_id = :version_id
+                  AND generation.published_at IS NULL
+                  AND NOT EXISTS (
+                      SELECT 1 FROM knowledge_index_state AS state
+                      WHERE state.active_bm25_generation_id = generation.id
+                  )
+            """), {"version_id": version_id})
 
     def validate_candidate(
         self,

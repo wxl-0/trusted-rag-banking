@@ -96,6 +96,7 @@ class IngestionTaskResponse(BaseModel):
     id: UUID
     state: Literal["queued", "parsing", "indexing", "succeeded", "failed"]
     status: Literal["succeeded", "in_progress", "failed"]
+    result_code: Optional[str] = None
     result_message: Optional[str] = None
     created_at: datetime
     updated_at: datetime

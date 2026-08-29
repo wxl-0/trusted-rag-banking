@@ -50,6 +50,7 @@ class VersionPublisher:
         chunk_count: int,
         expected_current_version_id,
         expected_generation_id,
+        lease_token=None,
     ) -> None:
         try:
             with self.coordination_lock.hold(document_id):
@@ -61,6 +62,7 @@ class VersionPublisher:
                     chunk_count=chunk_count,
                     expected_current_version_id=expected_current_version_id,
                     expected_generation_id=expected_generation_id,
+                    lease_token=lease_token,
                 )
         except ActivationConflict:
             self._mark_conflict(task_id)
@@ -76,6 +78,7 @@ class VersionPublisher:
         chunk_count,
         expected_current_version_id,
         expected_generation_id,
+        lease_token,
     ) -> None:
         with self.database.session() as session, session.begin():
             current_version_id = session.execute(text("""
@@ -94,7 +97,7 @@ class VersionPublisher:
             candidate = session.execute(text("""
                 SELECT version.document_id,
                        task.document_version_id AS task_version_id,
-                       task.state,
+                       task.state, task.lease_token,
                        generation.document_version_id AS generation_version_id
                 FROM document_versions AS version
                 JOIN ingestion_tasks AS task ON task.id = :task_id
@@ -112,6 +115,10 @@ class VersionPublisher:
                 or candidate["task_version_id"] != version_id
                 or candidate["generation_version_id"] != version_id
                 or candidate["state"] != "indexing"
+                or (
+                    lease_token is not None
+                    and candidate["lease_token"] != lease_token
+                )
                 or current_version_id != expected_current_version_id
                 or active_generation_id != expected_generation_id
             ):
@@ -140,9 +147,12 @@ class VersionPublisher:
             session.execute(text("""
                 UPDATE ingestion_tasks
                 SET state = 'succeeded',
+                    result_code = NULL,
                     result_message = :message,
                     updated_at = now(),
-                    completed_at = now()
+                    completed_at = now(),
+                    lease_token = NULL,
+                    lease_expires_at = NULL
                 WHERE id = :task_id
             """), {
                 "task_id": task_id,
@@ -154,6 +164,7 @@ class VersionPublisher:
             session.execute(text("""
                 UPDATE ingestion_tasks
                 SET state = 'failed',
+                    result_code = 'INGESTION_ACTIVATION_CONFLICT',
                     result_message = '版本发布冲突',
                     updated_at = now(),
                     completed_at = now()

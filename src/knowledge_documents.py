@@ -162,6 +162,7 @@ class KnowledgeDocumentStore:
                     current_version.version_number AS current_version_number,
                     latest_task.id AS latest_task_id,
                     latest_task.state AS latest_task_state,
+                    latest_task.result_code,
                     CASE
                         WHEN latest_task.state = 'succeeded' THEN 'succeeded'
                         WHEN latest_task.state = 'failed' THEN 'failed'
@@ -216,6 +217,7 @@ class KnowledgeDocumentStore:
                     "id": row["latest_task_id"],
                     "state": row["latest_task_state"],
                     "status": row["latest_task_status"],
+                    "result_code": row["result_code"],
                     "result_message": row["result_message"],
                     "created_at": row["task_created_at"],
                     "updated_at": row["task_updated_at"],

@@ -5,7 +5,7 @@ from uuid import NAMESPACE_URL, uuid5
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance, VectorParams, PointStruct, Filter,
-    FieldCondition, MatchAny, MatchValue,
+    FieldCondition, FilterSelector, MatchAny, MatchValue,
 )
 from dotenv import load_dotenv
 from src.indexer.embedder import Embedder
@@ -134,3 +134,16 @@ class DocumentVectorIndex:
             exact=True,
         )
         return result.count == expected_count
+
+    def delete_version(self, version_id) -> None:
+        selector = FilterSelector(filter=Filter(must=[FieldCondition(
+            key="document_version_id",
+            match=MatchValue(value=str(version_id)),
+        )]))
+        for collection in (COLLECTION_REGULATIONS, COLLECTION_TABLES):
+            if self.index.client.collection_exists(collection):
+                self.index.client.delete(
+                    collection_name=collection,
+                    points_selector=selector,
+                    wait=True,
+                )

@@ -106,11 +106,15 @@ def _insert_version(
             "filename": f"监管制度-v{version_number}.docx",
         })
         session.execute(text("""
-            INSERT INTO ingestion_tasks (id, document_version_id, state)
-            VALUES (:task_id, :version_id, :task_state)
+            INSERT INTO ingestion_tasks (
+                id, document_version_id, idempotency_key, state
+            ) VALUES (
+                :task_id, :version_id, :idempotency_key, :task_state
+            )
         """), {
             "task_id": task_id,
             "version_id": version_id,
+            "idempotency_key": str(task_id),
             "task_state": task_state,
         })
         session.execute(text("""

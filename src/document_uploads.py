@@ -81,6 +81,9 @@ class MinioObjectStore:
             content_type=content_type,
         )
 
+    def ping(self):
+        self.client.bucket_exists(self.bucket_name)
+
 
 class RedisIngestionQueue:
     def __init__(self):
@@ -92,6 +95,14 @@ class RedisIngestionQueue:
             "INGESTION_QUEUE_NAME",
             "trusted-rag:ingestion",
         )
+        self.worker_heartbeat_key = os.getenv(
+            "INGESTION_WORKER_HEARTBEAT_KEY",
+            "trusted-rag:ingestion:worker:heartbeat",
+        )
+        self.worker_heartbeat_ttl = int(os.getenv(
+            "INGESTION_WORKER_HEARTBEAT_TTL_SECONDS",
+            "15",
+        ))
 
     def enqueue(self, job):
         self.client.rpush(
@@ -105,6 +116,19 @@ class RedisIngestionQueue:
             return None
         _queue_name, payload = result
         return json.loads(payload)
+
+    def ping(self):
+        self.client.ping()
+
+    def heartbeat(self):
+        self.client.setex(
+            self.worker_heartbeat_key,
+            self.worker_heartbeat_ttl,
+            "alive",
+        )
+
+    def worker_alive(self) -> bool:
+        return bool(self.client.exists(self.worker_heartbeat_key))
 
 
 @lru_cache(maxsize=1)
@@ -230,11 +254,15 @@ class DocumentUploadService:
                 })
                 session.execute(text("""
                     INSERT INTO ingestion_tasks (
-                        id, document_version_id, state
+                        id, document_version_id, idempotency_key, state
                     ) VALUES (
-                        :task_id, :version_id, 'queued'
+                        :task_id, :version_id, :idempotency_key, 'queued'
                     )
-                """), {"task_id": task_id, "version_id": version_id})
+                """), {
+                    "task_id": task_id,
+                    "version_id": version_id,
+                    "idempotency_key": str(task_id),
+                })
         except Exception:
             self.object_store.delete(object_key)
             raise
@@ -243,6 +271,7 @@ class DocumentUploadService:
             "document_id": str(document_id),
             "version_id": str(version_id),
             "task_id": str(task_id),
+            "idempotency_key": str(task_id),
         }
         try:
             self.ingestion_queue.enqueue(job)
