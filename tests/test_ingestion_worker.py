@@ -1,4 +1,5 @@
 import json
+from contextlib import contextmanager
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -6,6 +7,7 @@ import pytest
 from sqlalchemy import text
 
 from src.database import Database
+from src.index_activation import VersionPublisher
 from src.index_visibility import CurrentVersionVisibility
 from src.ingestion_worker import IngestionWorker, SingleDocumentParser
 from src.indexer.bm25_index import BM25GenerationManager, BM25Index, PublishedBM25Index
@@ -110,6 +112,16 @@ class PassThroughReranker:
         return chunks[:top_k]
 
 
+class NoopActivationLock:
+    @contextmanager
+    def hold(self, document_id):
+        yield
+
+
+def _publisher(database):
+    return VersionPublisher(database, NoopActivationLock())
+
+
 def _seed_queued_upload(database: Database):
     document_id = uuid4()
     version_id = uuid4()
@@ -146,6 +158,93 @@ def _seed_queued_upload(database: Database):
     }
 
 
+def _seed_queued_update(database: Database):
+    document_id = uuid4()
+    old_version_id = uuid4()
+    old_task_id = uuid4()
+    old_generation_id = uuid4()
+    candidate_version_id = uuid4()
+    candidate_task_id = uuid4()
+    with database.session() as session, session.begin():
+        session.execute(text("""
+            INSERT INTO knowledge_documents (id) VALUES (:document_id)
+        """), {"document_id": document_id})
+        session.execute(text("""
+            INSERT INTO document_versions (
+                id, document_id, version_number, original_filename, size_bytes,
+                uploaded_by_subject, uploaded_by_name
+            ) VALUES (
+                :version_id, :document_id, 1, '监管制度-v1.docx', 10,
+                'maintainer', '知识库维护者'
+            )
+        """), {"version_id": old_version_id, "document_id": document_id})
+        session.execute(text("""
+            INSERT INTO ingestion_tasks (
+                id, document_version_id, state, completed_at
+            ) VALUES (:task_id, :version_id, 'succeeded', now())
+        """), {"task_id": old_task_id, "version_id": old_version_id})
+        session.execute(text("""
+            INSERT INTO bm25_generations (
+                id, document_version_id, artifact_path,
+                checksum_sha256, chunk_count, published_at
+            ) VALUES (
+                :generation_id, :version_id, :artifact_path,
+                :checksum, 10, now()
+            )
+        """), {
+            "generation_id": old_generation_id,
+            "version_id": old_version_id,
+            "artifact_path": f"data/bm25_generations/{old_generation_id}.pkl",
+            "checksum": "c" * 64,
+        })
+        session.execute(text("""
+            UPDATE knowledge_documents
+            SET current_version_id = :version_id
+            WHERE id = :document_id
+        """), {"version_id": old_version_id, "document_id": document_id})
+        session.execute(text("""
+            UPDATE knowledge_index_state
+            SET active_bm25_generation_id = :generation_id
+            WHERE id = 1
+        """), {"generation_id": old_generation_id})
+        session.execute(text("""
+            INSERT INTO document_versions (
+                id, document_id, version_number, original_filename, size_bytes,
+                uploaded_by_subject, uploaded_by_name, object_bucket,
+                object_key, checksum_sha256, content_type
+            ) VALUES (
+                :version_id, :document_id, 2, '监管制度-v2.docx', 15,
+                'maintainer', '知识库维护者', 'knowledge-documents',
+                :object_key, :checksum, :content_type
+            )
+        """), {
+            "version_id": candidate_version_id,
+            "document_id": document_id,
+            "object_key": (
+                f"documents/{document_id}/versions/"
+                f"{candidate_version_id}/original.docx"
+            ),
+            "checksum": "d" * 64,
+            "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        })
+        session.execute(text("""
+            INSERT INTO ingestion_tasks (id, document_version_id, state)
+            VALUES (:task_id, :version_id, 'queued')
+        """), {
+            "task_id": candidate_task_id,
+            "version_id": candidate_version_id,
+        })
+    return (
+        {
+            "document_id": str(document_id),
+            "version_id": str(candidate_version_id),
+            "task_id": str(candidate_task_id),
+        },
+        old_version_id,
+        old_generation_id,
+    )
+
+
 @pytest.fixture
 def ingestion_database(migrated_postgres_url):
     database = Database(migrated_postgres_url)
@@ -169,6 +268,7 @@ def test_worker_persists_artifacts_and_publishes_only_after_validation(
         parser,
         vector_index,
         bm25,
+        _publisher(ingestion_database),
     )
 
     worker.process(job)
@@ -241,6 +341,7 @@ def test_worker_failure_is_safe_and_never_publishes(
         parser,
         RecordingVectorIndex(ingestion_database, fail=vector_fail),
         RecordingBM25Generations(fail=bm25_fail),
+        _publisher(ingestion_database),
     )
 
     worker.process(job)
@@ -265,6 +366,47 @@ def test_worker_failure_is_safe_and_never_publishes(
     assert "secret" not in task["result_message"]
     assert current_version_id is None
     assert active_generation is None
+
+
+@pytest.mark.parametrize(("vector_fail", "bm25_fail"), [
+    (True, False),
+    (False, True),
+])
+def test_index_failure_keeps_old_version_and_generation_active(
+    ingestion_database,
+    vector_fail,
+    bm25_fail,
+):
+    job, old_version_id, old_generation_id = _seed_queued_update(
+        ingestion_database
+    )
+    worker = IngestionWorker(
+        ingestion_database,
+        RecordingObjectStore(),
+        RecordingParser(ingestion_database),
+        RecordingVectorIndex(ingestion_database, fail=vector_fail),
+        RecordingBM25Generations(fail=bm25_fail),
+        _publisher(ingestion_database),
+    )
+
+    worker.process(job)
+
+    with ingestion_database.session() as session:
+        current_version_id = session.execute(text("""
+            SELECT current_version_id FROM knowledge_documents
+            WHERE id = :document_id
+        """), {"document_id": UUID(job["document_id"])}).scalar_one()
+        active_generation_id = session.execute(text("""
+            SELECT active_bm25_generation_id
+            FROM knowledge_index_state WHERE id = 1
+        """)).scalar_one()
+        task = session.execute(text("""
+            SELECT state, result_message FROM ingestion_tasks
+            WHERE id = :task_id
+        """), {"task_id": UUID(job["task_id"])}).mappings().one()
+    assert current_version_id == old_version_id
+    assert active_generation_id == old_generation_id
+    assert task == {"state": "failed", "result_message": "索引构建失败"}
 
 
 def test_published_generation_makes_document_retrievable_with_evidence(
@@ -294,6 +436,7 @@ def test_published_generation_makes_document_retrievable_with_evidence(
         RecordingParser(ingestion_database),
         RecordingVectorIndex(ingestion_database),
         generations,
+        _publisher(ingestion_database),
     )
 
     worker.process(job)

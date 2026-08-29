@@ -8,6 +8,11 @@ from sqlalchemy import text
 
 from scripts import ingest
 from src.database import Database
+from src.index_activation import (
+    ActivationConflict,
+    RedisActivationLock,
+    VersionPublisher,
+)
 from src.indexer.bm25_index import BM25GenerationManager
 from src.indexer.qdrant_index import DocumentVectorIndex
 
@@ -38,12 +43,17 @@ class IngestionWorker:
         parser=None,
         vector_index=None,
         bm25_generations=None,
+        publisher=None,
     ):
         self.database = database
         self.object_store = object_store
         self.parser = parser or SingleDocumentParser()
         self.vector_index = vector_index or DocumentVectorIndex()
         self.bm25_generations = bm25_generations or BM25GenerationManager(database)
+        self.publisher = publisher or VersionPublisher(
+            database,
+            RedisActivationLock(),
+        )
 
     def process(self, job: dict) -> None:
         version = self._load_job(job)
@@ -88,7 +98,17 @@ class IngestionWorker:
             ):
                 raise RuntimeError("BM25 candidate validation failed")
             self._record_generation(generation, version["id"])
-            self._publish(version, generation, len(enriched))
+            self.publisher.publish(
+                document_id=version["document_id"],
+                version_id=version["id"],
+                task_id=version["task_id"],
+                generation_id=generation["id"],
+                chunk_count=len(enriched),
+                expected_current_version_id=version["current_version_id"],
+                expected_generation_id=version["active_bm25_generation_id"],
+            )
+        except ActivationConflict:
+            return
         except Exception:
             message = "文档解析失败" if stage == "parsing" else "索引构建失败"
             self._fail(version["task_id"], message)
@@ -105,10 +125,14 @@ class IngestionWorker:
                 SELECT version.id, version.document_id,
                        version.original_filename, version.object_bucket,
                        version.object_key, version.content_type, task.id AS task_id,
-                       task.state
+                       task.state, document.current_version_id,
+                       index_state.active_bm25_generation_id
                 FROM document_versions AS version
                 JOIN ingestion_tasks AS task
                   ON task.document_version_id = version.id
+                JOIN knowledge_documents AS document
+                  ON document.id = version.document_id
+                JOIN knowledge_index_state AS index_state ON index_state.id = 1
                 WHERE version.id = :version_id
                   AND version.document_id = :document_id
                   AND task.id = :task_id
@@ -199,40 +223,6 @@ class IngestionWorker:
                     :checksum_sha256, :chunk_count
                 )
             """), {**generation, "version_id": version_id})
-
-    def _publish(self, version: dict, generation: dict, chunk_count: int) -> None:
-        with self.database.session() as session, session.begin():
-            session.execute(text("""
-                UPDATE knowledge_documents
-                SET current_version_id = :version_id,
-                    updated_at = now()
-                WHERE id = :document_id
-            """), {
-                "version_id": version["id"],
-                "document_id": version["document_id"],
-            })
-            session.execute(text("""
-                UPDATE bm25_generations
-                SET published_at = now()
-                WHERE id = :generation_id
-            """), {"generation_id": generation["id"]})
-            session.execute(text("""
-                UPDATE knowledge_index_state
-                SET active_bm25_generation_id = :generation_id,
-                    updated_at = now()
-                WHERE id = 1
-            """), {"generation_id": generation["id"]})
-            session.execute(text("""
-                UPDATE ingestion_tasks
-                SET state = 'succeeded',
-                    result_message = :message,
-                    updated_at = now(),
-                    completed_at = now()
-                WHERE id = :task_id
-            """), {
-                "task_id": version["task_id"],
-                "message": f"入库完成，共 {chunk_count} 个知识块",
-            })
 
     def _fail(self, task_id: UUID, message: str) -> None:
         with self.database.session() as session, session.begin():

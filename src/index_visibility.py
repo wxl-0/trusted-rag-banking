@@ -11,27 +11,37 @@ class CurrentVersionVisibility:
 
     def filter(self, chunks: list[dict]) -> list[dict]:
         versioned = {
-            str(chunk["document_version_id"])
+            (
+                str(chunk.get("knowledge_document_id", "")),
+                str(chunk.get("document_version_id", "")),
+            )
             for chunk in chunks
-            if chunk.get("document_version_id")
+            if chunk.get("knowledge_document_id")
+            or chunk.get("document_version_id")
         }
         if not versioned:
             return chunks
         try:
             with self.database.session() as session:
                 active = {
-                    str(value)
-                    for value in session.execute(text("""
-                        SELECT current_version_id
+                    (str(row["id"]), str(row["current_version_id"]))
+                    for row in session.execute(text("""
+                        SELECT id, current_version_id
                         FROM knowledge_documents
                         WHERE deleted_at IS NULL
                           AND current_version_id IS NOT NULL
-                    """)).scalars()
+                    """)).mappings()
                 }
         except DatabaseNotConfigured:
             active = set()
         return [
             chunk for chunk in chunks
-            if not chunk.get("document_version_id")
-            or str(chunk["document_version_id"]) in active
+            if not (
+                chunk.get("knowledge_document_id")
+                or chunk.get("document_version_id")
+            )
+            or (
+                str(chunk.get("knowledge_document_id", "")),
+                str(chunk.get("document_version_id", "")),
+            ) in active
         ]
