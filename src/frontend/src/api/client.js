@@ -94,6 +94,47 @@ export async function deleteConversation(conversationId, accessToken) {
   }
 }
 
+export async function fetchKnowledgeSummary(accessToken) {
+  const response = await fetch('/api/knowledge-documents/summary', {
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '读取知识库概览失败'))
+  }
+  return response.json()
+}
+
+export async function listKnowledgeDocuments({
+  search = '',
+  status = '',
+  cursor = null,
+  limit = 20,
+  accessToken = null,
+} = {}) {
+  const params = new URLSearchParams()
+  if (search) params.set('search', search)
+  if (status) params.set('status', status)
+  if (cursor) params.set('cursor', cursor)
+  params.set('limit', limit)
+  const response = await fetch(`/api/knowledge-documents?${params}`, {
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '读取知识文档失败'))
+  }
+  return response.json()
+}
+
+export async function fetchKnowledgeDocument(documentId, accessToken) {
+  const response = await fetch(`/api/knowledge-documents/${documentId}`, {
+    headers: requestHeaders(accessToken),
+  })
+  if (!response.ok) {
+    throw new Error(await responseError(response, '读取文档详情失败'))
+  }
+  return response.json()
+}
+
 export async function askQuestion(
   question, filters = null, history = null, accessToken = null,
 ) {

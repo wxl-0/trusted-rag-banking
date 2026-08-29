@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react'
 import MessageList from './components/MessageList'
 import ChatInput from './components/ChatInput'
 import ConversationSidebar from './components/ConversationSidebar'
+import KnowledgeBasePage from './components/KnowledgeBasePage'
 import {
   askQuestionStream,
   createConversation,
   deleteConversation,
   fetchConversation,
   fetchIdentity,
+  fetchKnowledgeDocument,
+  fetchKnowledgeSummary,
   listConversations,
+  listKnowledgeDocuments,
   renameConversation,
   toDisplayMessages,
 } from './api/client'
@@ -108,6 +112,15 @@ export default function App() {
   const [conversations, setConversations] = useState([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [activeView, setActiveView] = useState('chat')
+  const [knowledgeSummary, setKnowledgeSummary] = useState(null)
+  const [knowledgeDocuments, setKnowledgeDocuments] = useState([])
+  const [knowledgeCursor, setKnowledgeCursor] = useState(null)
+  const [knowledgeSearch, setKnowledgeSearch] = useState('')
+  const [knowledgeStatus, setKnowledgeStatus] = useState('')
+  const [knowledgeDetail, setKnowledgeDetail] = useState(null)
+  const [knowledgeLoading, setKnowledgeLoading] = useState(false)
+  const [knowledgeError, setKnowledgeError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -170,6 +183,7 @@ export default function App() {
   }
 
   const newConversation = () => {
+    setActiveView('chat')
     setConversationId(null)
     setMessages([])
     window.localStorage.removeItem(ACTIVE_CONVERSATION_KEY)
@@ -178,6 +192,7 @@ export default function App() {
   const selectConversation = async id => {
     const conversation = await fetchConversation(id, user.access_token)
     if (!conversation) return refreshHistory()
+    setActiveView('chat')
     setConversationId(id)
     setMessages(toDisplayMessages(conversation.messages))
     window.localStorage.setItem(ACTIVE_CONVERSATION_KEY, id)
@@ -192,6 +207,70 @@ export default function App() {
     await deleteConversation(id, user.access_token)
     if (id === conversationId) newConversation()
     await refreshHistory()
+  }
+
+  const loadKnowledgeDocuments = async ({
+    search = knowledgeSearch,
+    status = knowledgeStatus,
+    cursor = null,
+    append = false,
+  } = {}) => {
+    setKnowledgeLoading(true)
+    setKnowledgeError('')
+    try {
+      const result = await listKnowledgeDocuments({
+        search,
+        status,
+        cursor,
+        accessToken: user.access_token,
+      })
+      setKnowledgeDocuments(current => append ? [...current, ...result.items] : result.items)
+      setKnowledgeCursor(result.next_cursor)
+    } catch (error) {
+      setKnowledgeError(error.message)
+    } finally {
+      setKnowledgeLoading(false)
+    }
+  }
+
+  const showKnowledgeBase = async () => {
+    if (identity.business_role !== 'knowledge_maintainer') return
+    setActiveView('knowledge')
+    setKnowledgeDetail(null)
+    setKnowledgeLoading(true)
+    setKnowledgeError('')
+    try {
+      const [summary, result] = await Promise.all([
+        fetchKnowledgeSummary(user.access_token),
+        listKnowledgeDocuments({ accessToken: user.access_token }),
+      ])
+      setKnowledgeSummary(summary)
+      setKnowledgeDocuments(result.items)
+      setKnowledgeCursor(result.next_cursor)
+    } catch (error) {
+      setKnowledgeError(error.message)
+    } finally {
+      setKnowledgeLoading(false)
+    }
+  }
+
+  const searchKnowledgeDocuments = value => {
+    setKnowledgeSearch(value)
+    loadKnowledgeDocuments({ search: value, cursor: null })
+  }
+
+  const filterKnowledgeDocuments = value => {
+    setKnowledgeStatus(value)
+    loadKnowledgeDocuments({ status: value, cursor: null })
+  }
+
+  const showKnowledgeDocument = async documentId => {
+    setKnowledgeError('')
+    try {
+      setKnowledgeDetail(await fetchKnowledgeDocument(documentId, user.access_token))
+    } catch (error) {
+      setKnowledgeError(error.message)
+    }
   }
 
   const handleSend = async (question) => {
@@ -274,11 +353,14 @@ export default function App() {
         conversations={conversations}
         currentId={conversationId}
         collapsed={sidebarCollapsed}
+        activeView={activeView}
+        showKnowledgeBase={identity.business_role === 'knowledge_maintainer'}
         onNew={newConversation}
         onSelect={selectConversation}
         onSearch={refreshHistory}
         onRename={handleRename}
         onDelete={handleDelete}
+        onShowKnowledgeBase={showKnowledgeBase}
       />
       <div className="workspace-content">
         <header className="topbar">
@@ -297,15 +379,35 @@ export default function App() {
                 </svg>
               </button>
               <div className="view-context">
-                <strong>问答</strong>
-                <span>{currentConversationTitle}</span>
+                <strong>{activeView === 'knowledge' ? '知识库管理' : '问答'}</strong>
+                <span>{activeView === 'knowledge' ? '企业共享知识库' : currentConversationTitle}</span>
               </div>
             </div>
             <AccountMenu identity={identity} onLogout={logout} />
           </div>
         </header>
-        <MessageList messages={messages} />
-        <ChatInput onSend={handleSend} loading={loading} />
+        {activeView === 'knowledge' ? (
+          <KnowledgeBasePage
+            summary={knowledgeSummary}
+            documents={knowledgeDocuments}
+            detail={knowledgeDetail}
+            loading={knowledgeLoading}
+            error={knowledgeError}
+            search={knowledgeSearch}
+            status={knowledgeStatus}
+            nextCursor={knowledgeCursor}
+            onSearch={searchKnowledgeDocuments}
+            onStatusChange={filterKnowledgeDocuments}
+            onShowDetail={showKnowledgeDocument}
+            onCloseDetail={() => setKnowledgeDetail(null)}
+            onNextPage={() => loadKnowledgeDocuments({ cursor: knowledgeCursor, append: true })}
+          />
+        ) : (
+          <>
+            <MessageList messages={messages} />
+            <ChatInput onSend={handleSend} loading={loading} />
+          </>
+        )}
       </div>
     </div>
   )

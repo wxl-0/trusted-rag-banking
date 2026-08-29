@@ -162,3 +162,15 @@ def get_current_identity(
     if not identity.roles.intersection(ALLOWED_ROLES):
         raise _auth_error(403, "ROLE_REQUIRED", "当前账号没有系统访问权限")
     return identity
+
+
+def require_knowledge_maintainer(
+    identity: Identity = Depends(get_current_identity),
+) -> Identity:
+    if "knowledge_maintainer" not in identity.roles:
+        raise _auth_error(
+            403,
+            "KNOWLEDGE_MAINTAINER_REQUIRED",
+            "仅知识库维护者可以管理企业共享知识库",
+        )
+    return identity

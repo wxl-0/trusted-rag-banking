@@ -5,11 +5,14 @@ export default function ConversationSidebar({
   conversations,
   currentId,
   collapsed,
+  activeView = 'chat',
+  showKnowledgeBase = false,
   onNew,
   onSelect,
   onSearch,
   onRename,
   onDelete,
+  onShowKnowledgeBase,
 }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuId, setMenuId] = useState(null)
@@ -67,19 +70,32 @@ export default function ConversationSidebar({
         </label>
       )}
       <nav className="sidebar-primary" aria-label="主要功能">
-        <button className={`sidebar-nav-item ${currentId ? '' : 'is-active'}`} type="button" onClick={onNew}>
+        <button className={`sidebar-nav-item ${activeView === 'chat' && !currentId ? 'is-active' : ''}`} type="button" onClick={onNew}>
           <svg viewBox="0 0 20 20" aria-hidden="true">
             <path d="M4 4.5h12v9H9l-4 3v-3H4v-9Z" />
             <path d="M10 7v4M8 9h4" />
           </svg>
           <span>新对话</span>
         </button>
+        {showKnowledgeBase && (
+          <button
+            className={`sidebar-nav-item ${activeView === 'knowledge' ? 'is-active' : ''}`}
+            type="button"
+            onClick={onShowKnowledgeBase}
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M3.5 5.5 10 3l6.5 2.5L10 8 3.5 5.5Z" />
+              <path d="M3.5 5.5v7L10 15l6.5-2.5v-7M10 8v7" />
+            </svg>
+            <span>知识库管理</span>
+          </button>
+        )}
       </nav>
       <div className="sidebar-history">
         <span className="sidebar-section-label">最近</span>
         {conversations.map(conversation => (
           <div
-            className={`history-item ${conversation.id === currentId ? 'is-active' : ''} ${editingId === conversation.id ? 'is-renaming' : ''}`}
+            className={`history-item ${activeView === 'chat' && conversation.id === currentId ? 'is-active' : ''} ${editingId === conversation.id ? 'is-renaming' : ''}`}
             key={conversation.id}
           >
             {editingId === conversation.id ? (

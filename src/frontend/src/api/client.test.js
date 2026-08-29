@@ -6,7 +6,10 @@ import {
   createConversation,
   deleteConversation,
   fetchConversation,
+  fetchKnowledgeDocument,
+  fetchKnowledgeSummary,
   listConversations,
+  listKnowledgeDocuments,
   renameConversation,
   toDisplayMessages,
 } from './client.js'
@@ -157,4 +160,42 @@ test('history client lists renames and deletes conversations', async () => {
   assert.deepEqual(JSON.parse(calls[1][1].body), { title: '新标题' })
   assert.equal(calls[1][1].method, 'PATCH')
   assert.equal(calls[2][1].method, 'DELETE')
+})
+
+test('knowledge document client reads summary filtered list and detail', async () => {
+  const originalFetch = globalThis.fetch
+  const calls = []
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push([url, options])
+    return new Response(JSON.stringify(
+      url.endsWith('/summary')
+        ? { succeeded: 1, in_progress: 2, failed: 3, updated_at: null }
+        : url.includes('document-1')
+          ? { id: 'document-1', original_filename: '监管办法.pdf' }
+          : { items: [], next_cursor: null },
+    ), { status: 200 })
+  }
+
+  try {
+    await fetchKnowledgeSummary('access-token')
+    await listKnowledgeDocuments({
+      search: '资本',
+      status: 'in_progress',
+      cursor: 'next-page',
+      limit: 10,
+      accessToken: 'access-token',
+    })
+    await fetchKnowledgeDocument('document-1', 'access-token')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
+  assert.equal(calls[0][0], '/api/knowledge-documents/summary')
+  assert.equal(calls[0][1].headers.Authorization, 'Bearer access-token')
+  assert.equal(
+    calls[1][0],
+    '/api/knowledge-documents?search=%E8%B5%84%E6%9C%AC&status=in_progress&cursor=next-page&limit=10',
+  )
+  assert.equal(calls[2][0], '/api/knowledge-documents/document-1')
+  assert.equal(calls[2][1].headers.Authorization, 'Bearer access-token')
 })

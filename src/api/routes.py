@@ -15,13 +15,17 @@ from src.api.models import (
     ConversationSummaryResponse,
     IdentityResponse,
     IngestRequest,
+    KnowledgeDocumentDetailResponse,
+    KnowledgeDocumentListResponse,
+    KnowledgeDocumentSummaryResponse,
     RenameConversationRequest,
 )
-from src.auth import Identity, get_current_identity
+from src.auth import Identity, get_current_identity, require_knowledge_maintainer
 from src.conversations import Conversation, ConversationMessage, ConversationStore
 from src.context_control import prepare_conversation_history
 from src.database import Database, get_database
 from src.generator.answer_builder import AnswerBuilder
+from src.knowledge_documents import KnowledgeDocumentStore
 
 router = APIRouter()
 builder = AnswerBuilder()
@@ -82,6 +86,89 @@ def _conversation_not_found() -> HTTPException:
         detail={
             "code": "CONVERSATION_NOT_FOUND",
             "message": "对话不存在",
+        },
+    )
+
+
+@router.get(
+    "/knowledge-documents/summary",
+    response_model=KnowledgeDocumentSummaryResponse,
+)
+def knowledge_document_summary(
+    _identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+):
+    return KnowledgeDocumentStore(database).summary()
+
+
+def _encode_document_cursor(item: dict, offset: int) -> str:
+    value = f"{item['updated_at'].isoformat()}|{item['id']}|{offset}"
+    return base64.urlsafe_b64encode(value.encode()).decode()
+
+
+def _decode_document_cursor(
+    cursor: str | None,
+) -> tuple[tuple[datetime, UUID] | None, int]:
+    if not cursor:
+        return None, 0
+    try:
+        timestamp, document_id, offset = base64.urlsafe_b64decode(
+            cursor.encode()
+        ).decode().rsplit("|", 2)
+        return (datetime.fromisoformat(timestamp), UUID(document_id)), int(offset)
+    except (ValueError, UnicodeDecodeError):
+        raise HTTPException(status_code=400, detail="cursor 无效")
+
+
+@router.get(
+    "/knowledge-documents",
+    response_model=KnowledgeDocumentListResponse,
+)
+def list_knowledge_documents(
+    search: str | None = None,
+    status: str | None = Query(default=None, pattern="^(succeeded|in_progress|failed)$"),
+    cursor: str | None = None,
+    limit: int = Query(default=20, ge=1, le=100),
+    _identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+):
+    before, offset = _decode_document_cursor(cursor)
+    documents = KnowledgeDocumentStore(database).list(
+        search=search.strip() if search and search.strip() else None,
+        status=status,
+        before=before,
+        limit=limit + 1,
+    )
+    has_more = len(documents) > limit
+    items = documents[:limit]
+    for index, item in enumerate(items, offset + 1):
+        item["sequence"] = index
+    return {
+        "items": items,
+        "next_cursor": (
+            _encode_document_cursor(items[-1], offset + len(items))
+            if has_more else None
+        ),
+    }
+
+
+@router.get(
+    "/knowledge-documents/{document_id}",
+    response_model=KnowledgeDocumentDetailResponse,
+)
+def get_knowledge_document(
+    document_id: UUID,
+    _identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+):
+    document = KnowledgeDocumentStore(database).get(document_id)
+    if document is not None:
+        return document
+    raise HTTPException(
+        status_code=404,
+        detail={
+            "code": "KNOWLEDGE_DOCUMENT_NOT_FOUND",
+            "message": "知识文档不存在",
         },
     )
 

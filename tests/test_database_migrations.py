@@ -19,6 +19,9 @@ def test_alembic_upgrades_an_empty_postgresql_database(migrated_postgres_url):
             "alembic_version",
             "conversation_messages",
             "conversations",
+            "document_versions",
+            "ingestion_tasks",
+            "knowledge_documents",
         }
     finally:
         engine.dispose()
