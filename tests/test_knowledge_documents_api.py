@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from io import BytesIO
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -11,6 +12,7 @@ with patch("src.generator.answer_builder.AnswerBuilder.__init__", lambda self: N
 
 from src.auth import Identity, get_current_identity
 from src.database import Database, get_database
+from src.document_uploads import get_object_store
 from src.index_visibility import CurrentVersionVisibility
 
 
@@ -69,6 +71,8 @@ def _seed_document(
     updated_at: datetime,
     size_bytes: int = 1024,
     result_code: str | None = None,
+    object_key: str | None = None,
+    content_type: str | None = None,
 ) -> str:
     document_id = uuid4()
     version_id = uuid4()
@@ -81,16 +85,21 @@ def _seed_document(
         session.execute(text("""
             INSERT INTO document_versions (
                 id, document_id, version_number, original_filename, size_bytes,
-                uploaded_by_subject, uploaded_by_name, created_at, updated_at
+                uploaded_by_subject, uploaded_by_name, object_bucket,
+                object_key, content_type, created_at, updated_at
             ) VALUES (
                 :id, :document_id, 1, :filename, :size_bytes,
-                'maintainer-subject', '知识库维护者', :updated_at, :updated_at
+                'maintainer-subject', '知识库维护者', :object_bucket,
+                :object_key, :content_type, :updated_at, :updated_at
             )
         """), {
             "id": version_id,
             "document_id": document_id,
             "filename": filename,
             "size_bytes": size_bytes,
+            "object_bucket": "knowledge-documents" if object_key else None,
+            "object_key": object_key,
+            "content_type": content_type,
             "updated_at": updated_at,
         })
         session.execute(text("""
@@ -126,6 +135,34 @@ def _seed_document(
                 WHERE id = :document_id
             """), {"version_id": version_id, "document_id": document_id})
     return str(document_id)
+
+
+class DownloadObjectStore:
+    def __init__(self):
+        self.objects = {}
+
+    def open_download(self, object_key):
+        try:
+            return BytesIO(self.objects[object_key])
+        except KeyError as error:
+            raise FileNotFoundError(object_key) from error
+
+
+@pytest.fixture
+def download_client(migrated_postgres_url):
+    database = Database(migrated_postgres_url)
+    object_store = DownloadObjectStore()
+    app.dependency_overrides[get_database] = lambda: database
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "knowledge_maintainer"
+    )
+    app.dependency_overrides[get_object_store] = lambda: object_store
+    try:
+        with TestClient(app) as client:
+            yield client, database, object_store
+    finally:
+        app.dependency_overrides.clear()
+        database.dispose()
 
 
 def test_maintainer_reads_knowledge_document_summary(knowledge_client):
@@ -349,6 +386,169 @@ def test_document_detail_exposes_only_stable_ingestion_failure(knowledge_client)
     )
     assert response.json()["latest_task"]["result_message"] == "文档解析失败"
     assert "password" not in response.text
+
+
+@pytest.mark.parametrize("state", ["succeeded", "parsing", "failed"])
+def test_maintainer_downloads_latest_original_in_any_ingestion_state(
+    download_client,
+    state,
+):
+    client, database, object_store = download_client
+    content = f"original-{state}".encode()
+    object_key = f"documents/{uuid4()}/original.pdf"
+    object_store.objects[object_key] = content
+    document_id = _seed_document(
+        database,
+        filename="商业银行资本管理办法.pdf",
+        state=state,
+        size_bytes=len(content),
+        object_key=object_key,
+        content_type="application/pdf",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+
+    response = client.get(f"/api/knowledge-documents/{document_id}/download")
+
+    assert response.status_code == 200
+    assert response.content == content
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["content-length"] == str(len(content))
+    assert response.headers["content-disposition"] == (
+        "attachment; filename*=UTF-8''"
+        "%E5%95%86%E4%B8%9A%E9%93%B6%E8%A1%8C%E8%B5%84%E6%9C%AC"
+        "%E7%AE%A1%E7%90%86%E5%8A%9E%E6%B3%95.pdf"
+    )
+
+
+def test_document_download_requires_maintainer_and_active_document(download_client):
+    client, database, object_store = download_client
+    content = b"original"
+    object_key = f"documents/{uuid4()}/original.pdf"
+    object_store.objects[object_key] = content
+    document_id = _seed_document(
+        database,
+        filename="监管办法.pdf",
+        state="succeeded",
+        size_bytes=len(content),
+        object_key=object_key,
+        content_type="application/pdf",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+
+    app.dependency_overrides[get_current_identity] = lambda: _identity("member")
+    forbidden = client.get(f"/api/knowledge-documents/{document_id}/download")
+    assert forbidden.status_code == 403
+
+    app.dependency_overrides[get_current_identity] = lambda: _identity(
+        "knowledge_maintainer"
+    )
+    assert client.delete(f"/api/knowledge-documents/{document_id}").status_code == 204
+    missing = client.get(f"/api/knowledge-documents/{document_id}/download")
+    assert missing.status_code == 404
+    assert missing.json()["detail"]["code"] == "KNOWLEDGE_DOCUMENT_NOT_FOUND"
+
+
+def test_document_download_returns_404_when_original_is_missing(download_client):
+    client, database, _object_store = download_client
+    without_object_key = _seed_document(
+        database,
+        filename="历史监管办法.pdf",
+        state="failed",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+    missing_object = _seed_document(
+        database,
+        filename="丢失原件的监管办法.pdf",
+        state="failed",
+        object_key=f"documents/{uuid4()}/original.pdf",
+        content_type="application/pdf",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+
+    for document_id in (without_object_key, missing_object):
+        response = client.get(
+            f"/api/knowledge-documents/{document_id}/download"
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == {
+            "code": "KNOWLEDGE_DOCUMENT_ORIGINAL_NOT_FOUND",
+            "message": "知识文档原件不存在",
+        }
+        assert "documents/" not in response.text
+
+
+def test_document_download_uses_latest_uploaded_version(download_client):
+    client, database, object_store = download_client
+    old_key = f"documents/{uuid4()}/original.pdf"
+    new_key = f"documents/{uuid4()}/original.docx"
+    object_store.objects[old_key] = b"old-version"
+    object_store.objects[new_key] = b"latest-version"
+    document_id = _seed_document(
+        database,
+        filename="旧版监管办法.pdf",
+        state="succeeded",
+        size_bytes=len(object_store.objects[old_key]),
+        object_key=old_key,
+        content_type="application/pdf",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+    with database.session() as session, session.begin():
+        session.execute(text("""
+            INSERT INTO document_versions (
+                id, document_id, version_number, original_filename, size_bytes,
+                uploaded_by_subject, uploaded_by_name, object_bucket,
+                object_key, content_type
+            ) VALUES (
+                :id, :document_id, 2, :filename, :size_bytes,
+                'maintainer-subject', '知识库维护者',
+                'knowledge-documents', :object_key, :content_type
+            )
+        """), {
+            "id": uuid4(),
+            "document_id": document_id,
+            "filename": "新版监管办法.docx",
+            "size_bytes": len(object_store.objects[new_key]),
+            "object_key": new_key,
+            "content_type": (
+                "application/vnd.openxmlformats-officedocument."
+                "wordprocessingml.document"
+            ),
+        })
+
+    response = client.get(f"/api/knowledge-documents/{document_id}/download")
+
+    assert response.status_code == 200
+    assert response.content == b"latest-version"
+    assert response.headers["content-disposition"].endswith(
+        "%E6%96%B0%E7%89%88%E7%9B%91%E7%AE%A1%E5%8A%9E%E6%B3%95.docx"
+    )
+
+
+def test_document_download_hides_unexpected_storage_failure(download_client):
+    client, database, _object_store = download_client
+    document_id = _seed_document(
+        database,
+        filename="监管办法.pdf",
+        state="failed",
+        object_key=f"documents/{uuid4()}/original.pdf",
+        content_type="application/pdf",
+        updated_at=datetime(2026, 8, 28, 10, 20, tzinfo=timezone.utc),
+    )
+
+    class BrokenObjectStore:
+        def open_download(self, _object_key):
+            raise RuntimeError("private-minio-host/internal-object-key")
+
+    app.dependency_overrides[get_object_store] = lambda: BrokenObjectStore()
+    response = client.get(f"/api/knowledge-documents/{document_id}/download")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == {
+        "code": "KNOWLEDGE_DOCUMENT_DOWNLOAD_UNAVAILABLE",
+        "message": "知识文档暂时无法下载，请稍后重试",
+    }
+    assert "minio" not in response.text.lower()
+    assert "object-key" not in response.text
 
 
 def test_maintainer_withdraws_document_idempotently_and_audits_each_request(

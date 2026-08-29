@@ -6,8 +6,8 @@ import {
   createConversation,
   deleteConversation,
   deleteKnowledgeDocument,
+  downloadKnowledgeDocument,
   fetchConversation,
-  fetchKnowledgeDocument,
   fetchKnowledgeSummary,
   listConversations,
   listKnowledgeDocuments,
@@ -164,7 +164,7 @@ test('history client lists renames and deletes conversations', async () => {
   assert.equal(calls[2][1].method, 'DELETE')
 })
 
-test('knowledge document client reads summary filtered list and detail', async () => {
+test('knowledge document client reads summary and filtered list', async () => {
   const originalFetch = globalThis.fetch
   const calls = []
   globalThis.fetch = async (url, options = {}) => {
@@ -172,9 +172,7 @@ test('knowledge document client reads summary filtered list and detail', async (
     return new Response(JSON.stringify(
       url.endsWith('/summary')
         ? { succeeded: 1, in_progress: 2, failed: 3, updated_at: null }
-        : url.includes('document-1')
-          ? { id: 'document-1', original_filename: '监管办法.pdf' }
-          : { items: [], next_cursor: null },
+        : { items: [], next_cursor: null },
     ), { status: 200 })
   }
 
@@ -187,7 +185,6 @@ test('knowledge document client reads summary filtered list and detail', async (
       limit: 10,
       accessToken: 'access-token',
     })
-    await fetchKnowledgeDocument('document-1', 'access-token')
   } finally {
     globalThis.fetch = originalFetch
   }
@@ -198,8 +195,25 @@ test('knowledge document client reads summary filtered list and detail', async (
     calls[1][0],
     '/api/knowledge-documents?search=%E8%B5%84%E6%9C%AC&status=in_progress&page=2&limit=10',
   )
-  assert.equal(calls[2][0], '/api/knowledge-documents/document-1')
-  assert.equal(calls[2][1].headers.Authorization, 'Bearer access-token')
+})
+
+test('knowledge document client downloads the authenticated original', async () => {
+  const originalFetch = globalThis.fetch
+  let request
+  globalThis.fetch = async (url, options = {}) => {
+    request = [url, options]
+    return new Response('original-content', { status: 200 })
+  }
+
+  try {
+    const blob = await downloadKnowledgeDocument('document-1', 'access-token')
+    assert.equal(await blob.text(), 'original-content')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+
+  assert.equal(request[0], '/api/knowledge-documents/document-1/download')
+  assert.equal(request[1].headers.Authorization, 'Bearer access-token')
 })
 
 test('knowledge document client uploads one file as multipart data', async () => {
@@ -239,7 +253,12 @@ test('knowledge upload client exposes the safe server validation message', async
   try {
     await assert.rejects(
       uploadKnowledgeDocument(new File(['bad'], '伪装文件.pdf'), 'access-token'),
-      /文件内容与扩展名不匹配或文件已损坏/,
+      error => {
+        assert.equal(error.message, '文件内容与扩展名不匹配或文件已损坏')
+        assert.equal(error.status, 422)
+        assert.equal(error.code, 'UPLOAD_INVALID_CONTENT')
+        return true
+      },
     )
   } finally {
     globalThis.fetch = originalFetch

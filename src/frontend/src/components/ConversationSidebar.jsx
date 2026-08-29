@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import DeleteConfirmDialog from './DeleteConfirmDialog'
 
 
 export default function ConversationSidebar({
@@ -20,6 +21,14 @@ export default function ConversationSidebar({
   const [draft, setDraft] = useState('')
   const [deleteTarget, setDeleteTarget] = useState(null)
 
+  useEffect(() => {
+    if (menuId === null) return undefined
+
+    const closeMenu = () => setMenuId(null)
+    document.addEventListener('click', closeMenu)
+    return () => document.removeEventListener('click', closeMenu)
+  }, [menuId])
+
   if (collapsed) return null
 
   const startRename = conversation => {
@@ -33,6 +42,11 @@ export default function ConversationSidebar({
       await onRename(conversation.id, draft.trim())
     }
     setEditingId(null)
+  }
+
+  const selectConversation = conversationId => {
+    setMenuId(null)
+    onSelect(conversationId)
   }
 
   return (
@@ -114,7 +128,7 @@ export default function ConversationSidebar({
               <button
                 className="history-open"
                 type="button"
-                onClick={() => onSelect(conversation.id)}
+                onClick={() => selectConversation(conversation.id)}
               >{conversation.title}</button>
             )}
             <button
@@ -122,7 +136,10 @@ export default function ConversationSidebar({
               type="button"
               aria-label="管理对话"
               aria-expanded={menuId === conversation.id}
-              onClick={() => setMenuId(menuId === conversation.id ? null : conversation.id)}
+              onClick={event => {
+                event.stopPropagation()
+                setMenuId(menuId === conversation.id ? null : conversation.id)
+              }}
             >
               <svg viewBox="0 0 20 20" aria-hidden="true">
                 <circle cx="4" cy="10" r="1" />
@@ -144,18 +161,17 @@ export default function ConversationSidebar({
         {conversations.length === 0 && <div className="history-empty">没有对话</div>}
       </div>
       {deleteTarget && (
-        <div className="confirm-overlay" role="dialog" aria-modal="true" aria-label="删除对话">
-          <div className="confirm-dialog">
-            <strong>删除对话？</strong>
-            <div>
-              <button type="button" onClick={() => setDeleteTarget(null)}>取消</button>
-              <button type="button" className="danger" onClick={async () => {
-                await onDelete(deleteTarget.id)
-                setDeleteTarget(null)
-              }}>删除</button>
-            </div>
-          </div>
-        </div>
+        <DeleteConfirmDialog
+          title="删除对话？"
+          beforeName="这会删除“"
+          name={deleteTarget.title || '新对话'}
+          afterName="”"
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={async () => {
+            await onDelete(deleteTarget.id)
+            setDeleteTarget(null)
+          }}
+        />
       )}
     </aside>
   )

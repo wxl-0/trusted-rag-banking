@@ -1,10 +1,12 @@
 import asyncio
 import base64
 import json
+import logging
 import subprocess
 from datetime import datetime
 from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Response, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
+from urllib.parse import quote
 from uuid import UUID, uuid4
 
 from src.api.models import (
@@ -38,6 +40,7 @@ from src.readiness import ReadinessChecker, get_readiness_checker
 
 router = APIRouter()
 builder = AnswerBuilder()
+logger = logging.getLogger(__name__)
 
 STAGE_MESSAGES = {
     "analyzing": "正在分析问题",
@@ -190,6 +193,71 @@ def get_knowledge_document(
         detail={
             "code": "KNOWLEDGE_DOCUMENT_NOT_FOUND",
             "message": "知识文档不存在",
+        },
+    )
+
+
+@router.get("/knowledge-documents/{document_id}/download")
+def download_knowledge_document(
+    document_id: UUID,
+    _identity: Identity = Depends(require_knowledge_maintainer),
+    database: Database = Depends(get_database),
+    object_store=Depends(get_object_store),
+):
+    download = KnowledgeDocumentStore(database).get_download(document_id)
+    if download is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "KNOWLEDGE_DOCUMENT_NOT_FOUND",
+                "message": "知识文档不存在",
+            },
+        )
+    if not download["object_key"]:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "KNOWLEDGE_DOCUMENT_ORIGINAL_NOT_FOUND",
+                "message": "知识文档原件不存在",
+            },
+        )
+    try:
+        source = object_store.open_download(download["object_key"])
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "KNOWLEDGE_DOCUMENT_ORIGINAL_NOT_FOUND",
+                "message": "知识文档原件不存在",
+            },
+        )
+    except Exception:
+        logger.exception("Unable to open original for document %s", document_id)
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "KNOWLEDGE_DOCUMENT_DOWNLOAD_UNAVAILABLE",
+                "message": "知识文档暂时无法下载，请稍后重试",
+            },
+        )
+
+    def stream_original():
+        try:
+            while chunk := source.read(1024 * 1024):
+                yield chunk
+        finally:
+            source.close()
+            release = getattr(source, "release_conn", None)
+            if release is not None:
+                release()
+
+    filename = quote(download["original_filename"], safe="")
+    return StreamingResponse(
+        stream_original(),
+        media_type=download["content_type"] or "application/octet-stream",
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{filename}",
+            "Content-Length": str(download["size_bytes"]),
         },
     )
 

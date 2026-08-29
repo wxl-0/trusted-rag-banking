@@ -1,4 +1,5 @@
 import UploadDocumentModal from './UploadDocumentModal'
+import DeleteConfirmDialog from './DeleteConfirmDialog'
 
 
 const STATUS_LABELS = {
@@ -7,39 +8,26 @@ const STATUS_LABELS = {
   failed: '失败',
 }
 
-const TASK_STATE_LABELS = {
-  queued: '等待处理',
-  parsing: '正在解析',
-  indexing: '正在构建索引',
-  succeeded: '成功',
-  failed: '失败',
-}
-
-
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 ** 2) return `${Math.round(bytes / 1024)} KB`
   return `${(bytes / 1024 ** 2).toFixed(1)} MB`
 }
 
-function formatTime(value) {
+function formatUpdateTime(value) {
   if (!value) return '暂无更新'
-  return new Intl.DateTimeFormat('zh-CN', {
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(new Date(value))
-}
-
-function DetailItem({ label, children }) {
-  return (
-    <div className="detail-item">
-      <span>{label}</span>
-      <strong>{children}</strong>
-    </div>
-  )
+  const date = new Date(value)
+  const now = new Date()
+  if (Number.isNaN(date.getTime())) return '暂无更新'
+  const isToday = date.getFullYear() === now.getFullYear()
+    && date.getMonth() === now.getMonth()
+    && date.getDate() === now.getDate()
+  if (isToday) {
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${hours}:${minutes}`
+  }
+  return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
 function paginationItems(currentPage, totalPages) {
@@ -61,7 +49,6 @@ function paginationItems(currentPage, totalPages) {
 export default function KnowledgeBasePage({
   summary,
   documents,
-  detail,
   loading,
   error,
   search,
@@ -78,11 +65,10 @@ export default function KnowledgeBasePage({
   deleteLoading = false,
   onSearch,
   onStatusChange,
-  onShowDetail,
+  onDownload,
   onRequestDelete,
   onCancelDelete,
   onConfirmDelete,
-  onCloseDetail,
   onPageChange,
   onOpenUpload,
   onCloseUpload,
@@ -117,7 +103,7 @@ export default function KnowledgeBasePage({
           <div className="summary-item"><span className="summary-dot summary-dot-ready" /><div><strong>{totals.succeeded}</strong><span>成功</span></div></div>
           <div className="summary-item"><span className="summary-dot summary-dot-running" /><div><strong>{totals.in_progress}</strong><span>进行中</span></div></div>
           <div className="summary-item"><span className="summary-dot summary-dot-failed" /><div><strong>{totals.failed}</strong><span>失败</span></div></div>
-          <p>最近更新：{formatTime(totals.updated_at)}</p>
+          <p>最近更新：{formatUpdateTime(totals.updated_at)}</p>
         </div>
 
         <div className="library-toolbar">
@@ -150,12 +136,12 @@ export default function KnowledgeBasePage({
             {documents.map(document => (
               <article className="document-row document-grid" key={document.id}>
                 <span className="serial-number">{document.sequence}</span>
-                <div className="document-primary"><strong>《{document.filename}》</strong></div>
+                <div className="document-primary" data-full-name={`《${document.filename}》`}><strong>《{document.filename}》</strong></div>
                 <span className="file-size-text">{formatSize(document.size_bytes)}</span>
                 <span className={`status-pill status-${document.status}`}>{STATUS_LABELS[document.status]}</span>
-                <span className="updated-text">{formatTime(document.updated_at)}</span>
+                <span className="updated-text">{formatUpdateTime(document.updated_at)}</span>
                 <div className="row-actions">
-                  <button className="row-action" type="button" onClick={() => onShowDetail(document.id)}>详情</button>
+                  <button className="row-action" type="button" onClick={() => onDownload(document)}>下载</button>
                   <button className="row-action row-action-delete" type="button" onClick={() => onRequestDelete(document)}>删除</button>
                 </div>
               </article>
@@ -194,24 +180,6 @@ export default function KnowledgeBasePage({
         )}
       </div>
 
-      {detail && (
-        <div className="knowledge-detail-backdrop" role="presentation" onMouseDown={onCloseDetail}>
-          <section className="knowledge-detail" role="dialog" aria-modal="true" aria-labelledby="knowledge-detail-title" onMouseDown={event => event.stopPropagation()}>
-            <div className="knowledge-detail-header">
-              <div><span className="eyebrow">文档详情</span><h2 id="knowledge-detail-title">《{detail.original_filename}》</h2></div>
-              <button type="button" aria-label="关闭详情" onClick={onCloseDetail}>×</button>
-            </div>
-            <div className="knowledge-detail-grid">
-              <DetailItem label="文件大小">{formatSize(detail.size_bytes)}</DetailItem>
-              <DetailItem label="上传人">{detail.uploaded_by.display_name}</DetailItem>
-              <DetailItem label="上传时间">{formatTime(detail.uploaded_at)}</DetailItem>
-              <DetailItem label="当前版本">{detail.current_version ? `v${detail.current_version.number}` : '尚无可用版本'}</DetailItem>
-              <DetailItem label="最新任务">{detail.latest_task ? TASK_STATE_LABELS[detail.latest_task.state] : '暂无任务'}</DetailItem>
-              <DetailItem label="任务结果">{detail.latest_task?.result_message || '暂无补充说明'}</DetailItem>
-            </div>
-          </section>
-        </div>
-      )}
       {uploadOpen && (
         <UploadDocumentModal
           items={uploadItems}
@@ -225,20 +193,15 @@ export default function KnowledgeBasePage({
         />
       )}
       {deleteTarget && (
-        <div className="confirm-overlay knowledge-delete-overlay" role="presentation">
-          <section
-            className="confirm-dialog knowledge-delete-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="knowledge-delete-title"
-          >
-            <strong id="knowledge-delete-title">删除知识文档？</strong>
-            <div>
-              <button type="button" disabled={deleteLoading} onClick={onCancelDelete}>取消</button>
-              <button className="danger" type="button" disabled={deleteLoading} onClick={onConfirmDelete}>删除</button>
-            </div>
-          </section>
-        </div>
+        <DeleteConfirmDialog
+          title="删除知识文档？"
+          beforeName="这会删除《"
+          name={deleteTarget.filename}
+          afterName="》"
+          loading={deleteLoading}
+          onCancel={onCancelDelete}
+          onConfirm={onConfirmDelete}
+        />
       )}
     </main>
   )

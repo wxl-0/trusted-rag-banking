@@ -8,9 +8,9 @@ import {
   createConversation,
   deleteConversation,
   deleteKnowledgeDocument,
+  downloadKnowledgeDocument,
   fetchConversation,
   fetchIdentity,
-  fetchKnowledgeDocument,
   fetchKnowledgeSummary,
   listConversations,
   listKnowledgeDocuments,
@@ -77,13 +77,25 @@ function LoginScreen({ loading, error, onLogin }) {
 
 function AccountMenu({ identity, onLogout }) {
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open) return undefined
+
+    const closeMenu = () => setOpen(false)
+    document.addEventListener('click', closeMenu)
+    return () => document.removeEventListener('click', closeMenu)
+  }, [open])
+
   return (
     <div className="account-area">
       <button
         type="button"
         className="account-button"
         aria-expanded={open}
-        onClick={() => setOpen(value => !value)}
+        onClick={event => {
+          event.stopPropagation()
+          setOpen(value => !value)
+        }}
       >
         <span className="account-avatar">{identityInitial(identity)}</span>
         <span className="account-copy">
@@ -130,7 +142,6 @@ export default function App() {
   const [knowledgeTotal, setKnowledgeTotal] = useState(0)
   const [knowledgeSearch, setKnowledgeSearch] = useState('')
   const [knowledgeStatus, setKnowledgeStatus] = useState('')
-  const [knowledgeDetail, setKnowledgeDetail] = useState(null)
   const [knowledgeLoading, setKnowledgeLoading] = useState(false)
   const [knowledgeError, setKnowledgeError] = useState('')
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -256,7 +267,6 @@ export default function App() {
   const showKnowledgeBase = async () => {
     if (identity.business_role !== 'knowledge_maintainer') return
     setActiveView('knowledge')
-    setKnowledgeDetail(null)
     setKnowledgeLoading(true)
     setKnowledgeError('')
     try {
@@ -285,10 +295,21 @@ export default function App() {
     loadKnowledgeDocuments({ status: value, page: 1 })
   }
 
-  const showKnowledgeDocument = async documentId => {
+  const downloadKnowledgeOriginal = async documentRecord => {
     setKnowledgeError('')
     try {
-      setKnowledgeDetail(await fetchKnowledgeDocument(documentId, user.access_token))
+      const blob = await downloadKnowledgeDocument(
+        documentRecord.id,
+        user.access_token,
+      )
+      const objectUrl = window.URL.createObjectURL(blob)
+      const link = window.document.createElement('a')
+      link.href = objectUrl
+      link.download = documentRecord.filename
+      window.document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(objectUrl)
     } catch (error) {
       setKnowledgeError(error.message)
     }
@@ -418,7 +439,6 @@ export default function App() {
       setKnowledgeDocuments(result.items)
       setKnowledgePage(result.page)
       setKnowledgeTotal(result.total)
-      if (knowledgeDetail?.id === knowledgeDeleteTarget.id) setKnowledgeDetail(null)
     } catch (error) {
       setKnowledgeError(error.message)
     } finally {
@@ -544,7 +564,6 @@ export default function App() {
           <KnowledgeBasePage
             summary={knowledgeSummary}
             documents={knowledgeDocuments}
-            detail={knowledgeDetail}
             loading={knowledgeLoading}
             error={knowledgeError}
             search={knowledgeSearch}
@@ -561,11 +580,10 @@ export default function App() {
             deleteLoading={knowledgeDeleteLoading}
             onSearch={searchKnowledgeDocuments}
             onStatusChange={filterKnowledgeDocuments}
-            onShowDetail={showKnowledgeDocument}
+            onDownload={downloadKnowledgeOriginal}
             onRequestDelete={setKnowledgeDeleteTarget}
             onCancelDelete={() => setKnowledgeDeleteTarget(null)}
             onConfirmDelete={confirmKnowledgeDocumentDelete}
-            onCloseDetail={() => setKnowledgeDetail(null)}
             onPageChange={page => loadKnowledgeDocuments({ page })}
             onOpenUpload={openUpload}
             onCloseUpload={closeUpload}

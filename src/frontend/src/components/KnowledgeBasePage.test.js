@@ -30,16 +30,14 @@ test('knowledge page keeps the approved document list format', async () => {
       status: 'in_progress',
       updated_at: '2026-08-29T09:35:00Z',
     }],
-    detail: null,
     loading: false,
     error: '',
     status: '',
     nextCursor: null,
     onSearch: () => {},
     onStatusChange: () => {},
-    onShowDetail: () => {},
+    onDownload: () => {},
     onRequestDelete: () => {},
-    onCloseDetail: () => {},
     onNextPage: () => {},
   }))
 
@@ -47,18 +45,52 @@ test('knowledge page keeps the approved document list format', async () => {
     assert.match(html, new RegExp(label))
   }
   assert.match(html, /《商业银行资本管理办法\.docx》/)
+  assert.match(html, /data-full-name="《商业银行资本管理办法\.docx》"/)
+  assert.doesNotMatch(html, /title="《商业银行资本管理办法\.docx》"/)
   assert.match(html, /进行中/)
+  assert.match(html, /下载/)
   assert.match(html, /删除/)
-  assert.doesNotMatch(html, /文件类型|发布机构/)
+  assert.doesNotMatch(html, /详情|文件类型|发布机构/)
 })
 
-test('knowledge page renders the approved deletion confirmation without extra copy', async () => {
+test('knowledge update times show the time today and month-day otherwise', async () => {
+  const KnowledgeBasePage = await loadComponent('/src/components/KnowledgeBasePage.jsx')
+  const today = new Date()
+  today.setHours(17, 38, 0, 0)
+  const previousDay = new Date(today)
+  previousDay.setDate(previousDay.getDate() - 1)
+  const previousDayLabel = `${previousDay.getMonth() + 1}月${previousDay.getDate()}日`
+  const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
+    summary: { succeeded: 1, in_progress: 0, failed: 0, updated_at: today.toISOString() },
+    documents: [{
+      id: 'document-1',
+      sequence: 1,
+      filename: '监管文件.pdf',
+      size_bytes: 1024,
+      status: 'succeeded',
+      updated_at: previousDay.toISOString(),
+    }],
+    loading: false,
+    error: '',
+    search: '',
+    status: '',
+    onSearch: () => {},
+    onStatusChange: () => {},
+    onDownload: () => {},
+    onRequestDelete: () => {},
+    onPageChange: () => {},
+  }))
+
+  assert.match(html, /最近更新：17:38/)
+  assert.match(html, new RegExp(previousDayLabel))
+})
+
+test('knowledge page renders the document name in the shared deletion confirmation', async () => {
   const KnowledgeBasePage = await loadComponent('/src/components/KnowledgeBasePage.jsx')
   const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
     summary: null,
     documents: [],
-    detail: null,
-    deleteTarget: { id: 'document-1' },
+    deleteTarget: { id: 'document-1', filename: '商业银行资本管理办法.docx' },
     deleteLoading: false,
     loading: false,
     error: '',
@@ -66,20 +98,36 @@ test('knowledge page renders the approved deletion confirmation without extra co
     status: '',
     onSearch: () => {},
     onStatusChange: () => {},
-    onShowDetail: () => {},
+    onDownload: () => {},
     onRequestDelete: () => {},
     onCancelDelete: () => {},
     onConfirmDelete: () => {},
-    onCloseDetail: () => {},
     onPageChange: () => {},
   }))
 
   assert.match(html, /role="dialog"/)
   assert.match(html, /删除知识文档？/)
+  assert.match(html, /这会删除《<strong>商业银行资本管理办法\.docx<\/strong>》/)
   assert.match(html, />取消</)
   assert.match(html, />删除</)
-  const dialog = html.match(/<section class="confirm-dialog knowledge-delete-dialog"[\s\S]*?<\/section>/)?.[0] || ''
-  assert.doesNotMatch(dialog, /这会删除|删除后|无法恢复|文档名称/)
+  const dialog = html.match(/<section class="confirm-dialog"[\s\S]*?<\/section>/)?.[0] || ''
+  assert.doesNotMatch(dialog, /删除后|无法恢复|文档名称/)
+})
+
+test('shared deletion confirmation only bolds the target name', async () => {
+  const DeleteConfirmDialog = await loadComponent('/src/components/DeleteConfirmDialog.jsx')
+  const html = renderToStaticMarkup(React.createElement(DeleteConfirmDialog, {
+    title: '删除对话？',
+    beforeName: '这会删除“',
+    name: '资本管理问答',
+    afterName: '”',
+    onCancel: () => {},
+    onConfirm: () => {},
+  }))
+
+  assert.match(html, /<h2[^>]*>删除对话？<\/h2>/)
+  assert.match(html, /这会删除“<strong>资本管理问答<\/strong>”/)
+  assert.equal((html.match(/<strong>/g) || []).length, 1)
 })
 
 test('knowledge page renders an empty multi-file drop zone', async () => {
@@ -87,7 +135,6 @@ test('knowledge page renders an empty multi-file drop zone', async () => {
   const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
     summary: null,
     documents: [],
-    detail: null,
     loading: false,
     error: '',
     search: '',
@@ -100,8 +147,7 @@ test('knowledge page renders an empty multi-file drop zone', async () => {
     uploadError: '',
     onSearch: () => {},
     onStatusChange: () => {},
-    onShowDetail: () => {},
-    onCloseDetail: () => {},
+    onDownload: () => {},
     onNextPage: () => {},
     onOpenUpload: () => {},
     onCloseUpload: () => {},
@@ -123,7 +169,6 @@ test('knowledge page renders the compact batch queue and per-file states', async
   const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
     summary: null,
     documents: [],
-    detail: null,
     loading: false,
     error: '',
     search: '',
@@ -148,8 +193,7 @@ test('knowledge page renders the compact batch queue and per-file states', async
     uploadError: '单批最多选择 10 个文件，超出的 1 个文件未添加',
     onSearch: () => {},
     onStatusChange: () => {},
-    onShowDetail: () => {},
-    onCloseDetail: () => {},
+    onDownload: () => {},
     onOpenUpload: () => {},
     onCloseUpload: () => {},
     onAddUploadFiles: () => {},
@@ -173,7 +217,6 @@ test('knowledge page renders ten-item numbered pagination', async () => {
   const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
     summary: null,
     documents: [],
-    detail: null,
     loading: false,
     error: '',
     search: '',
@@ -183,8 +226,7 @@ test('knowledge page renders ten-item numbered pagination', async () => {
     total: 200,
     onSearch: () => {},
     onStatusChange: () => {},
-    onShowDetail: () => {},
-    onCloseDetail: () => {},
+    onDownload: () => {},
     onPageChange: () => {},
   }))
 

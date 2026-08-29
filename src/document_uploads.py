@@ -9,6 +9,7 @@ from zipfile import BadZipFile, ZipFile
 
 from fastapi import UploadFile
 from minio import Minio
+from minio.error import S3Error
 from redis import Redis
 from sqlalchemy import text
 
@@ -69,6 +70,14 @@ class MinioObjectStore:
             object_key,
             str(destination),
         )
+
+    def open_download(self, object_key):
+        try:
+            return self.client.get_object(self.bucket_name, object_key)
+        except S3Error as error:
+            if error.code in {"NoSuchKey", "NoSuchObject"}:
+                raise FileNotFoundError(object_key) from error
+            raise
 
     def put_bytes(self, object_key, content, content_type):
         if not self.client.bucket_exists(self.bucket_name):

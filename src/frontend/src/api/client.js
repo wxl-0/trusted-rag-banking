@@ -127,14 +127,14 @@ export async function listKnowledgeDocuments({
   return response.json()
 }
 
-export async function fetchKnowledgeDocument(documentId, accessToken) {
-  const response = await fetch(`/api/knowledge-documents/${documentId}`, {
+export async function downloadKnowledgeDocument(documentId, accessToken) {
+  const response = await fetch(`/api/knowledge-documents/${documentId}/download`, {
     headers: requestHeaders(accessToken),
   })
   if (!response.ok) {
-    throw new Error(await responseError(response, '读取文档详情失败'))
+    throw new Error(await responseError(response, '下载知识文档失败'))
   }
-  return response.json()
+  return response.blob()
 }
 
 export async function deleteKnowledgeDocument(
@@ -160,7 +160,14 @@ export async function uploadKnowledgeDocument(file, accessToken) {
     body,
   })
   if (!response.ok) {
-    throw new Error(await responseError(response, '上传知识文档失败'))
+    const payload = await response.json().catch(() => ({}))
+    const detail = payload.detail
+    const error = new Error(
+      detail?.message || (typeof detail === 'string' ? detail : '上传知识文档失败'),
+    )
+    error.status = response.status
+    error.code = detail?.code
+    throw error
   }
   return response.json()
 }

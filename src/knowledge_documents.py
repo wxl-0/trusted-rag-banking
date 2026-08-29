@@ -228,6 +228,27 @@ class KnowledgeDocumentStore:
             ),
         }
 
+    def get_download(self, document_id: UUID) -> dict | None:
+        with self.database.session() as session:
+            row = session.execute(text("""
+                SELECT
+                    version.original_filename,
+                    version.size_bytes,
+                    version.object_key,
+                    version.content_type
+                FROM knowledge_documents AS document
+                JOIN LATERAL (
+                    SELECT candidate.*
+                    FROM document_versions AS candidate
+                    WHERE candidate.document_id = document.id
+                    ORDER BY candidate.version_number DESC, candidate.id DESC
+                    LIMIT 1
+                ) AS version ON TRUE
+                WHERE document.id = :document_id
+                  AND document.deleted_at IS NULL
+            """), {"document_id": document_id}).mappings().one_or_none()
+        return dict(row) if row is not None else None
+
     def withdraw(
         self,
         document_id: UUID,
