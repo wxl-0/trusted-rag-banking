@@ -204,6 +204,31 @@ class DocumentUploadService:
         self.object_store = object_store
         self.ingestion_queue = ingestion_queue
 
+    @staticmethod
+    def _reject_active_duplicate(session, filename: str) -> None:
+        session.execute(text("""
+            SELECT pg_advisory_xact_lock(
+                hashtextextended(lower(btrim(CAST(:filename AS text))), 0)
+            )
+        """), {"filename": filename})
+        exists = session.execute(text("""
+            SELECT EXISTS (
+                SELECT 1
+                FROM knowledge_documents AS document
+                JOIN document_versions AS version
+                  ON version.document_id = document.id
+                WHERE document.deleted_at IS NULL
+                  AND lower(btrim(version.original_filename)) =
+                      lower(btrim(CAST(:filename AS text)))
+            )
+        """), {"filename": filename}).scalar_one()
+        if exists:
+            raise UploadRejected(
+                409,
+                "UPLOAD_DUPLICATE_FILENAME",
+                "知识库中已存在同名知识文档",
+            )
+
     async def accept(self, file: UploadFile, identity: Identity) -> dict:
         metadata = await _inspect_upload(file)
         document_id = uuid4()
@@ -226,6 +251,7 @@ class DocumentUploadService:
 
         try:
             with self.database.session() as session, session.begin():
+                self._reject_active_duplicate(session, metadata["filename"])
                 session.execute(text("""
                     INSERT INTO knowledge_documents (id)
                     VALUES (:document_id)

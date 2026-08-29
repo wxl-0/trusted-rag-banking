@@ -70,8 +70,9 @@ export default function KnowledgeBasePage({
   pageSize = 10,
   total = 0,
   uploadOpen = false,
-  uploadFile = null,
+  uploadItems = [],
   uploadLoading = false,
+  uploadStarted = false,
   uploadError = '',
   deleteTarget = null,
   deleteLoading = false,
@@ -85,7 +86,8 @@ export default function KnowledgeBasePage({
   onPageChange,
   onOpenUpload,
   onCloseUpload,
-  onSelectUploadFile,
+  onAddUploadFiles,
+  onRemoveUploadFile,
   onSubmitUpload,
 }) {
   const totals = summary || { succeeded: 0, in_progress: 0, failed: 0, updated_at: null }
@@ -212,11 +214,13 @@ export default function KnowledgeBasePage({
       )}
       {uploadOpen && (
         <UploadDocumentModal
-          file={uploadFile}
+          items={uploadItems}
           loading={uploadLoading}
+          started={uploadStarted}
           error={uploadError}
           onClose={onCloseUpload}
-          onSelectFile={onSelectUploadFile}
+          onAddFiles={onAddUploadFiles}
+          onRemoveFile={onRemoveUploadFile}
           onSubmit={onSubmitUpload}
         />
       )}

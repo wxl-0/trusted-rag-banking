@@ -82,7 +82,7 @@ test('knowledge page renders the approved deletion confirmation without extra co
   assert.doesNotMatch(dialog, /这会删除|删除后|无法恢复|文档名称/)
 })
 
-test('knowledge page renders the approved upload modal and server error', async () => {
+test('knowledge page renders an empty multi-file drop zone', async () => {
   const KnowledgeBasePage = await loadComponent('/src/components/KnowledgeBasePage.jsx')
   const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
     summary: null,
@@ -94,9 +94,10 @@ test('knowledge page renders the approved upload modal and server error', async 
     status: '',
     nextCursor: null,
     uploadOpen: true,
-    uploadFile: { name: '监管数据质量管理办法.pdf', size: 2516582 },
+    uploadItems: [],
     uploadLoading: false,
-    uploadError: '文件内容与扩展名不匹配或文件已损坏',
+    uploadStarted: false,
+    uploadError: '',
     onSearch: () => {},
     onStatusChange: () => {},
     onShowDetail: () => {},
@@ -104,16 +105,67 @@ test('knowledge page renders the approved upload modal and server error', async 
     onNextPage: () => {},
     onOpenUpload: () => {},
     onCloseUpload: () => {},
-    onSelectUploadFile: () => {},
+    onAddUploadFiles: () => {},
+    onRemoveUploadFile: () => {},
     onSubmitUpload: () => {},
   }))
 
   assert.match(html, /上传知识文档/)
   assert.match(html, /拖放文件到这里，或点击选择/)
+  assert.match(html, /multiple=""/)
+  assert.match(html, /单个文件不超过 50 MiB/)
+  assert.match(html, /开始上传/)
+  assert.match(html, /disabled=""/)
+})
+
+test('knowledge page renders the compact batch queue and per-file states', async () => {
+  const KnowledgeBasePage = await loadComponent('/src/components/KnowledgeBasePage.jsx')
+  const html = renderToStaticMarkup(React.createElement(KnowledgeBasePage, {
+    summary: null,
+    documents: [],
+    detail: null,
+    loading: false,
+    error: '',
+    search: '',
+    status: '',
+    uploadOpen: true,
+    uploadItems: [
+      {
+        id: 'ready-file',
+        file: { name: '监管数据质量管理办法.pdf', size: 2516582 },
+        status: 'ready',
+        message: '',
+      },
+      {
+        id: 'invalid-file',
+        file: { name: '监管数据质量管理办法.txt', size: 1024 },
+        status: 'validation_failed',
+        message: '仅支持 DOC、DOCX、PDF、XLS 和 XLSX 文件',
+      },
+    ],
+    uploadLoading: false,
+    uploadStarted: false,
+    uploadError: '单批最多选择 10 个文件，超出的 1 个文件未添加',
+    onSearch: () => {},
+    onStatusChange: () => {},
+    onShowDetail: () => {},
+    onCloseDetail: () => {},
+    onOpenUpload: () => {},
+    onCloseUpload: () => {},
+    onAddUploadFiles: () => {},
+    onRemoveUploadFile: () => {},
+    onSubmitUpload: () => {},
+  }))
+
+  assert.match(html, /继续添加文件/)
   assert.match(html, /监管数据质量管理办法\.pdf/)
-  assert.match(html, /开始入库/)
-  assert.match(html, /文件内容与扩展名不匹配或文件已损坏/)
-  assert.doesNotMatch(html, /解析与切块|建立检索索引|启用新版本/)
+  assert.match(html, /待上传/)
+  assert.match(html, /校验失败/)
+  assert.match(html, /已选 2 个文件/)
+  assert.match(html, /开始上传/)
+  assert.match(html, /单批最多选择 10 个文件，超出的 1 个文件未添加/)
+  assert.match(html, /仅支持 DOC、DOCX、PDF、XLS 和 XLSX 文件/)
+  assert.doesNotMatch(html, /解析与切块|建立检索索引|启用新版本|开始入库/)
 })
 
 test('knowledge page renders ten-item numbered pagination', async () => {

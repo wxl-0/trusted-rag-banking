@@ -20,6 +20,15 @@ import {
 } from './api/client'
 import { getUserManager, initializeAuthentication } from './auth/client'
 import { businessRoleLabel, identityInitial } from './auth/config'
+import {
+  createUploadItems,
+  isUploadValidationError,
+  MAX_UPLOAD_BATCH_BYTES,
+  MAX_UPLOAD_FILES,
+  runWithConcurrency,
+  UPLOAD_CONCURRENCY,
+  validateUploadItems,
+} from './uploadBatch'
 
 
 const ACTIVE_CONVERSATION_KEY = 'trusted-rag.active-conversation-id'
@@ -125,8 +134,9 @@ export default function App() {
   const [knowledgeLoading, setKnowledgeLoading] = useState(false)
   const [knowledgeError, setKnowledgeError] = useState('')
   const [uploadOpen, setUploadOpen] = useState(false)
-  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadItems, setUploadItems] = useState([])
   const [uploadLoading, setUploadLoading] = useState(false)
+  const [uploadStarted, setUploadStarted] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const [knowledgeDeleteTarget, setKnowledgeDeleteTarget] = useState(null)
   const [knowledgeDeleteLoading, setKnowledgeDeleteLoading] = useState(false)
@@ -285,7 +295,8 @@ export default function App() {
   }
 
   const openUpload = () => {
-    setUploadFile(null)
+    setUploadItems([])
+    setUploadStarted(false)
     setUploadError('')
     setUploadOpen(true)
   }
@@ -293,33 +304,90 @@ export default function App() {
   const closeUpload = () => {
     if (uploadLoading) return
     setUploadOpen(false)
-    setUploadFile(null)
+    setUploadItems([])
+    setUploadStarted(false)
     setUploadError('')
   }
 
+  const addUploadFiles = selectedFiles => {
+    if (uploadStarted) return
+    const files = Array.from(selectedFiles)
+    const availableSlots = Math.max(0, MAX_UPLOAD_FILES - uploadItems.length)
+    const filesToAdd = files.slice(0, availableSlots)
+    const nextItems = validateUploadItems([
+      ...uploadItems,
+      ...createUploadItems(filesToAdd),
+    ])
+    setUploadItems(nextItems)
+    if (files.length > availableSlots) {
+      setUploadError(`单批最多选择 ${MAX_UPLOAD_FILES} 个文件，超出的 ${files.length - availableSlots} 个文件未添加`)
+    } else {
+      setUploadError('')
+    }
+  }
+
+  const removeUploadFile = itemId => {
+    if (uploadStarted) return
+    setUploadItems(items => validateUploadItems(
+      items.filter(item => item.id !== itemId),
+    ))
+    setUploadError('')
+  }
+
+  const refreshKnowledgeHome = async () => {
+    const [summary, result] = await Promise.all([
+      fetchKnowledgeSummary(user.access_token),
+      listKnowledgeDocuments({ page: 1, limit: 10, accessToken: user.access_token }),
+    ])
+    setKnowledgeSummary(summary)
+    setKnowledgeDocuments(result.items)
+    setKnowledgePage(result.page)
+    setKnowledgeTotal(result.total)
+  }
+
   const submitUpload = async () => {
-    if (!uploadFile || uploadLoading) return
+    const totalBytes = uploadItems.reduce((sum, item) => sum + item.file.size, 0)
+    const readyItems = uploadItems.filter(item => item.status === 'ready')
+    if (!readyItems.length || totalBytes > MAX_UPLOAD_BATCH_BYTES || uploadLoading) return
+    setUploadStarted(true)
     setUploadLoading(true)
     setUploadError('')
-    try {
-      await uploadKnowledgeDocument(uploadFile, user.access_token)
-      const [summary, result] = await Promise.all([
-        fetchKnowledgeSummary(user.access_token),
-        listKnowledgeDocuments({ page: 1, limit: 10, accessToken: user.access_token }),
-      ])
-      setKnowledgeSummary(summary)
-      setKnowledgeDocuments(result.items)
-      setKnowledgePage(result.page)
-      setKnowledgeTotal(result.total)
-      setKnowledgeSearch('')
-      setKnowledgeStatus('')
-      setUploadOpen(false)
-      setUploadFile(null)
-    } catch (error) {
-      setUploadError(error.message)
-    } finally {
-      setUploadLoading(false)
-    }
+    setKnowledgeSearch('')
+    setKnowledgeStatus('')
+
+    await runWithConcurrency(readyItems, UPLOAD_CONCURRENCY, async item => {
+      setUploadItems(items => items.map(current => (
+        current.id === item.id
+          ? { ...current, status: 'uploading', message: '' }
+          : current
+      )))
+      try {
+        await uploadKnowledgeDocument(item.file, user.access_token)
+        setUploadItems(items => items.map(current => (
+          current.id === item.id
+            ? { ...current, status: 'accepted', message: '' }
+            : current
+        )))
+        try {
+          await refreshKnowledgeHome()
+        } catch (error) {
+          setKnowledgeError(error.message)
+        }
+      } catch (error) {
+        setUploadItems(items => items.map(current => (
+          current.id === item.id
+            ? {
+                ...current,
+                status: isUploadValidationError(error)
+                  ? 'validation_failed'
+                  : 'submission_failed',
+                message: error.message,
+              }
+            : current
+        )))
+      }
+    })
+    setUploadLoading(false)
   }
 
   const confirmKnowledgeDocumentDelete = async () => {
@@ -485,8 +553,9 @@ export default function App() {
             pageSize={10}
             total={knowledgeTotal}
             uploadOpen={uploadOpen}
-            uploadFile={uploadFile}
+            uploadItems={uploadItems}
             uploadLoading={uploadLoading}
+            uploadStarted={uploadStarted}
             uploadError={uploadError}
             deleteTarget={knowledgeDeleteTarget}
             deleteLoading={knowledgeDeleteLoading}
@@ -500,7 +569,8 @@ export default function App() {
             onPageChange={page => loadKnowledgeDocuments({ page })}
             onOpenUpload={openUpload}
             onCloseUpload={closeUpload}
-            onSelectUploadFile={setUploadFile}
+            onAddUploadFiles={addUploadFiles}
+            onRemoveUploadFile={removeUploadFile}
             onSubmitUpload={submitUpload}
           />
         ) : (

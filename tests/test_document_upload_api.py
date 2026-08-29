@@ -188,6 +188,34 @@ def test_upload_rejects_more_than_one_file_before_creating_work(upload_client):
         assert session.execute(text("SELECT count(*) FROM knowledge_documents")).scalar_one() == 0
 
 
+def test_upload_rejects_filename_already_used_by_active_document(upload_client):
+    client, database, object_store, queue = upload_client
+    content = _docx_bytes()
+
+    first = client.post(
+        "/api/knowledge-documents",
+        files={"file": ("商业银行资本管理办法.docx", content, "application/octet-stream")},
+    )
+    duplicate = client.post(
+        "/api/knowledge-documents",
+        files={"file": ("商业银行资本管理办法.DOCX", content, "application/octet-stream")},
+    )
+
+    assert first.status_code == 202
+    assert duplicate.status_code == 409
+    assert duplicate.json()["detail"] == {
+        "code": "UPLOAD_DUPLICATE_FILENAME",
+        "message": "知识库中已存在同名知识文档",
+    }
+    assert len(object_store.objects) == 1
+    assert len(queue.jobs) == 1
+    with database.session() as session:
+        assert session.execute(text("SELECT count(*) FROM knowledge_documents")).scalar_one() == 1
+        assert session.execute(text("SELECT count(*) FROM document_versions")).scalar_one() == 1
+        assert session.execute(text("SELECT count(*) FROM ingestion_tasks")).scalar_one() == 1
+        assert session.execute(text("SELECT count(*) FROM audit_events")).scalar_one() == 1
+
+
 @pytest.mark.parametrize(("filename", "content"), [
     ("制度.doc", bytes.fromhex("D0CF11E0A1B11AE1") + b"legacy-word"),
     ("制度.pdf", b"%PDF-1.7\n%%EOF"),
