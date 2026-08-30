@@ -46,6 +46,19 @@ class BM25Index:
             self.load()
         tokens = self._tokenize(query)
         scores = self.bm25.get_scores(tokens)
+        return self._rank_scores(scores, top_k=top_k, filters=filters)
+
+    def search_channels(self, query: str, channel_filters: dict[str, dict],
+                        top_k: int = 20) -> dict[str, list]:
+        if self.bm25 is None:
+            self.load()
+        scores = self.bm25.get_scores(self._tokenize(query))
+        return {
+            name: self._rank_scores(scores, top_k=top_k, filters=filters)
+            for name, filters in channel_filters.items()
+        }
+
+    def _rank_scores(self, scores, top_k: int, filters: dict = None) -> list:
         candidate_indices = [
             i for i, chunk in enumerate(self.chunks)
             if self._matches_filters(chunk, filters)

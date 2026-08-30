@@ -22,6 +22,38 @@ class FakeReranker:
         return chunks[:top_k]
 
 
+class VectorAwareQdrant:
+    def __init__(self, chunks_by_collection):
+        self.chunks_by_collection = chunks_by_collection
+        self.embed_calls = []
+        self.search_calls = []
+
+    def embed_query(self, query):
+        self.embed_calls.append(query)
+        return [0.1, 0.2]
+
+    def search_by_vector(self, query_vector, collection_name, filters=None, top_k=20):
+        self.search_calls.append((query_vector, collection_name))
+        return self.chunks_by_collection.get(collection_name, [])[:top_k]
+
+
+class ChannelAwareBM25:
+    def __init__(self, chunks_by_type):
+        self.chunks_by_type = chunks_by_type
+
+    def search_channels(self, query, channel_filters, top_k=20):
+        return {
+            name: self.chunks_by_type.get(filters.get("chunk_type"), [])[:top_k]
+            for name, filters in channel_filters.items()
+        }
+
+    def resolve_source_titles(self, title_hint):
+        return [], "none"
+
+    def related_chunks(self, chunks, max_extra=2):
+        return []
+
+
 class CandidateCountingReranker:
     def __init__(self):
         self.candidate_count = 0
@@ -63,6 +95,66 @@ def test_rrf_merge_combines_results():
     ids = [m["chunk_id"] for m in merged]
     assert "B" in ids
     assert ids.index("B") == 0  # B 在两个列表都有，RRF 分数最高
+
+
+def test_hybrid_retrieval_reuses_one_query_vector_across_collections():
+    qdrant = VectorAwareQdrant({
+        "regulations": [{"chunk_id": "reg", "text": "制度", "chunk_type": "clause"}],
+        "tables": [{"chunk_id": "table", "text": "数据", "chunk_type": "table_row"}],
+    })
+    retriever = HybridRetriever(
+        qdrant=qdrant,
+        bm25=ChannelAwareBM25({"clause": [], "table_row": []}),
+        reranker=FakeReranker(),
+    )
+
+    result = retriever.retrieve_with_diagnostics(
+        "比较监管要求和统计数据",
+        query_type="hybrid",
+        top_k=8,
+    )
+
+    assert qdrant.embed_calls == ["比较监管要求和统计数据"]
+    assert [collection for _, collection in qdrant.search_calls] == [
+        "regulations",
+        "tables",
+    ]
+    assert [chunk["chunk_id"] for chunk in result.chunks] == ["reg", "table"]
+
+
+def test_hybrid_rrf_starts_each_collection_and_keyword_channel_at_rank_one():
+    regulation = {"chunk_id": "reg", "text": "制度候选", "chunk_type": "clause"}
+    regulation_bm25_first = {
+        "chunk_id": "reg-bm25-first",
+        "text": "制度关键词第一名",
+        "chunk_type": "clause",
+    }
+    table = {"chunk_id": "table", "text": "表格候选", "chunk_type": "table_row"}
+    retriever = HybridRetriever(
+        qdrant=VectorAwareQdrant({
+            "regulations": [regulation],
+            "tables": [table],
+        }),
+        bm25=ChannelAwareBM25({
+            "clause": [regulation_bm25_first, regulation],
+            "table_row": [table],
+        }),
+        reranker=FakeReranker(),
+    )
+
+    result = retriever.retrieve_with_diagnostics(
+        "比较监管要求和统计数据",
+        query_type="hybrid",
+        top_k=1,
+    )
+
+    assert [chunk["chunk_id"] for chunk in result.chunks] == ["table"]
+    assert result.diagnostics["candidate_counts"]["channels"] == {
+        "vector:regulations": 1,
+        "vector:tables": 1,
+        "bm25:regulations": 2,
+        "bm25:tables": 1,
+    }
 
 
 def test_retrieve_out_of_scope_returns_empty():

@@ -2,6 +2,7 @@ import json
 import re
 from src.context_control import select_controlled_history
 from src.generator.llm_client import LLMClient
+from src.generator.reference_resolver import ConversationReferenceResolver
 
 
 TABLE_CUES = (
@@ -51,6 +52,7 @@ CONTEXTUALIZE_PROMPT = """结合对话历史，把当前追问改写成不依赖
 class QueryDecomposer:
     def __init__(self, include_single_fact_options: bool = False):
         self.llm = LLMClient()
+        self.reference_resolver = ConversationReferenceResolver()
         self.include_single_fact_options = include_single_fact_options
         self.last_decision_method = None
         self.last_route = None
@@ -60,7 +62,15 @@ class QueryDecomposer:
     def decompose(self, question: str, history: list = None) -> list:
         self.last_contextualized_question = None
         self.last_contextualization_metrics = {}
-        if history and self._needs_history_context(question):
+        resolution = self.reference_resolver.resolve(question, history or [])
+        if resolution:
+            question = resolution.question
+            self.last_contextualized_question = question
+            self.last_contextualization_metrics = {
+                "method": resolution.method,
+                "api_calls": 0,
+            }
+        elif history and self._needs_history_context(question):
             question = self._contextualize(question, history)
             self.last_contextualized_question = question
         return self._decompose(question)
@@ -74,6 +84,9 @@ class QueryDecomposer:
                 table_targets = self._decompose_table_change(question)
                 if table_targets:
                     return table_targets
+                entity_targets = self._decompose_table_entity_difference(question)
+                if entity_targets:
+                    return entity_targets
                 comparison_targets = self._decompose_table_comparison(question)
                 if comparison_targets:
                     return comparison_targets
@@ -116,7 +129,7 @@ class QueryDecomposer:
             return False
         return bool(re.search(
             r"^(?:那|那么|它|其|该|这个|这项|这些|上述|前述|其中|前者|后者|"
-            r"具体|还有|另外)|(?:该|上述|前述|这个|这些|其)"
+            r"具体|还有|另外|两地|两者|二者)|(?:该|上述|前述|这个|这些|其)"
             r"(?:规定|文件|公司|机构|指标|数值|要求|情况)|(?:呢|又如何)[？?]?$",
             text,
         ))
@@ -292,6 +305,60 @@ class QueryDecomposer:
                 "strict_filters": strict_filters,
                 "coverage_terms": coverage_terms,
                 "option": option,
+            })
+        return targets
+
+    def _decompose_table_entity_difference(self, question: str) -> list:
+        stem = self._routing_text(question)
+        if not (
+            re.search(r"分别", stem)
+            and re.search(r"差额|相差|差多少", stem)
+        ):
+            return []
+        entity_match = re.search(
+            r"(?:^|[，,])\s*([^，,。；？！和]{1,12})\s*和\s*"
+            r"([^，,。；？！的]{1,12})\s*的\s*"
+            r"([^，,。；？！]{1,16})\s*分别",
+            stem,
+        )
+        if not entity_match:
+            return []
+
+        first_row, second_row, metric = (
+            part.strip(" \t“”\"") for part in entity_match.groups()
+        )
+        metric = re.sub(r"[“”\"\s]", "", metric)
+        metric = re.sub(r"收入$", "", metric)
+        if not (first_row and second_row and metric):
+            return []
+
+        title_match = re.search(r"《([^》]+)》", stem)
+        period_match = re.search(
+            r"20\d{2}年(?:\d{1,2}月|[一二三四1234]季度|年末)?",
+            stem,
+        )
+        source_title = title_match.group(1).strip() if title_match else ""
+        period = period_match.group(0) if period_match else ""
+        title_prefix = f"《{source_title}》" if source_title else ""
+
+        targets = []
+        for index, row_label in enumerate((first_row, second_row), 1):
+            display_row = re.sub(r"\s+", "", row_label)
+            targets.append({
+                "target_id": f"operand_{index}",
+                "operand_label": display_row,
+                "label": f"{display_row} / {metric}",
+                "question": " ".join(
+                    part for part in (title_prefix, period, row_label, metric) if part
+                ),
+                "type": "table",
+                "source_title": source_title,
+                "filters": {},
+                "strict_filters": {
+                    "row_label": row_label,
+                    "column_header": metric,
+                },
+                "coverage_terms": [display_row, metric],
             })
         return targets
 

@@ -243,6 +243,99 @@ def test_decomposer_does_not_rewrite_follow_up_with_explicit_subject():
     assert decomposer.last_contextualized_question is None
 
 
+def test_decomposer_resolves_short_table_follow_up_from_persisted_evidence_without_llm():
+    title = "2026年1月全国各地区原保险保费收入情况表"
+    history = [
+        {
+            "role": "user",
+            "content": "2026年1月，北京的原保险保费收入合计是多少？",
+        },
+        {
+            "role": "assistant",
+            "content": "2026年1月，北京的原保险保费收入合计为721.72亿元。",
+            "evidence": [{
+                "source_title": title,
+                "section": "各地区数据（月度）",
+                "text": (
+                    "行指标「北  京」；列口径「合计」；原始值为 721.72；"
+                    "单位：亿元；期间：2026年1月。"
+                ),
+                "source_url": "",
+            }],
+        },
+    ]
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("结构化证据足够时不应调用模型"))
+
+    result = decomposer.decompose("河北呢？", history=history)
+
+    assert len(result) == 1
+    assert result[0]["type"] == "table"
+    assert result[0]["source_title"] == title
+    assert "河北" in result[0]["question"]
+    assert "2026年1月" in result[0]["question"]
+    assert "合计" in result[0]["question"]
+    assert decomposer.last_contextualization_metrics == {
+        "method": "structured_evidence",
+        "api_calls": 0,
+    }
+
+
+def test_decomposer_resolves_two_regions_and_splits_strict_table_operands():
+    title = "2026年1月全国各地区原保险保费收入情况表"
+    history = [
+        {"role": "user", "content": "2026年1月，北京的原保险保费收入合计是多少？"},
+        {
+            "role": "assistant",
+            "content": "2026年1月，北京的原保险保费收入合计为721.72亿元。",
+            "evidence": [{
+                "source_title": title,
+                "section": "各地区数据（月度）",
+                "text": (
+                    "行指标「北  京」；列口径「合计」；原始值为 721.72；"
+                    "单位：亿元；期间：2026年1月。"
+                ),
+                "source_url": "",
+            }],
+        },
+        {"role": "user", "content": "河北呢？"},
+        {
+            "role": "assistant",
+            "content": "2026年1月，河北的原保险保费收入合计为465.02亿元。",
+            "evidence": [{
+                "source_title": title,
+                "section": "各地区数据（月度）",
+                "text": (
+                    "行指标「河  北」；列口径「合计」；原始值为 465.02；"
+                    "单位：亿元；期间：2026年1月。"
+                ),
+                "source_url": "",
+            }],
+        },
+    ]
+    decomposer = QueryDecomposer()
+    decomposer.llm.chat = Mock(side_effect=AssertionError("结构化证据足够时不应调用模型"))
+
+    result = decomposer.decompose(
+        "两地的寿险收入分别是多少，差额是多少？",
+        history=history,
+    )
+
+    assert [target["target_id"] for target in result] == ["operand_1", "operand_2"]
+    assert [target["operand_label"] for target in result] == ["北京", "河北"]
+    assert [target["strict_filters"] for target in result] == [
+        {"row_label": "北  京", "column_header": "寿险"},
+        {"row_label": "河  北", "column_header": "寿险"},
+    ]
+    assert all(target["source_title"] == title for target in result)
+    assert "北京和河北" in decomposer.last_contextualized_question.replace(" ", "")
+    assert "2026年1月" in decomposer.last_contextualized_question
+    assert decomposer.last_contextualization_metrics == {
+        "method": "structured_evidence",
+        "api_calls": 0,
+    }
+
+
 def test_decomposer_splits_table_comparison_by_option_and_column():
     question = (
         "根据 Excel 附件《2023年4季度保险业资金运用情况表》"

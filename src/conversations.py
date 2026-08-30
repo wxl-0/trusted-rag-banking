@@ -176,12 +176,12 @@ class ConversationStore:
         self,
         conversation_id: UUID,
         request_id: str,
-    ) -> list[dict[str, str]]:
+    ) -> list[dict]:
         with self.database.session() as session:
             rows = session.execute(
                 text(
                     """
-                    SELECT message.role, message.content
+                    SELECT message.role, message.content, message.evidence
                     FROM conversation_messages AS message
                     WHERE message.conversation_id = :conversation_id
                       AND message.request_id <> :request_id
@@ -200,10 +200,13 @@ class ConversationStore:
                     "request_id": request_id,
                 },
             ).mappings().all()
-        return [
-            {"role": row["role"], "content": row["content"]}
-            for row in rows
-        ]
+        history = []
+        for row in rows:
+            message = {"role": row["role"], "content": row["content"]}
+            if row["role"] == "assistant" and row["evidence"]:
+                message["evidence"] = row["evidence"]
+            history.append(message)
+        return history
 
     def context_state(self, conversation_id: UUID) -> tuple[str | None, int]:
         with self.database.session() as session:

@@ -1,11 +1,13 @@
 import json
+import threading
+import time
 
 from rank_bm25 import BM25Okapi
 
 from src.generator.answer_builder import AnswerBuilder
 from src.generator.decomposer import QueryDecomposer
 from src.indexer.bm25_index import BM25Index
-from src.retriever.hybrid_retriever import HybridRetriever
+from src.retriever.hybrid_retriever import HybridRetriever, RetrievalResult
 
 
 class FakeQdrant:
@@ -83,6 +85,43 @@ class StaticRetriever:
 
     def retrieve(self, **kwargs):
         return self.chunks
+
+
+class ConcurrentRetriever:
+    def __init__(self, chunks_by_query):
+        self.chunks_by_query = chunks_by_query
+        self.active = 0
+        self.max_active = 0
+        self.lock = threading.Lock()
+
+    def retrieve_with_diagnostics(self, query, **kwargs):
+        with self.lock:
+            self.active += 1
+            self.max_active = max(self.max_active, self.active)
+        try:
+            time.sleep(0.05)
+            chunks = self.chunks_by_query[query]
+            return RetrievalResult(
+                chunks=chunks,
+                diagnostics={
+                    "route": kwargs.get("query_type"),
+                    "strategy": "test",
+                    "matched_titles": [],
+                    "filters": kwargs.get("filters") or {},
+                    "candidate_counts": {
+                        "vector": len(chunks),
+                        "bm25": 0,
+                        "merged": len(chunks),
+                        "final": len(chunks),
+                    },
+                },
+            )
+        finally:
+            with self.lock:
+                self.active -= 1
+
+    def retrieve(self, **kwargs):
+        raise AssertionError("AnswerBuilder 应使用无共享状态的检索接口")
 
 
 class RecordingContextAssembler:
@@ -293,6 +332,90 @@ def test_answer_builds_deterministic_change_with_both_values_and_formula():
     )
 
 
+def test_answer_builds_absolute_difference_for_two_table_entities():
+    title = "2026年1月全国各地区原保险保费收入情况表"
+    chunks = [
+        {
+            "doc_id": "table-1",
+            "chunk_id": "beijing-life",
+            "chunk_type": "table_row",
+            "source_title": title,
+            "table_name": "各地区数据（月度）",
+            "row_label": "北  京",
+            "column_header": "寿险",
+            "raw_value": "517.4",
+            "unit": "单位：亿元",
+            "text": "行指标「北  京」；列口径「寿险」；原始值为 517.40；单位：亿元。",
+        },
+        {
+            "doc_id": "table-1",
+            "chunk_id": "hebei-life",
+            "chunk_type": "table_row",
+            "source_title": title,
+            "table_name": "各地区数据（月度）",
+            "row_label": "河  北",
+            "column_header": "寿险",
+            "raw_value": "322.72",
+            "unit": "单位：亿元",
+            "text": "行指标「河  北」；列口径「寿险」；原始值为 322.72；单位：亿元。",
+        },
+    ]
+    llm = FakeLLM()
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=HybridRetriever(
+            qdrant=FakeQdrant(chunks),
+            bm25=_bm25_with_chunks(chunks),
+            reranker=FakeReranker(),
+        ),
+        decomposer=StaticDecomposer([
+            {
+                "target_id": "operand_1",
+                "operand_label": "北京",
+                "label": "北京 / 寿险",
+                "question": f"《{title}》 北  京 寿险",
+                "type": "table",
+                "source_title": title,
+                "filters": {},
+                "strict_filters": {"row_label": "北  京", "column_header": "寿险"},
+                "coverage_terms": ["北京", "寿险"],
+            },
+            {
+                "target_id": "operand_2",
+                "operand_label": "河北",
+                "label": "河北 / 寿险",
+                "question": f"《{title}》 河  北 寿险",
+                "type": "table",
+                "source_title": title,
+                "filters": {},
+                "strict_filters": {"row_label": "河  北", "column_header": "寿险"},
+                "coverage_terms": ["河北", "寿险"],
+            },
+        ]),
+    )
+
+    result = builder.answer("两地的寿险收入分别是多少，差额是多少？")
+
+    assert result["answer"] == (
+        "北京为517.40亿元，河北为322.72亿元，"
+        "差额为517.40 - 322.72 = 194.68亿元。"
+    )
+    assert result["evidence"] == [
+        {
+            "source_title": title,
+            "section": "各地区数据（月度）",
+            "text": "行指标「北  京」；列口径「寿险」；原始值为 517.40；单位：亿元。",
+            "source_url": "",
+        },
+        {
+            "source_title": title,
+            "section": "各地区数据（月度）",
+            "text": "行指标「河  北」；列口径「寿险」；原始值为 322.72；单位：亿元。",
+            "source_url": "",
+        },
+    ]
+
+
 def test_answer_limits_single_regulation_target_to_four_generation_evidence():
     chunks = [
         {
@@ -330,8 +453,8 @@ def test_answer_limits_single_regulation_target_to_four_generation_evidence():
     )
 
     assert result["diagnostics"]["retrieval"]["evidence_count"] == 4
-    assert "[4]" in llm.last_user_message
-    assert "[5]" not in llm.last_user_message
+    assert "[E4]" in llm.last_user_message
+    assert "[E5]" not in llm.last_user_message
 
 
 def test_answer_reports_processing_stages_in_execution_order():
@@ -368,6 +491,62 @@ def test_answer_reports_processing_stages_in_execution_order():
     assert stages == ["analyzing", "retrieving", "organizing", "generating"]
 
 
+def test_answer_retrieves_independent_sub_questions_concurrently_in_stable_order():
+    targets = [
+        {
+            "target_id": "target_a",
+            "label": "目标甲",
+            "question": "检索目标甲",
+            "type": "regulation",
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [],
+        },
+        {
+            "target_id": "target_b",
+            "label": "目标乙",
+            "question": "检索目标乙",
+            "type": "regulation",
+            "filters": {},
+            "strict_filters": {},
+            "coverage_terms": [],
+        },
+    ]
+    retriever = ConcurrentRetriever({
+        "检索目标甲": [{
+            "doc_id": "a",
+            "chunk_id": "chunk-a",
+            "chunk_type": "clause",
+            "source_title": "制度甲",
+            "text": "目标甲的监管依据。",
+        }],
+        "检索目标乙": [{
+            "doc_id": "b",
+            "chunk_id": "chunk-b",
+            "chunk_type": "clause",
+            "source_title": "制度乙",
+            "text": "目标乙的监管依据。",
+        }],
+    })
+    builder = AnswerBuilder(
+        llm=FakeLLM(),
+        retriever=retriever,
+        decomposer=StaticDecomposer(targets),
+    )
+
+    result = builder.answer("同时核验目标甲和目标乙", include_diagnostics=True)
+
+    assert retriever.max_active == 2
+    assert [
+        target["target_id"]
+        for target in result["diagnostics"]["retrieval"]["targets"]
+    ] == ["target_a", "target_b"]
+    assert [
+        target["searches"][0]["strategy"]
+        for target in result["diagnostics"]["retrieval"]["targets"]
+    ] == ["test", "test"]
+
+
 def test_answer_normalizes_inline_numbered_items_to_separate_lines():
     chunks = [{
         "doc_id": "reg-1",
@@ -379,7 +558,7 @@ def test_answer_normalizes_inline_numbered_items_to_separate_lines():
     llm = FakeLLM()
     llm.chat = lambda system, user, history=None: json.dumps({
         "answer": "办理方式包括：1. 邮寄；2. 跟函；3. 数字化方式。",
-        "evidence": [],
+        "evidence_ids": ["E1"],
         "refuse_reason": None,
     }, ensure_ascii=False)
     builder = AnswerBuilder(
@@ -406,6 +585,149 @@ def test_answer_normalizes_inline_numbered_items_to_separate_lines():
     assert result["answer"] == (
         "办理方式包括：\n1. 邮寄；\n2. 跟函；\n3. 数字化方式。"
     )
+
+
+def test_answer_builds_evidence_from_valid_model_evidence_ids_only():
+    chunk = {
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "资本管理办法",
+        "section_path": ["资本要求"],
+        "source_url": "https://example.test/rule",
+        "text": "商业银行核心一级资本充足率不得低于5%。",
+    }
+    llm = FakeLLM()
+    def grounded_chat(system, user, history=None):
+        llm.last_user_message = user
+        return json.dumps({
+            "answer": "商业银行核心一级资本充足率不得低于5%。",
+            "evidence_ids": ["E1"],
+            "evidence": [{
+                "source_title": "伪造文件",
+                "section": "伪造章节",
+                "text": "伪造证据",
+                "source_url": "https://invalid.test",
+            }],
+            "refuse_reason": None,
+        }, ensure_ascii=False)
+    llm.chat = grounded_chat
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=StaticRetriever([chunk]),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "question": "核心一级资本充足率最低要求是多少？",
+            "type": "regulation",
+        }]),
+    )
+
+    result = builder.answer("核心一级资本充足率最低要求是多少？")
+
+    assert "[E1]" in llm.last_user_message
+    assert result["evidence"] == [{
+        "source_title": "资本管理办法",
+        "section": "资本要求",
+        "text": "商业银行核心一级资本充足率不得低于5%。",
+        "source_url": "https://example.test/rule",
+    }]
+    assert "evidence_ids" not in result
+
+
+def test_answer_refuses_unknown_model_evidence_id():
+    chunk = {
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "资本管理办法",
+        "text": "商业银行核心一级资本充足率不得低于5%。",
+    }
+    llm = FakeLLM()
+    llm.chat = lambda system, user, history=None: json.dumps({
+        "answer": "商业银行核心一级资本充足率不得低于5%。",
+        "evidence_ids": ["E999"],
+        "refuse_reason": None,
+    }, ensure_ascii=False)
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=StaticRetriever([chunk]),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "question": "核心一级资本充足率最低要求是多少？",
+            "type": "regulation",
+        }]),
+    )
+
+    result = builder.answer("核心一级资本充足率最低要求是多少？")
+
+    assert result == {
+        "answer": "",
+        "evidence": [],
+        "refuse_reason": "模型回答未提供有效的原文证据引用",
+        "latency_ms": result["latency_ms"],
+    }
+
+
+def test_answer_refuses_numeric_claim_missing_from_selected_evidence():
+    chunk = {
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "资本管理办法",
+        "text": "商业银行核心一级资本充足率不得低于5%。",
+    }
+    llm = FakeLLM()
+    llm.chat = lambda system, user, history=None: json.dumps({
+        "answer": "商业银行核心一级资本充足率不得低于99.99%。",
+        "evidence_ids": ["E1"],
+        "refuse_reason": None,
+    }, ensure_ascii=False)
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=StaticRetriever([chunk]),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "question": "核心一级资本充足率最低要求是多少？",
+            "type": "regulation",
+        }]),
+    )
+
+    result = builder.answer("核心一级资本充足率最低要求是多少？")
+
+    assert result["answer"] == ""
+    assert result["evidence"] == []
+    assert result["refuse_reason"] == "模型回答包含参考资料中无法核验的数值或日期"
+
+
+def test_answer_does_not_treat_202_as_evidence_for_2020():
+    chunk = {
+        "doc_id": "reg-1",
+        "chunk_id": "rule-1",
+        "chunk_type": "clause",
+        "source_title": "示例制度",
+        "text": "该要求自202年起实施。",
+    }
+    llm = FakeLLM()
+    llm.chat = lambda system, user, history=None: json.dumps({
+        "answer": "该要求自2020年起实施。",
+        "evidence_ids": ["E1"],
+        "refuse_reason": None,
+    }, ensure_ascii=False)
+    builder = AnswerBuilder(
+        llm=llm,
+        retriever=StaticRetriever([chunk]),
+        decomposer=StaticDecomposer([{
+            "target_id": "main",
+            "question": "该要求何时开始实施？",
+            "type": "regulation",
+        }]),
+    )
+
+    result = builder.answer("该要求何时开始实施？")
+
+    assert result["answer"] == ""
+    assert result["evidence"] == []
+    assert result["refuse_reason"] == "模型回答包含参考资料中无法核验的数值或日期"
 
 
 def test_answer_does_not_treat_decimal_values_as_numbered_items():

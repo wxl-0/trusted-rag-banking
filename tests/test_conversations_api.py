@@ -143,7 +143,12 @@ def test_next_question_uses_only_persisted_conversation_history(
     conversation_id = conversation_client.post("/api/conversations").json()["id"]
     first_answer = {
         "answer": "第一条回答",
-        "evidence": [],
+        "evidence": [{
+            "source_title": "第一份资料",
+            "section": "第一节",
+            "text": "第一条原文证据",
+            "source_url": "",
+        }],
         "refuse_reason": None,
         "latency_ms": 10,
     }
@@ -182,7 +187,11 @@ def test_next_question_uses_only_persisted_conversation_history(
     assert second.status_code == 200
     assert mock_answer.call_args_list[1].kwargs["history"] == [
         {"role": "user", "content": "第一条问题"},
-        {"role": "assistant", "content": "第一条回答"},
+        {
+            "role": "assistant",
+            "content": "第一条回答",
+            "evidence": first_answer["evidence"],
+        },
     ]
 
 

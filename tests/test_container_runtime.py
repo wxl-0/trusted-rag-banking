@@ -17,6 +17,19 @@ def test_backend_container_does_not_require_private_bootstrap_data():
     assert "src.api.main:app" in entrypoint
 
 
+def test_backend_and_worker_configure_qdrant_before_starting_services():
+    backend_entrypoint = (ROOT / "entrypoint.sh").read_text(encoding="utf-8")
+    worker_entrypoint = (ROOT / "entrypoint.worker.sh").read_text(encoding="utf-8")
+
+    command = "python -m scripts.configure_qdrant"
+    assert command in backend_entrypoint
+    assert command in worker_entrypoint
+    assert backend_entrypoint.index(command) < backend_entrypoint.index("src.api.main:app")
+    assert worker_entrypoint.index(command) < worker_entrypoint.index(
+        "scripts.run_ingestion_worker"
+    )
+
+
 def test_docker_build_context_excludes_private_runtime_artifacts():
     dockerignore = {
         line.strip()

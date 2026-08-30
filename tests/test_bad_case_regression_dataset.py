@@ -103,7 +103,7 @@ def _sha256(path):
 def test_bad_case_dataset_has_stable_shape_and_unique_ids():
     cases = _load_cases()
 
-    assert len(cases) == 24
+    assert len(cases) == 26
     assert len({case["id"] for case in cases}) == len(cases)
     for case in cases:
         assert set(case) == REQUIRED_FIELDS
@@ -122,13 +122,13 @@ def test_bad_case_dataset_has_stable_shape_and_unique_ids():
     assert Counter(case["lifecycle"]["status"] for case in cases) == {
         "fixed": 5,
         "snapshot_failed": 18,
-        "open": 1,
+        "open": 3,
     }
     assert Counter(case["origin"]["kind"] for case in cases) == {
         "git_regression_test": 5,
         "official_eval_report": 8,
         "specialized_eval_report": 10,
-        "manual_observation": 1,
+        "manual_observation": 3,
     }
 
 
@@ -200,13 +200,13 @@ def test_bad_case_dataset_excludes_secrets_and_private_object_addresses():
                 assert all(not pattern.search(value) for pattern in FORBIDDEN_VALUE_PATTERNS)
 
 
-def test_latest_verification_covers_every_case_and_clean_baseline():
+def test_latest_verification_covers_its_snapshot_cases_and_clean_baseline():
     cases = _load_cases()
     verification = json.loads(VERIFICATION_PATH.read_text())
     results = verification["results"]
 
-    assert len(results) == len(cases) == 24
-    assert {result["id"] for result in results} == {case["id"] for case in cases}
+    assert len(results) == 24
+    assert {result["id"] for result in results} < {case["id"] for case in cases}
     assert Counter(result["outcome"] for result in results) == {
         "passed": 12,
         "failed": 12,

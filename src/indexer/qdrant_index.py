@@ -6,6 +6,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance, VectorParams, PointStruct, Filter,
     FieldCondition, FilterSelector, MatchAny, MatchValue,
+    OptimizersConfigDiff, PayloadSchemaType,
 )
 from dotenv import load_dotenv
 from src.indexer.embedder import Embedder
@@ -15,6 +16,12 @@ load_dotenv()
 COLLECTION_REGULATIONS = "regulations"
 COLLECTION_TABLES = "tables"
 VECTOR_SIZE = 1024  # BAAI/bge-large-zh-v1.5
+PAYLOAD_INDEX_FIELDS = (
+    "source_title",
+    "chunk_type",
+    "knowledge_document_id",
+    "document_version_id",
+)
 
 
 class QdrantIndex:
@@ -24,7 +31,17 @@ class QdrantIndex:
             port=int(os.environ.get("QDRANT_PORT", 6333)),
             trust_env=False,
         )
-        self.embedder = Embedder()
+        self._embedder = None
+
+    @property
+    def embedder(self):
+        if self._embedder is None:
+            self._embedder = Embedder()
+        return self._embedder
+
+    @embedder.setter
+    def embedder(self, value):
+        self._embedder = value
 
     def create_collections(self):
         for name in [COLLECTION_REGULATIONS, COLLECTION_TABLES]:
@@ -34,6 +51,29 @@ class QdrantIndex:
                     vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
                 )
                 print(f"[创建] Collection: {name}")
+            self._configure_collection(name)
+
+    def _configure_collection(self, collection_name: str) -> None:
+        self.client.update_collection(
+            collection_name=collection_name,
+            optimizers_config=OptimizersConfigDiff(
+                indexing_threshold=int(os.getenv(
+                    "QDRANT_INDEXING_THRESHOLD_KB",
+                    "5000",
+                )),
+                default_segment_number=int(os.getenv(
+                    "QDRANT_DEFAULT_SEGMENT_NUMBER",
+                    "2",
+                )),
+            ),
+        )
+        for field_name in PAYLOAD_INDEX_FIELDS:
+            self.client.create_payload_index(
+                collection_name=collection_name,
+                field_name=field_name,
+                field_schema=PayloadSchemaType.KEYWORD,
+                wait=True,
+            )
 
     def index_chunks(self, jsonl_path: str, collection_name: str, batch_size: int = 50):
         chunks = []
@@ -63,11 +103,22 @@ class QdrantIndex:
 
     def search(self, query: str, collection_name: str,
                filters: dict = None, top_k: int = 20) -> list:
-        query_vec = self.embedder.embed(query)
+        return self.search_by_vector(
+            self.embed_query(query),
+            collection_name,
+            filters=filters,
+            top_k=top_k,
+        )
+
+    def embed_query(self, query: str) -> list:
+        return self.embedder.embed(query)
+
+    def search_by_vector(self, query_vector: list, collection_name: str,
+                         filters: dict = None, top_k: int = 20) -> list:
         qdrant_filter = self._build_filter(filters) if filters else None
         results = self.client.search(
             collection_name=collection_name,
-            query_vector=query_vec,
+            query_vector=query_vector,
             query_filter=qdrant_filter,
             limit=top_k,
         )

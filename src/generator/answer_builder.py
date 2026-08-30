@@ -1,7 +1,9 @@
 import copy
 import json
+import os
 import re
 import time
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal, InvalidOperation
 from src.context_control import ContextAssembler
 from src.generator.llm_client import LLMClient
@@ -33,7 +35,7 @@ class AnswerBuilder:
 
         report("retrieving")
         retrieval_start = time.perf_counter()
-        target_states = []
+        target_plans = []
         for index, sq in enumerate(sub_questions, 1):
             planned_filters = dict(sq.get("filters") or {})
             strict_filters = dict(planned_filters)
@@ -41,8 +43,11 @@ class AnswerBuilder:
             if filters:
                 planned_filters.update(filters)
                 strict_filters.update(filters)
+            target_plans.append((index, sq, planned_filters, strict_filters))
 
-            chunks = self.retriever.retrieve(
+        def retrieve_initial(plan):
+            index, sq, planned_filters, strict_filters = plan
+            chunks, diagnostics = self._retrieve(
                 query=sq["question"],
                 query_type=sq.get("type"),
                 filters=strict_filters or None,
@@ -50,16 +55,25 @@ class AnswerBuilder:
                 title_hint=sq.get("source_title") or None,
                 full_source=bool(sq.get("full_source")),
             )
-            searches = [copy.deepcopy(self.retriever.last_diagnostics)]
-            target_states.append({
+            return {
                 "index": index,
                 "sub_question": sq,
                 "planned_filters": planned_filters,
                 "strict_filters": strict_filters,
                 "chunks": chunks,
-                "searches": searches,
+                "searches": [diagnostics],
                 "supplemented": False,
-            })
+            }
+
+        max_workers = max(1, int(os.getenv("RETRIEVAL_MAX_WORKERS", "2")))
+        if len(target_plans) > 1 and max_workers > 1:
+            with ThreadPoolExecutor(
+                max_workers=min(max_workers, len(target_plans)),
+                thread_name_prefix="rag-retrieval",
+            ) as executor:
+                target_states = list(executor.map(retrieve_initial, target_plans))
+        else:
+            target_states = [retrieve_initial(plan) for plan in target_plans]
 
         supplemental_searches = 0
         for state in target_states:
@@ -79,7 +93,7 @@ class AnswerBuilder:
             if supplemental_query:
                 supplemental_searches += 1
                 state["supplemented"] = True
-                supplemental = self.retriever.retrieve(
+                supplemental, supplemental_diagnostics = self._retrieve(
                     query=supplemental_query,
                     query_type=sq.get("type"),
                     filters=state["planned_filters"] or None,
@@ -87,9 +101,7 @@ class AnswerBuilder:
                     title_hint=sq.get("source_title") or None,
                     full_source=bool(sq.get("full_source")),
                 )
-                state["searches"].append(
-                    copy.deepcopy(self.retriever.last_diagnostics)
-                )
+                state["searches"].append(supplemental_diagnostics)
                 state["chunks"] = self._dedupe_chunks(
                     state["chunks"] + supplemental
                 )
@@ -122,9 +134,14 @@ class AnswerBuilder:
                     calculation_facts.append({
                         "target_id": target_id,
                         "label": label,
-                        "period": state["strict_filters"].get("column_header") or label,
+                        "period": (
+                            sq.get("operand_label")
+                            or state["strict_filters"].get("column_header")
+                            or label
+                        ),
                         "raw_value": self._table_display_value(fact_chunk),
                         "unit": self._table_display_unit(fact_chunk),
+                        "evidence": self._evidence_item(fact_chunk),
                     })
             tagged_chunks = [self._tag_chunk(chunk, target_id, label, sq) for chunk in chunks]
             chunk_groups.append(tagged_chunks)
@@ -267,7 +284,13 @@ class AnswerBuilder:
         )
         if deterministic_answer:
             result["answer"] = deterministic_answer
+            result["evidence"] = self._build_calculation_evidence(
+                calculation_facts
+            )
             result["refuse_reason"] = None
+            result.pop("evidence_ids", None)
+        else:
+            result = self._ground_model_result(result, unique_chunks)
         if isinstance(result.get("answer"), str):
             result["answer"] = self._normalize_answer_format(result["answer"])
         result.pop("confidence", None)
@@ -284,6 +307,93 @@ class AnswerBuilder:
             result["diagnostics"]["sub_questions"] = sub_questions
             result["diagnostics"]["routing"] = self._routing_diagnostics()
         return result
+
+    def _retrieve(self, **kwargs) -> tuple[list, dict]:
+        if hasattr(self.retriever, "retrieve_with_diagnostics"):
+            result = self.retriever.retrieve_with_diagnostics(**kwargs)
+            return result.chunks, copy.deepcopy(result.diagnostics)
+        chunks = self.retriever.retrieve(**kwargs)
+        return chunks, copy.deepcopy(
+            getattr(self.retriever, "last_diagnostics", {})
+        )
+
+    def _ground_model_result(self, result: dict, chunks: list[dict]) -> dict:
+        answer = result.get("answer")
+        result.pop("evidence", None)
+        evidence_ids = result.pop("evidence_ids", None)
+        if not isinstance(answer, str) or not answer.strip():
+            result["answer"] = "" if answer is None else answer
+            result["evidence"] = []
+            return result
+
+        evidence_by_id = {
+            f"E{index}": self._evidence_item(chunk)
+            for index, chunk in enumerate(chunks, 1)
+        }
+        if (
+            not isinstance(evidence_ids, list)
+            or not evidence_ids
+            or any(
+                not isinstance(evidence_id, str)
+                or evidence_id not in evidence_by_id
+                for evidence_id in evidence_ids
+            )
+        ):
+            return {
+                "answer": "",
+                "evidence": [],
+                "refuse_reason": "模型回答未提供有效的原文证据引用",
+            }
+
+        selected = []
+        seen = set()
+        for evidence_id in evidence_ids:
+            if evidence_id in seen:
+                continue
+            seen.add(evidence_id)
+            selected.append(evidence_by_id[evidence_id])
+        if not self._numeric_claims_are_grounded(answer, selected):
+            return {
+                "answer": "",
+                "evidence": [],
+                "refuse_reason": "模型回答包含参考资料中无法核验的数值或日期",
+            }
+        result["evidence"] = selected
+        return result
+
+    @classmethod
+    def _numeric_claims_are_grounded(cls, answer: str, evidence: list[dict]) -> bool:
+        answer_without_list_markers = re.sub(
+            r"(?m)(^|[\n：:；;])\s*\d+[.．、]\s*",
+            lambda match: match.group(1),
+            answer,
+        )
+        answer_numbers = cls._numeric_tokens(answer_without_list_markers)
+        if not answer_numbers:
+            return True
+        evidence_numbers = cls._numeric_tokens(
+            "\n".join(str(item.get("text") or "") for item in evidence)
+        )
+        return answer_numbers.issubset(evidence_numbers)
+
+    @staticmethod
+    def _numeric_tokens(text: str) -> set[str]:
+        tokens = set()
+        for match in re.finditer(
+            r"(?<![0-9a-z])\d[\d,]*(?:\.\d+)?%?",
+            text.lower(),
+        ):
+            raw = match.group(0).replace(",", "")
+            percent = raw.endswith("%")
+            number = raw[:-1] if percent else raw
+            try:
+                normalized = format(Decimal(number), "f")
+                if "." in normalized:
+                    normalized = normalized.rstrip("0").rstrip(".")
+            except InvalidOperation:
+                normalized = number
+            tokens.add(normalized + ("%" if percent else ""))
+        return tokens
 
     @staticmethod
     def _normalize_answer_format(answer: str) -> str:
@@ -330,6 +440,40 @@ class AnswerBuilder:
         return candidates[0]
 
     @staticmethod
+    def _evidence_item(chunk: dict) -> dict:
+        section_path = chunk.get("section_path") or []
+        if isinstance(section_path, (list, tuple)):
+            section = "·".join(str(part) for part in section_path if part)
+        else:
+            section = str(section_path).strip()
+        return {
+            "source_title": str(chunk.get("source_title") or ""),
+            "section": section or str(chunk.get("table_name") or ""),
+            "text": str(chunk.get("text") or ""),
+            "source_url": str(chunk.get("source_url") or ""),
+        }
+
+    @staticmethod
+    def _build_calculation_evidence(facts: list) -> list:
+        evidence = []
+        seen = set()
+        for fact in sorted(facts, key=lambda item: item["target_id"]):
+            item = fact.get("evidence")
+            if not isinstance(item, dict):
+                continue
+            key = (
+                item.get("source_title"),
+                item.get("section"),
+                item.get("text"),
+                item.get("source_url"),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            evidence.append(item)
+        return evidence
+
+    @staticmethod
     def _build_deterministic_change_answer(question: str, facts: list) -> str | None:
         if len(facts) != 2:
             return None
@@ -342,7 +486,14 @@ class AnswerBuilder:
         if facts[0]["unit"] != facts[1]["unit"]:
             return None
 
-        if re.search(r"减少|下降", question):
+        if re.search(r"差额|相差|差多少", question):
+            result = abs(second - first)
+            operation_label = "差额"
+            if first >= second:
+                left, right = facts[0], facts[1]
+            else:
+                left, right = facts[1], facts[0]
+        elif re.search(r"减少|下降", question):
             result = first - second
             operation_label = "减少量"
             left, right = facts[0], facts[1]
