@@ -195,8 +195,8 @@ Keycloak 首次启动会导入 `keycloak/realm-export.json`。管理员密码仍
 
 | 业务角色 | 用户名 | 密码 |
 |---|---|---|
-| 企业成员 | `member.demo` | `MemberDemo-2026!` |
-| 知识库维护者 | `maintainer.demo` | `MaintainerDemo-2026!` |
+| 企业成员 | `admin01` | `12301` |
+| 知识库维护者 | `admin02` | `12302` |
 
 不要把这些公开演示密码复用到任何真实环境。首次使用还需要按照“使用自己的资料”完成解析和索引。
 

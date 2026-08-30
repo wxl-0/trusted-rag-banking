@@ -59,26 +59,26 @@
   ],
   "users": [
     {
-      "username": "member.demo",
+      "username": "admin01",
       "enabled": true,
       "emailVerified": true,
       "firstName": "演示",
       "lastName": "成员",
-      "email": "member.demo@example.invalid",
+      "email": "admin01@example.invalid",
       "credentials": [
-        { "type": "password", "value": "MemberDemo-2026!", "temporary": false }
+        { "type": "password", "value": "12301", "temporary": false }
       ],
       "realmRoles": ["member"]
     },
     {
-      "username": "maintainer.demo",
+      "username": "admin02",
       "enabled": true,
       "emailVerified": true,
       "firstName": "演示",
       "lastName": "维护者",
-      "email": "maintainer.demo@example.invalid",
+      "email": "admin02@example.invalid",
       "credentials": [
-        { "type": "password", "value": "MaintainerDemo-2026!", "temporary": false }
+        { "type": "password", "value": "12302", "temporary": false }
       ],
       "realmRoles": ["knowledge_maintainer"]
     }

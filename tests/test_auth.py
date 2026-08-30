@@ -26,7 +26,7 @@ KEY_ID = "test-key"
 def _identity(role="member"):
     return Identity(
         subject="user-1",
-        username="member.demo",
+        username="admin01",
         display_name="演示成员",
         email="member@example.com",
         roles=frozenset({role}),
@@ -42,7 +42,7 @@ def _verifier_and_token(*, jwks_url=None, requested_hosts=None, **claim_override
     now = int(time.time())
     claims = {
         "sub": "user-1",
-        "preferred_username": "member.demo",
+        "preferred_username": "admin01",
         "name": "演示成员",
         "email": "member@example.com",
         "iss": ISSUER,
@@ -133,7 +133,7 @@ def test_verifier_bypasses_terminal_proxy_for_keycloak_requests():
     token = jwt.encode(
         {
             "sub": "user-1",
-            "preferred_username": "member.demo",
+            "preferred_username": "admin01",
             "iss": issuer,
             "aud": AUDIENCE,
             "iat": now,
