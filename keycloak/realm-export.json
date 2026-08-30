@@ -6,6 +6,7 @@
   "registrationAllowed": false,
   "resetPasswordAllowed": true,
   "loginWithEmailAllowed": true,
+  "accessTokenLifespan": 1800,
   "roles": {
     "realm": [
       { "name": "member", "description": "企业成员" },

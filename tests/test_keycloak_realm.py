@@ -5,6 +5,12 @@ from pathlib import Path
 REALM_EXPORT = Path(__file__).parents[1] / "keycloak" / "realm-export.json"
 
 
+def test_realm_keeps_demo_access_tokens_valid_for_thirty_minutes():
+    realm = json.loads(REALM_EXPORT.read_text(encoding="utf-8"))
+
+    assert realm["accessTokenLifespan"] == 30 * 60
+
+
 def test_realm_provides_two_public_demo_identities_ready_for_login():
     realm = json.loads(REALM_EXPORT.read_text(encoding="utf-8"))
     users = {user["username"]: user for user in realm["users"]}
