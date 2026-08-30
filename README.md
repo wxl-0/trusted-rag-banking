@@ -6,6 +6,12 @@
 
 ![系统首页](docs/assets/system-home.png)
 
+## 项目演示
+
+视频演示知识库管理、监管问答、连续追问与原文证据查看流程。
+
+https://github.com/user-attachments/assets/e1274fa6-9592-4c04-b64f-13e6ba042471
+
 ## 当前实现状态
 
 本仓库同时包含当前可运行系统、下一阶段静态原型和已确认的企业化演进方案。三者边界如下：
