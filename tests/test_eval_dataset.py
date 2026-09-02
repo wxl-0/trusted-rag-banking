@@ -1,4 +1,17 @@
+from pathlib import Path
+
+import pytest
+
 from scripts.run_eval import load_qa_items
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DATASET_PATH = ROOT / "data" / "eval" / "QA数据.xlsx"
+
+pytestmark = pytest.mark.skipif(
+    not DATASET_PATH.is_file(),
+    reason="私有正式评测集未包含在仓库中",
+)
 
 
 def test_ambiguous_q075_is_excluded_by_default_but_available_by_id():

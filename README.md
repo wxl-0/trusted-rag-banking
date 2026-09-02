@@ -63,7 +63,7 @@ flowchart LR
 - 证据引用命中率 99.00%；
 - 100 道开放式专项评测答对 90 题，关键实体错误率 4.92%，库外处理正确率 93.33%。
 
-评测方法、汇总结果与运行边界见[技术文档](docs/技术文档.md)。比赛 Manifest、题集、逐题报告和 Bad Case 回归明细只在本地私有环境保留，不进入 Git。
+评测集设计、指标口径、汇总结果与运行边界见[评测方案与结果](docs/评测方案与结果.md)，检索和生成实现见[技术文档](docs/技术文档.md)。比赛 Manifest、题集、逐题报告和 Bad Case 回归明细只在本地私有环境保留，不进入 Git。
 
 ## 使用自己的资料
 
@@ -253,20 +253,30 @@ docker compose --profile test stop postgres-test
 docker compose --profile test rm -f postgres-test
 ```
 
+Pull Request 和 `main` 分支推送会触发 [GitHub Actions CI](.github/workflows/ci.yml)，分别执行带 PostgreSQL 服务的后端测试、前端测试与生产构建，以及 Markdown 相对链接、代码围栏和行尾空白检查。正式题集、专项题集和 Bad Case 明细属于私有评测资产；干净克隆缺少这些文件时，对应数据完整性测试会明确显示为 `skipped`，通用评测函数和合成用例仍照常执行。
+
 ## 目录结构
 
 公开仓库保留下面这些核心目录和文件，便于快速定位实现、评测代码和说明文档：
 
 ```text
 trusted-rag-banking/
+├── .github/workflows/       Pull Request 与 main 分支 CI
 ├── src/                    核心源码：解析、索引、检索、生成、API 和前端
 ├── scripts/                建库、定向更新、评测与质量检查脚本
 ├── tests/                  单元测试与回归测试
 ├── prototype/              下一阶段企业知识库静态交互原型
 ├── data/                  仅保留空目录占位；真实数据不进入 Git
 ├── docs/
-│   ├── 技术文档.md         架构、实现、评测与项目边界
-│   └── assets/             技术文档和 README 使用的界面截图
+│   ├── 产品需求说明.md      用户、场景、产品规则与版本范围
+│   ├── 领域模型.md          业务对象、生命周期与核心不变量
+│   ├── 技术文档.md          架构、实现、参数与工程边界
+│   ├── 评测方案与结果.md    AI 效果口径、结果与局限
+│   ├── 验收方案.md          产品交付标准与核心验收用例
+│   ├── 需求追溯矩阵.md      Issue、实现、测试与提交映射
+│   ├── adr/                 重要架构决策记录
+│   ├── agents/              仓库内工程协作说明
+│   └── assets/              技术文档和 README 使用的界面截图
 ├── CONTEXT.md              已确认决策、实施状态与待确认事项
 ├── docker-compose.yml      本地与容器化服务编排
 ├── pyproject.toml          Python 项目与依赖配置
@@ -275,6 +285,12 @@ trusted-rag-banking/
 
 ## 进一步阅读
 
+- [产品需求说明](docs/产品需求说明.md)
+- [领域模型](docs/领域模型.md)
 - [技术文档](docs/技术文档.md)
+- [评测方案与结果](docs/评测方案与结果.md)
+- [验收方案](docs/验收方案.md)
+- [需求追溯矩阵](docs/需求追溯矩阵.md)
+- [架构决策记录](docs/adr/)
 - [下一阶段静态原型](prototype/index.html)
 - [产品与技术决策记录](CONTEXT.md)

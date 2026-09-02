@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: trusted_rag_test
+          POSTGRES_USER: trusted_rag_test
+          POSTGRES_PASSWORD: trusted_rag_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U trusted_rag_test -d trusted_rag_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      OPENAI_API_KEY: test-api-key
+      TRUSTED_RAG_TEST_DATABASE_URL: postgresql+psycopg://trusted_rag_test:trusted_rag_test@localhost:5432/trusted_rag_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install locked dependencies
+        run: uv sync --locked
+      - name: Run backend tests
+        run: uv run --locked python -m pytest tests/ -q
+
+  frontend:
+    name: Frontend tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run frontend tests
+        run: npm test
+      - name: Build production frontend
+        run: npm run build
+
+  docs:
+    name: Documentation checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check Markdown links and structure
+        run: python scripts/check_docs.py
