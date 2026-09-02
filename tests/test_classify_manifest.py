@@ -65,7 +65,9 @@ class TestDryRun:
             cwd=str(Path(__file__).parent.parent),
             env={**__import__("os").environ, "MANIFEST_PATH": str(manifest_path)},
         )
-        # dry-run 不应修改原文件内容
         reloaded = json.loads(manifest_path.read_text(encoding="utf-8"))
-        # 脚本使用硬编码路径，所以 dry-run 验证只看 stdout
-        assert "dry-run" in result.stdout or result.returncode == 0
+
+        assert result.returncode == 0, result.stderr
+        assert "dry-run" in result.stdout
+        assert "总计: 2" in result.stdout
+        assert reloaded == manifest
