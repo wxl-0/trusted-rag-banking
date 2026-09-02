@@ -1,5 +1,7 @@
 # 可信 RAG 银行业监管问答系统
 
+[![CI](https://github.com/wxl-0/trusted-rag-banking/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wxl-0/trusted-rag-banking/actions/workflows/ci.yml)
+
 面向银行业监管制度与统计报表的可信检索增强生成（RAG）问答系统，参赛项目为“第五届中国研究生金融科技创新大赛·南京银行赛题”。
 
 系统将 Word、PDF、Excel 资料解析为带来源信息的结构化 Chunk，通过 BM25、向量检索、RRF 融合与交叉编码器精排定位证据，再生成附带原文引用的答案。项目也可以替换为使用者自己的制度、合规和统计资料，重新构建专属知识库。
