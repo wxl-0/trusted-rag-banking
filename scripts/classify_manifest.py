@@ -6,11 +6,12 @@
     python scripts/classify_manifest.py --dry-run  # 只打印统计，不写入
 """
 import json
+import os
 import sys
 from collections import Counter
 from pathlib import Path
 
-MANIFEST_PATH = Path("data/manifest.json")
+MANIFEST_PATH = Path(os.environ.get("MANIFEST_PATH", "data/manifest.json"))
 
 
 def classify(entry: dict) -> str:
