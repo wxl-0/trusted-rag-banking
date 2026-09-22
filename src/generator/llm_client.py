@@ -62,7 +62,7 @@ class LLMClient:
                     metrics["latency_ms"] = int((time.perf_counter() - started_at) * 1000)
                     self.last_call_metrics = metrics
                     return content
-                # 中转平台偶发返回空 content，退避后重试
+                # 空 content 来自内容过滤、截断或限流，退避后重试
             except Exception as e:
                 last_error = e
             time.sleep(2 ** attempt)
@@ -72,4 +72,6 @@ class LLMClient:
         self.last_call_metrics = metrics
         if last_error is not None:
             raise last_error
-        return ""
+        raise RuntimeError(
+            f"模型 {self.model} 连续 {_MAX_ATTEMPTS} 次返回空响应"
+        )
