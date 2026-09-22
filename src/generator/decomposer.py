@@ -1,38 +1,14 @@
 import json
 import re
+
 from src.context_control import select_controlled_history
 from src.generator.llm_client import LLMClient
-from src.generator.reference_resolver import ConversationReferenceResolver
+from src.indexer.bm25_index import PublishedBM25Index
+from src.judgment import MAX_CHOICE_OPTIONS, Judge
+from src.retriever.router import QueryRouter
 
-
-TABLE_CUES = (
-    "excel", "工作表", "取数", "数值", "计算", "合计", "变化", "余额",
-    "收入", "最高", "最低", "增长", "增加", "减少", "上升", "下降",
-    "占比", "金额", "统计数据", "指标", "季度", "总资产", "总负债",
-)
-REGULATION_CUES = (
-    "办法", "规定", "指引", "监管规则", "应当", "不得", "定义", "表述",
-    "材料内容", "名单", "制度", "监管", "询证函", "函证",
-)
-
-DECOMPOSE_PROMPT = """判断下面的问题是否需要分步查询。
-
-如果需要分步，将其拆分为子问题列表，每个子问题标注类型（regulation 或 table）。
-表格跨期变化、增减、增长或比较问题必须把两个时期分别拆成独立的 table
-取数子问题，并在每个子问题中保留区块、指标和对应时期。即使问题没有文件名、
-没有引号，也不能把两个时期合并为一次检索。
-如果不需要分步，返回原问题。
-
-输出 JSON 格式：
-{{
-  "needs_decompose": true 或 false,
-  "sub_questions": [
-    {{"question": "子问题1", "type": "regulation"}},
-    {{"question": "子问题2", "type": "table"}}
-  ]
-}}
-
-问题：{question}"""
+# 枚举候选坐标要看完整张表，不能被 chunks_for_source_titles 的默认上限截断
+_MAX_INDEX_CHUNKS = 100_000
 
 CONTEXTUALIZE_PROMPT = """结合对话历史，把当前追问改写成不依赖上文、可以直接用于知识库检索的独立问题。
 
@@ -50,75 +26,72 @@ CONTEXTUALIZE_PROMPT = """结合对话历史，把当前追问改写成不依赖
 
 
 class QueryDecomposer:
-    def __init__(self, include_single_fact_options: bool = False):
+    def __init__(self, include_single_fact_options: bool = False,
+                 bm25=None, judge=None):
         self.llm = LLMClient()
-        self.reference_resolver = ConversationReferenceResolver()
+        self.judge = judge or Judge()
+        self.router = QueryRouter(judge=self.judge)
+        self.bm25 = bm25 or PublishedBM25Index()
         self.include_single_fact_options = include_single_fact_options
         self.last_decision_method = None
         self.last_route = None
         self.last_contextualized_question = None
         self.last_contextualization_metrics = {}
+        self.last_judgment_metrics = {"api_calls": 0}
 
     def decompose(self, question: str, history: list = None) -> list:
+        history = history or []
         self.last_contextualized_question = None
         self.last_contextualization_metrics = {}
-        resolution = self.reference_resolver.resolve(question, history or [])
-        if resolution:
-            question = resolution.question
-            self.last_contextualized_question = question
-            self.last_contextualization_metrics = {
-                "method": resolution.method,
-                "api_calls": 0,
-            }
-        elif history and self._needs_history_context(question):
+        self.last_judgment_metrics = {"api_calls": 0}
+
+        conversation = self._conversation_digest(history)
+        route = self.router.route(question, conversation)
+        self._count_judgment()
+        self.last_decision_method = "judgment"
+        self.last_route = route
+
+        if route == "table":
+            table_targets = self._decompose_table(
+                question, history, conversation
+            )
+            if table_targets:
+                return table_targets
+
+        if history and self._needs_history_context(question):
             question = self._contextualize(question, history)
             self.last_contextualized_question = question
-        return self._decompose(question)
 
-    def _decompose(self, question: str) -> list:
-        rule_route = self._rule_route(self._routing_text(question))
-        if rule_route:
-            self.last_decision_method = "rule"
-            self.last_route = rule_route
-            if rule_route == "table":
-                table_targets = self._decompose_table_change(question)
-                if table_targets:
-                    return table_targets
-                entity_targets = self._decompose_table_entity_difference(question)
-                if entity_targets:
-                    return entity_targets
-                comparison_targets = self._decompose_table_comparison(question)
-                if comparison_targets:
-                    return comparison_targets
-            if rule_route in {"regulation", "hybrid"}:
-                claim_targets = self._decompose_multi_fact_options(question, rule_route)
-                if claim_targets:
-                    return claim_targets
-                if self.include_single_fact_options:
-                    option_targets = self._decompose_single_fact_options(
-                        question, rule_route
-                    )
-                    if option_targets:
-                        return option_targets
-                reference_targets = self._decompose_option_references(question, rule_route)
-                if reference_targets:
-                    return reference_targets
-            return [self._single_target(question, rule_route)]
+        if route in {"regulation", "hybrid"}:
+            claim_targets = self._decompose_multi_fact_options(question, route)
+            if claim_targets:
+                return claim_targets
+            if self.include_single_fact_options:
+                option_targets = self._decompose_single_fact_options(question, route)
+                if option_targets:
+                    return option_targets
+            reference_targets = self._decompose_option_references(question, route)
+            if reference_targets:
+                return reference_targets
+        return [self._single_target(question, route)]
 
-        self.last_decision_method = "model"
-        response = self.llm.chat(
-            system="你是一个问题分析助手，只输出 JSON。",
-            user=DECOMPOSE_PROMPT.format(question=question),
-        )
-        try:
-            data = json.loads(response)
-            if data.get("needs_decompose") and data.get("sub_questions"):
-                self.last_route = "decomposed"
-                return data["sub_questions"]
-        except (json.JSONDecodeError, KeyError):
-            pass
-        self.last_route = "hybrid"
-        return [self._single_target(question, "hybrid")]
+    def _count_judgment(self):
+        self.last_judgment_metrics["api_calls"] += 1
+
+    def _conversation_digest(self, history: list) -> str:
+        lines = []
+        for message in select_controlled_history(history):
+            role = message.get("role")
+            content = str(message.get("content", "")).strip()
+            if role not in {"system", "user", "assistant"} or not content:
+                continue
+            lines.append(f"{role}: {content}")
+            for item in message.get("evidence") or []:
+                lines.append(
+                    f"  证据《{item.get('source_title', '')}》"
+                    f"{item.get('text', '')}"
+                )
+        return "\n".join(lines)
 
     def _needs_history_context(self, question: str) -> bool:
         text = question.strip()
@@ -172,193 +145,233 @@ class QueryDecomposer:
         )
         return f"{previous_user} 当前追问：{question}".strip()
 
-    def _rule_route(self, question: str) -> str | None:
-        normalized = question.lower()
-        has_table_cue = any(cue in normalized for cue in TABLE_CUES)
-        has_regulation_cue = any(cue in normalized for cue in REGULATION_CUES)
-        if has_table_cue and has_regulation_cue:
-            return "hybrid"
-        if has_table_cue:
-            return "table"
-        if has_regulation_cue:
-            return "regulation"
-        return None
-
     def _routing_text(self, question: str) -> str:
         return re.split(r"\n\s*[AＡ][\.．、:：\)）]\s*", question, maxsplit=1)[0]
 
-    def _decompose_table_change(self, question: str) -> list:
-        title_match = re.search(r"《([^》]+)》", question)
-        change_match = re.search(
-            r"[“\"]([^”\"]+)[”\"]\s*从[“\"]([^”\"]+)[”\"]\s*到[“\"]([^”\"]+)[”\"]",
-            question,
+    def _decompose_table(self, question: str, history: list,
+                         conversation: str) -> list:
+        stem = self._routing_text(question)
+        title_hint = self._title_hint(stem, history)
+        titles, match_mode = [], "none"
+        if title_hint:
+            titles, match_mode = self.bm25.resolve_source_titles(title_hint)
+        if not titles or match_mode not in {"exact", "near", "alias"}:
+            # 问题里没写文件名，就让 BM25 先决定问的是哪一张表
+            titles = self._titles_from_search(question)
+        if not titles:
+            return []
+        chunks = self.bm25.chunks_for_source_titles(
+            titles,
+            filters={"chunk_type": "table_row"},
+            max_chunks=_MAX_INDEX_CHUNKS,
         )
-        section_path = ""
-        if change_match:
-            row_label, first_column, second_column = change_match.groups()
-        else:
-            period = r"(?:第?[一二三四1234]季度|期初|期末|年初|年末|上年末|本期|上期)"
-            natural_match = re.search(
-                rf"([^，。；？！]+?)从[“\"]?({period})[”\"]?\s*到[“\"]?({period})[”\"]?",
-                question,
+        if not chunks:
+            return []
+
+        source_title = titles[0]
+        candidates = self._candidates(chunks, question, titles)
+        state = {"question": question, "source_title": source_title}
+        if conversation:
+            state["conversation"] = conversation
+
+        options = self._parse_options(question)
+        if options:
+            return self._table_option_targets(
+                options, source_title, candidates, state
             )
-            if not natural_match:
-                return []
-            subject, first_column, second_column = natural_match.groups()
-            subject = re.sub(r"^.*?\b\d{4}年", "", subject).strip(" ，,：:")
-            subject = subject.replace("“", "").replace("”", "").strip()
-            if "的" in subject:
-                section_path, row_label = (
-                    part.strip() for part in subject.rsplit("的", 1)
-                )
-            else:
-                row_label = subject
-        source_title = title_match.group(1).strip() if title_match else ""
-        if not section_path:
-            section_match = re.search(
-                r"(?:在|于)\s*[“\"]?([^”\"，,]+?)[”\"]?\s*"
-                r"(?:区块|板块|部分)(?:中|内)?",
-                question,
+        return self._table_operand_targets(
+            source_title, candidates, state, bool(history)
+        )
+
+    def _title_hint(self, stem: str, history: list) -> str:
+        match = re.search(r"《([^》]+)》", stem)
+        if match:
+            return match.group(1).strip()
+        for message in reversed(history):
+            for item in message.get("evidence") or []:
+                title = str(item.get("source_title") or "").strip()
+                if title:
+                    return title
+        return ""
+
+    def _titles_from_search(self, question: str) -> list:
+        hits = self.bm25.search(
+            question,
+            top_k=8,
+            filters={"chunk_type": "table_row"},
+        )
+        for hit in hits:
+            title = str(hit.get("source_title") or "").strip()
+            if title:
+                return [title]
+        return []
+
+    def _candidates(self, chunks: list, question: str, titles: list) -> dict:
+        candidates = {}
+        for field in ("row_label", "column_header", "period", "table_name"):
+            values = set()
+            for chunk in chunks:
+                value = str(chunk.get(field) or "").strip()
+                if value:
+                    values.add(value)
+            candidates[field] = self._narrow(
+                sorted(values), question, titles, field
             )
-            section_path = section_match.group(1).strip() if section_match else ""
-        if not section_path:
-            possessive_match = re.search(
-                rf"(?:^|[，,])(?:\d{{4}}年)?[“\"]?([^”\"，,]+?)[”\"]?"
-                rf"的[“\"]?{re.escape(row_label)}[”\"]?\s*从",
-                question,
-            )
-            if possessive_match:
-                section_path = possessive_match.group(1).strip()
-        title_prefix = f"《{source_title}》 " if source_title else ""
+        sections = set()
+        for chunk in chunks:
+            for part in chunk.get("section_path") or []:
+                text = str(part or "").strip()
+                if text:
+                    sections.add(text)
+        candidates["section_path"] = self._narrow(
+            sorted(sections), question, titles, "section_path"
+        )
+        return candidates
+
+    def _narrow(self, values: list, question: str, titles: list,
+                field: str) -> list:
+        if len(values) <= MAX_CHOICE_OPTIONS:
+            return values
+        # 候选超过 Choice 上限，先用 BM25 把这张表的行收窄到与问题最相关的一批
+        hits = self.bm25.search(
+            question,
+            top_k=MAX_CHOICE_OPTIONS,
+            filters={"source_title": titles, "chunk_type": "table_row"},
+        )
+        ranked = []
+        for hit in hits:
+            raw = hit.get(field)
+            for part in raw if isinstance(raw, list) else [raw]:
+                text = str(part or "").strip()
+                if text and text not in ranked:
+                    ranked.append(text)
+        return (ranked or values)[:MAX_CHOICE_OPTIONS]
+
+    def _table_operand_targets(self, source_title: str, candidates: dict,
+                               state: dict, has_history: bool) -> list:
+        selected = self.judge.table_coordinates(state, candidates)
+        self._count_judgment()
+        row_1 = selected.get("row_1")
+        column_1 = selected.get("column_1")
+        if not row_1 and not column_1:
+            return []
+        row_2 = selected.get("row_2")
+        column_2 = selected.get("column_2")
+        section = selected.get("section")
+        period = selected.get("period")
+
+        pairs = [(row_1, column_1)]
+        second = (row_2 or row_1, column_2 or column_1)
+        if (row_2 or column_2) and second != pairs[0]:
+            pairs.append(second)
+        # 问题要两个数值，但表格里找不到第二个坐标：必须拒答，不能只答一个数
+        unresolved_second = len(pairs) == 1 and bool(selected.get("needs_second"))
+
         targets = []
-        for index, column_header in enumerate((first_column, second_column), 1):
-            query_parts = [title_prefix.strip(), section_path, row_label, column_header]
-            strict_filters = {
-                "row_label": row_label,
-                "column_header": column_header,
-            }
-            coverage_terms = [row_label, column_header]
-            if section_path:
-                strict_filters["section_path"] = section_path
-                coverage_terms.append(section_path)
-            targets.append({
-                "target_id": f"operand_{index}",
-                "label": f"{row_label} / {column_header}",
+        for index, (row_label, column_header) in enumerate(pairs, 1):
+            display_row = re.sub(r"\s+", "", row_label) if row_label else ""
+            label_parts = [part for part in (display_row, column_header) if part]
+            strict_filters = {}
+            if row_label:
+                strict_filters["row_label"] = row_label
+            if column_header:
+                strict_filters["column_header"] = column_header
+            coverage_terms = list(label_parts)
+            if section:
+                strict_filters["section_path"] = section
+                coverage_terms.append(section)
+            query_parts = [
+                f"《{source_title}》", section, period, display_row, column_header,
+            ]
+            target = {
+                "target_id": "operand_1" if unresolved_second else (
+                    "main" if len(pairs) == 1 else f"operand_{index}"
+                ),
+                "label": " / ".join(label_parts),
                 "question": " ".join(part for part in query_parts if part),
                 "type": "table",
                 "source_title": source_title,
                 "filters": {},
                 "strict_filters": strict_filters,
                 "coverage_terms": coverage_terms,
+            }
+            if len(pairs) == 2 and pairs[0][0] != pairs[1][0]:
+                target["operand_label"] = display_row
+            targets.append(target)
+
+        if unresolved_second:
+            targets.append({
+                "target_id": "operand_2",
+                "label": f"《{source_title}》中没有对应行列的第二个数值",
+                "question": f"《{source_title}》",
+                "type": "table",
+                "source_title": source_title,
+                "filters": {},
+                "strict_filters": {},
+                "coverage_terms": [],
+                "unresolved": True,
             })
+
+        if has_history:
+            rows = [
+                re.sub(r"\s+", "", row) for row, _ in pairs if row
+            ]
+            columns = [column for _, column in pairs if column]
+            resolved = [
+                f"《{source_title}》",
+                section,
+                period,
+                "和".join(dict.fromkeys(rows)),
+                "和".join(dict.fromkeys(columns)),
+            ]
+            self.last_contextualized_question = " ".join(
+                part for part in resolved if part
+            )
+            # 判断调用次数记在 last_judgment_metrics，这里不重复计数
+            self.last_contextualization_metrics = {
+                "method": "judgment",
+                "api_calls": 0,
+            }
         return targets
 
-    def _decompose_table_comparison(self, question: str) -> list:
-        stem = self._routing_text(question)
-        if not re.search(r"最高|最低|最大|最小", stem):
-            return []
-
-        options = self._parse_options(question)
-        if not options:
-            return []
-
-        title_match = re.search(r"《([^》]+)》", stem)
-        sheet_match = re.search(
-            r"工作表\s*[：:]\s*(.+?)(?=[）)]\s*[，,])",
-            stem,
-        )
-        if not sheet_match:
-            sheet_match = re.search(r"工作表\s*[：:]\s*([^）)\n]+)", stem)
-        column_match = re.search(r"在[“\"]([^”\"]+)[”\"]口径", stem)
-        source_title = title_match.group(1).strip() if title_match else ""
-        table_name = sheet_match.group(1).strip() if sheet_match else ""
-        column_header = column_match.group(1).strip() if column_match else ""
+    def _table_option_targets(self, options: dict, source_title: str,
+                              candidates: dict, state: dict) -> list:
+        selected = self.judge.table_option_rows(state, options, candidates)
+        self._count_judgment()
+        column_header = selected.get("column")
+        table_name = selected.get("table_name")
 
         targets = []
-        for option, indicator in options.items():
-            parts = []
-            if source_title:
-                parts.append(f"《{source_title}》")
-            if table_name:
-                parts.append(f"工作表 {table_name}")
-            if column_header:
-                parts.append(column_header)
-            parts.append(indicator)
-
+        for option in options:
+            row_label = selected.get(f"option_{option}")
+            if not row_label:
+                return []
+            display_row = re.sub(r"\s+", "", row_label)
             strict_filters = {}
             if table_name:
                 strict_filters["table_name"] = table_name
-            strict_filters["indicator"] = indicator
+            strict_filters["row_label"] = row_label
             if column_header:
                 strict_filters["column_header"] = column_header
-
-            coverage_terms = [indicator]
+            query_parts = [f"《{source_title}》"]
+            if table_name:
+                query_parts.append(f"工作表 {table_name}")
+            if column_header:
+                query_parts.append(column_header)
+            query_parts.append(display_row)
+            coverage_terms = [display_row]
             if column_header:
                 coverage_terms.append(column_header)
             targets.append({
                 "target_id": f"option_{option}",
-                "label": f"{option}. {indicator}",
-                "question": " ".join(parts),
+                "label": f"{option}. {display_row}",
+                "question": " ".join(query_parts),
                 "type": "table",
                 "source_title": source_title,
                 "filters": {},
                 "strict_filters": strict_filters,
                 "coverage_terms": coverage_terms,
                 "option": option,
-            })
-        return targets
-
-    def _decompose_table_entity_difference(self, question: str) -> list:
-        stem = self._routing_text(question)
-        if not (
-            re.search(r"分别", stem)
-            and re.search(r"差额|相差|差多少", stem)
-        ):
-            return []
-        entity_match = re.search(
-            r"(?:^|[，,])\s*([^，,。；？！和]{1,12})\s*和\s*"
-            r"([^，,。；？！的]{1,12})\s*的\s*"
-            r"([^，,。；？！]{1,16})\s*分别",
-            stem,
-        )
-        if not entity_match:
-            return []
-
-        first_row, second_row, metric = (
-            part.strip(" \t“”\"") for part in entity_match.groups()
-        )
-        metric = re.sub(r"[“”\"\s]", "", metric)
-        metric = re.sub(r"收入$", "", metric)
-        if not (first_row and second_row and metric):
-            return []
-
-        title_match = re.search(r"《([^》]+)》", stem)
-        period_match = re.search(
-            r"20\d{2}年(?:\d{1,2}月|[一二三四1234]季度|年末)?",
-            stem,
-        )
-        source_title = title_match.group(1).strip() if title_match else ""
-        period = period_match.group(0) if period_match else ""
-        title_prefix = f"《{source_title}》" if source_title else ""
-
-        targets = []
-        for index, row_label in enumerate((first_row, second_row), 1):
-            display_row = re.sub(r"\s+", "", row_label)
-            targets.append({
-                "target_id": f"operand_{index}",
-                "operand_label": display_row,
-                "label": f"{display_row} / {metric}",
-                "question": " ".join(
-                    part for part in (title_prefix, period, row_label, metric) if part
-                ),
-                "type": "table",
-                "source_title": source_title,
-                "filters": {},
-                "strict_filters": {
-                    "row_label": row_label,
-                    "column_header": metric,
-                },
-                "coverage_terms": [display_row, metric],
             })
         return targets
 
@@ -472,7 +485,7 @@ class QueryDecomposer:
         ]
 
     def _normalize_title(self, title: str) -> str:
-        return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", str(title).lower())
+        return re.sub(r"[^0-9a-z一-鿿]+", "", str(title).lower())
 
     def _single_target(self, question: str, query_type: str) -> dict:
         stem = self._routing_text(question).strip()

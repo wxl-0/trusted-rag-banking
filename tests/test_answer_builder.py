@@ -155,7 +155,29 @@ def _bm25_with_chunks(chunks):
     return index
 
 
-def test_answer_supplements_only_missing_table_target_once():
+class StubJudge:
+    def __init__(self, route="regulation", coordinates=None):
+        self.route_value = route
+        self.coordinates = coordinates or {}
+
+    def route(self, question, conversation=""):
+        return self.route_value
+
+    def table_coordinates(self, state, candidates):
+        return dict(self.coordinates)
+
+    def table_option_rows(self, state, options, candidates):
+        return {}
+
+
+def _decomposer(retriever, route="regulation", coordinates=None):
+    return QueryDecomposer(
+        bm25=retriever.bm25,
+        judge=StubJudge(route, coordinates),
+    )
+
+
+def test_answer_retrieves_both_table_operands_without_supplementing():
     title = "2023年12月全国各地区原保险保费收入情况表"
     chunks = [
         {
@@ -188,7 +210,13 @@ def test_answer_supplements_only_missing_table_target_once():
     builder = AnswerBuilder(
         llm=llm,
         retriever=retriever,
-        decomposer=QueryDecomposer(),
+        decomposer=_decomposer(retriever, route="table", coordinates={
+            "row_1": "全国合计",
+            "column_1": "合计",
+            "row_2": "全国合计",
+            "column_2": "健康险（原保险）",
+            "needs_second": True,
+        }),
     )
     question = (
         f"根据《{title}》，"
@@ -198,9 +226,10 @@ def test_answer_supplements_only_missing_table_target_once():
     result = builder.answer(question, include_diagnostics=True)
 
     retrieval = result["diagnostics"]["retrieval"]
-    assert retrieval["supplemental_searches"] == 1
+    # 坐标直接取自索引里的真实列标题，首轮严格检索就能命中，无需补充检索
+    assert retrieval["supplemental_searches"] == 0
     assert [target["covered"] for target in retrieval["targets"]] == [True, True]
-    assert [target["supplemented"] for target in retrieval["targets"]] == [False, True]
+    assert [target["supplemented"] for target in retrieval["targets"]] == [False, False]
     assert "51246.71" in llm.last_user_message
     assert "9034.54" in llm.last_user_message
     assert "检索目标：全国合计 / 合计" in llm.last_user_message
@@ -794,7 +823,11 @@ def test_answer_refuses_table_calculation_when_an_operand_is_missing():
     builder = AnswerBuilder(
         llm=llm,
         retriever=retriever,
-        decomposer=QueryDecomposer(),
+        decomposer=_decomposer(retriever, route="table", coordinates={
+            "row_1": "全国合计",
+            "column_1": "合计",
+            "needs_second": True,
+        }),
     )
 
     result = builder.answer(
@@ -804,7 +837,7 @@ def test_answer_refuses_table_calculation_when_an_operand_is_missing():
 
     assert result["answer"] == ""
     assert result["evidence"] == []
-    assert "健康险" in result["refuse_reason"]
+    assert title in result["refuse_reason"]
     assert llm.last_user_message == ""
     assert [
         target["coverage_status"]
@@ -860,7 +893,7 @@ def test_answer_does_not_supplement_unsupported_regulation_claims():
     builder = AnswerBuilder(
         llm=llm,
         retriever=retriever,
-        decomposer=QueryDecomposer(),
+        decomposer=_decomposer(retriever),
     )
     question = (
         f"关于《{title}》，下列哪一组选项中的两项表述均属于该材料内容？\n"
@@ -935,7 +968,7 @@ def test_answer_multi_fact_uses_relevant_evidence_ranked_after_third():
     builder = AnswerBuilder(
         llm=FakeLLM(),
         retriever=retriever,
-        decomposer=QueryDecomposer(),
+        decomposer=_decomposer(retriever),
     )
     question = (
         f"关于《{title}》，下列哪一组选项中的两项表述均属于该材料内容？\n"

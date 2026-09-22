@@ -16,7 +16,7 @@ class AnswerBuilder:
     def __init__(self, llm=None, retriever=None, decomposer=None, context_assembler=None):
         self.llm = llm or LLMClient()
         self.retriever = retriever or HybridRetriever()
-        self.decomposer = decomposer or QueryDecomposer()
+        self.decomposer = decomposer or QueryDecomposer(bm25=self.retriever.bm25)
         self.context_assembler = context_assembler or ContextAssembler()
 
     def answer(self, question: str, filters: dict = None, history: list = None,
@@ -518,10 +518,8 @@ class AnswerBuilder:
         contextualization_metrics = dict(
             getattr(self.decomposer, "last_contextualization_metrics", {}) or {}
         )
-        decomposition_metrics = (
-            dict(self.decomposer.llm.last_call_metrics)
-            if self.decomposer.last_decision_method == "model"
-            else {}
+        decomposition_metrics = dict(
+            getattr(self.decomposer, "last_judgment_metrics", {}) or {}
         )
         llm_calls = (
             contextualization_metrics.get("api_calls", 0)
@@ -652,6 +650,9 @@ class AnswerBuilder:
 
     def _coverage_status(self, chunks: list, sub_question: dict,
                          searches: list = None) -> str:
+        if sub_question.get("unresolved"):
+            # 判断认为问题还要一个数值，但表格里没有对应行列，只能按缺失处理
+            return "missing"
         chunks = self._source_scoped_chunks(chunks, sub_question, searches or [])
         if not chunks:
             return "missing"
