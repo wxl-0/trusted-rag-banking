@@ -176,9 +176,12 @@ class QueryDecomposer:
 
         options = self._parse_options(question)
         if options:
-            return self._table_option_targets(
+            # 选项匹不到任何一行时说明不是选项匹配题，按两处取数再算
+            option_targets = self._table_option_targets(
                 options, source_title, candidates, state
             )
+            if option_targets:
+                return option_targets
         return self._table_operand_targets(
             source_title, candidates, state, bool(history)
         )
